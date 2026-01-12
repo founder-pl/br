@@ -9,6 +9,8 @@ from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 import structlog
 
+import httpx
+
 logger = structlog.get_logger()
 router = APIRouter()
 
@@ -25,8 +27,68 @@ def _try_get_docker_client():
         return None
 
 
+def _docker_httpx_client() -> httpx.AsyncClient:
+    transport = httpx.AsyncHTTPTransport(uds="/var/run/docker.sock")
+    return httpx.AsyncClient(transport=transport, base_url="http://docker")
+
+
+def _looks_multiplexed(buf: bytes) -> bool:
+    return len(buf) >= 8 and buf[0] in (1, 2) and buf[1:4] == b"\x00\x00\x00"
+
+
 async def stream_docker_logs(container: str, lines: int = 100):
     """Stream Docker container logs via SSE"""
+    # Prefer Docker Engine API over unix socket (works inside container with docker.sock mounted)
+    try:
+        async with _docker_httpx_client() as client:
+            yield f"data: [Connected to {container} logs]\n\n"
+
+            params = {
+                "stdout": 1,
+                "stderr": 1,
+                "follow": 1,
+                "tail": lines,
+                "timestamps": 0,
+            }
+
+            text_partial = ""
+            mux_buf = b""
+
+            async with client.stream("GET", f"/containers/{container}/logs", params=params) as resp:
+                if resp.status_code >= 400:
+                    yield f"data: [Error: docker logs HTTP {resp.status_code}]\n\n"
+                    return
+
+                async for chunk in resp.aiter_bytes():
+                    if not chunk:
+                        await asyncio.sleep(0.05)
+                        continue
+
+                    # Decide multiplexing mode based on first bytes
+                    if mux_buf or _looks_multiplexed(chunk):
+                        mux_buf += chunk
+                        while _looks_multiplexed(mux_buf) and len(mux_buf) >= 8:
+                            frame_len = int.from_bytes(mux_buf[4:8], byteorder="big")
+                            if len(mux_buf) < 8 + frame_len:
+                                break
+                            payload = mux_buf[8:8 + frame_len]
+                            mux_buf = mux_buf[8 + frame_len:]
+
+                            text_partial += payload.decode("utf-8", errors="replace")
+                            while "\n" in text_partial:
+                                line, text_partial = text_partial.split("\n", 1)
+                                if line:
+                                    yield f"data: {_escape_sse(line)}\n\n"
+                    else:
+                        text_partial += chunk.decode("utf-8", errors="replace")
+                        while "\n" in text_partial:
+                            line, text_partial = text_partial.split("\n", 1)
+                            if line:
+                                yield f"data: {_escape_sse(line)}\n\n"
+        return
+    except Exception as e:
+        logger.warning("Docker socket log stream failed", container=container, error=str(e))
+
     docker_client = _try_get_docker_client()
 
     if docker_client is not None:
@@ -43,7 +105,10 @@ async def stream_docker_logs(container: str, lines: int = 100):
             stream = c.logs(stream=True, follow=True, tail=0, since=int(time.time()))
             it = iter(stream)
             while True:
-                chunk = await asyncio.to_thread(next, it)
+                try:
+                    chunk = await asyncio.to_thread(next, it)
+                except StopIteration:
+                    break
                 if not chunk:
                     await asyncio.sleep(0.1)
                     continue
@@ -55,6 +120,7 @@ async def stream_docker_logs(container: str, lines: int = 100):
             yield f"data: [Error: {str(e)}]\n\n"
         return
 
+    process = None
     try:
         # Start docker logs process with follow
         process = await asyncio.create_subprocess_exec(
@@ -155,8 +221,8 @@ async def stream_logs(
             }
         )
     else:
-        # Stream all main services
-        services = ['api', 'ocr-service', 'llm-service']
+        # Default to API logs if service not specified
+        services = ['api']
         return StreamingResponse(
             stream_all_logs(services, lines),
             media_type="text/event-stream",
@@ -188,25 +254,53 @@ async def get_logs_snapshot(
         return {"error": f"Unknown service: {service}"}
     
     try:
-        docker_client = _try_get_docker_client()
-        if docker_client is not None:
-            c = docker_client.containers.get(container)
-            out = c.logs(tail=lines)
-            text_out = out.decode("utf-8", errors="replace") if out else ""
-            return {
-                "service": service,
-                "container": container,
-                "lines": text_out.split('\n') if text_out else [],
-                "errors": []
+        async with _docker_httpx_client() as client:
+            params = {
+                "stdout": 1,
+                "stderr": 1,
+                "follow": 0,
+                "tail": lines,
+                "timestamps": 0,
             }
+            resp = await client.get(f"/containers/{container}/logs", params=params)
+            if resp.status_code < 400:
+                data = resp.content or b""
 
+                # Decode multiplexed if needed
+                out_lines = []
+                buf = data
+                if _looks_multiplexed(buf):
+                    text_partial = ""
+                    while _looks_multiplexed(buf) and len(buf) >= 8:
+                        frame_len = int.from_bytes(buf[4:8], byteorder="big")
+                        if len(buf) < 8 + frame_len:
+                            break
+                        payload = buf[8:8 + frame_len]
+                        buf = buf[8 + frame_len:]
+                        text_partial += payload.decode("utf-8", errors="replace")
+                    out_lines = text_partial.split("\n") if text_partial else []
+                else:
+                    text_out = data.decode("utf-8", errors="replace")
+                    out_lines = text_out.split("\n") if text_out else []
+
+                return {
+                    "service": service,
+                    "container": container,
+                    "lines": out_lines,
+                    "errors": []
+                }
+
+    except Exception as e:
+        logger.warning("Docker socket snapshot failed", container=container, error=str(e))
+
+    # Fallback to subprocess if httpx failed
+    try:
         result = subprocess.run(
             ['docker', 'logs', '--tail', str(lines), container],
             capture_output=True,
             text=True,
             timeout=10
         )
-        
         return {
             "service": service,
             "container": container,

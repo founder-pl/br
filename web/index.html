@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System B+R - Prototypowy System Modularny</title>
-    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/style.css?v=20260112b">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
 <body>
@@ -408,18 +408,23 @@
                     
                     <div class="log-panels">
                         <div class="log-panel active" id="log-panel-api">
+                            <button class="btn-copy-logs" onclick="copyLogs('api')" title="Kopiuj logi">📋</button>
                             <pre class="log-output" id="log-output-api"></pre>
                         </div>
                         <div class="log-panel" id="log-panel-ocr">
+                            <button class="btn-copy-logs" onclick="copyLogs('ocr')" title="Kopiuj logi">📋</button>
                             <pre class="log-output" id="log-output-ocr"></pre>
                         </div>
                         <div class="log-panel" id="log-panel-llm">
+                            <button class="btn-copy-logs" onclick="copyLogs('llm')" title="Kopiuj logi">📋</button>
                             <pre class="log-output" id="log-output-llm"></pre>
                         </div>
                         <div class="log-panel" id="log-panel-web">
+                            <button class="btn-copy-logs" onclick="copyLogs('web')" title="Kopiuj logi">📋</button>
                             <pre class="log-output" id="log-output-web"></pre>
                         </div>
                         <div class="log-panel" id="log-panel-postgres">
+                            <button class="btn-copy-logs" onclick="copyLogs('postgres')" title="Kopiuj logi">📋</button>
                             <pre class="log-output" id="log-output-postgres"></pre>
                         </div>
                     </div>
@@ -719,6 +724,6 @@
     <!-- Toast notifications -->
     <div id="toast-container"></div>
 
-    <script src="static/js/app.js"></script>
+    <script src="static/js/app.js?v=20260112b"></script>
 </body>
 </html>

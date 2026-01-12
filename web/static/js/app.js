@@ -6,10 +6,7 @@ const API_BASE = '/api';
 const PROJECT_ID = '00000000-0000-0000-0000-000000000001';
 let currentFiscalYear = 2025;
 
-// Navigation
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => navigateTo(item.dataset.page));
-});
+// Navigation - setup in DOMContentLoaded below
 
 function getPageFromUrl() {
     const params = new URLSearchParams(window.location.search);
@@ -58,7 +55,7 @@ function navigateTo(page, options = {}) {
         setPageInUrl(page, true);
     }
     
-    const loaders = { dashboard: loadDashboard, upload: loadRecentDocuments, 
+    const loaders = { dashboard: loadDashboard, upload: () => { setupUploadListeners(); loadRecentDocuments(); }, 
                       expenses: loadExpenses, reports: loadReports, clarifications: loadClarifications,
                       integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig };
     if (loaders[page]) loaders[page]();
@@ -100,15 +97,20 @@ async function loadDashboard() {
     } catch (error) { console.error('Dashboard error:', error); }
 }
 
-// Upload
-const uploadArea = document.getElementById('upload-area');
-const fileInput = document.getElementById('file-input');
+// Upload - setup event listeners lazily
+function setupUploadListeners() {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    if (!uploadArea || !fileInput) return;
+    if (uploadArea._listenersAttached) return;
+    uploadArea._listenersAttached = true;
 
-uploadArea.addEventListener('click', () => fileInput.click());
-uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
-fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+}
 
 function handleFiles(files) { Array.from(files).forEach(uploadFile); }
 
@@ -206,9 +208,12 @@ async function retryOcr(docId) {
     } catch (e) { showToast('Błąd uruchamiania OCR', 'error'); }
 }
 
-async function showDocumentDetail(docId) {
+async function showDocumentDetail(docId, options = {}) {
+    const { updateUrl = true } = options;
     try {
-        setUrlParam('doc', docId, true);
+        if (updateUrl) {
+            setUrlParam('doc', docId, true);
+        }
         const doc = await apiCall(`/documents/${docId}/detail`);
         const modal = document.getElementById('document-modal');
         document.getElementById('document-modal-content').innerHTML = `
@@ -253,8 +258,11 @@ async function showDocumentDetail(docId) {
     } catch (e) { showToast('Błąd ładowania szczegółów', 'error'); }
 }
 
-function closeDocumentModal() {
-    setUrlParam('doc', null, true);
+function closeDocumentModal(options = {}) {
+    const { updateUrl = true } = options;
+    if (updateUrl) {
+        setUrlParam('doc', null, true);
+    }
     document.getElementById('document-modal').classList.remove('active');
 }
 
@@ -978,7 +986,7 @@ function initLogStreams() {
     });
 }
 
-function startLogStreamFor(service) {
+function startLogStreamForPage(service) {
     // Close existing stream if any
     if (logStreams[service]) {
         logStreams[service].close();
@@ -1015,7 +1023,7 @@ function startLogStreamFor(service) {
         eventSource.close();
         logStreams[service] = null;
         // Try to reconnect after 5 seconds
-        setTimeout(() => startLogStreamFor(service), 5000);
+        setTimeout(() => startLogStreamForPage(service), 5000);
     };
 }
 
@@ -1033,6 +1041,20 @@ function switchLogTab(service) {
     // Scroll to bottom of active panel
     const logOutput = document.getElementById(`log-output-${service}`);
     if (logOutput) logOutput.scrollTop = logOutput.scrollHeight;
+}
+
+function copyLogs(service) {
+    const logOutput = document.getElementById(`log-output-${service}`) || 
+                      document.getElementById(`global-log-output-${service}`);
+    if (!logOutput) return;
+    
+    const text = logOutput.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast(`Logi ${service.toUpperCase()} skopiowane do schowka`, 'success');
+    }).catch(err => {
+        showToast('Błąd kopiowania logów', 'error');
+        console.error('Copy failed:', err);
+    });
 }
 
 function clearAllLogs() {
@@ -1165,11 +1187,18 @@ window.addEventListener('popstate', () => {
 
     const docId = getUrlParam('doc');
     if (docId) {
-        showDocumentDetail(docId);
+        showDocumentDetail(docId, { updateUrl: false });
+    } else {
+        closeDocumentModal({ updateUrl: false });
     }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Setup nav click handlers
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => navigateTo(item.dataset.page));
+    });
+
     const page = getPageFromUrl();
     setPageInUrl(page, false);
     navigateTo(page, { updateUrl: false });
@@ -1185,6 +1214,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const docId = getUrlParam('doc');
     if (docId) {
-        showDocumentDetail(docId);
+        showDocumentDetail(docId, { updateUrl: false });
+    } else {
+        closeDocumentModal({ updateUrl: false });
     }
 });
