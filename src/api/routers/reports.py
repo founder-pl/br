@@ -104,7 +104,7 @@ async def generate_monthly_report(
                 total_revenues = :total_revenues, ip_revenues = :ip_revenues,
                 documents_count = :doc_count, pending_documents = :pending,
                 needs_clarification = :needs_clarification, status = 'generated',
-                generated_at = NOW(), report_data = :report_data::jsonb, updated_at = NOW()
+                generated_at = NOW(), report_data = CAST(:report_data AS jsonb), updated_at = NOW()
             WHERE id = :id"""),
             {"id": report_id, **report_data}
         )
@@ -118,7 +118,7 @@ async def generate_monthly_report(
             VALUES (:id, :project_id, :fiscal_year, :month, :total_expenses,
                     :br_expenses, :br_deduction, :ip_expenses, :total_revenues,
                     :ip_revenues, :doc_count, :pending, :needs_clarification,
-                    'generated', NOW(), :report_data::jsonb)"""),
+                    'generated', NOW(), CAST(:report_data AS jsonb))"""),
             {"id": report_id, "project_id": request.project_id, "fiscal_year": request.fiscal_year,
              "month": request.month, **report_data}
         )
@@ -167,7 +167,7 @@ async def calculate_monthly_report(db: AsyncSession, project_id: str, year: int,
         "total_expenses": float(e[0]), "br_expenses": float(e[1]),
         "br_deduction": float(e[2]), "ip_expenses": float(e[3]),
         "total_revenues": float(r[0]) if r else 0, "ip_revenues": float(r[1]) if r else 0,
-        "doc_count": int(d[0]) if d else 0, "pending": int(d[1]) if d else 0,
+        "doc_count": int(d[0]) if d else 0, "pending": int(d[1] or 0) if d else 0,
         "needs_clarification": int(clarification_count), "report_data": "{}"
     }
 
@@ -264,6 +264,7 @@ async def get_annual_br_summary(
         text("""SELECT EXTRACT(MONTH FROM invoice_date), SUM(gross_amount),
                SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END)
         FROM read_models.expenses WHERE project_id = :project_id
+        AND invoice_date IS NOT NULL
         AND EXTRACT(YEAR FROM invoice_date) = :year
         GROUP BY EXTRACT(MONTH FROM invoice_date) ORDER BY 1"""),
         {"project_id": project_id, "year": fiscal_year}

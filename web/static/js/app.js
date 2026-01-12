@@ -16,15 +16,28 @@ function getPageFromUrl() {
     return params.get('page') || 'dashboard';
 }
 
-function setPageInUrl(page, pushState = true) {
+function getUrlParam(key) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(key);
+}
+
+function setUrlParam(key, value, pushState = false) {
     const url = new URL(window.location.href);
-    url.searchParams.set('page', page);
+    if (value === null || value === undefined || value === '') {
+        url.searchParams.delete(key);
+    } else {
+        url.searchParams.set(key, String(value));
+    }
 
     if (pushState) {
-        history.pushState({ page }, '', url.pathname + url.search);
+        history.pushState(Object.fromEntries(url.searchParams.entries()), '', url.pathname + url.search);
     } else {
-        history.replaceState({ page }, '', url.pathname + url.search);
+        history.replaceState(Object.fromEntries(url.searchParams.entries()), '', url.pathname + url.search);
     }
+}
+
+function setPageInUrl(page, pushState = true) {
+    setUrlParam('page', page, pushState);
 }
 
 function navigateTo(page, options = {}) {
@@ -51,7 +64,7 @@ function navigateTo(page, options = {}) {
     if (loaders[page]) loaders[page]();
     
     // Stop log streams when leaving logs page
-    if (page !== 'logs') stopAllLogStreams();
+    if (page !== 'logs' && !isGlobalLogsOpen()) stopAllLogStreams();
 }
 
 // API
@@ -195,6 +208,7 @@ async function retryOcr(docId) {
 
 async function showDocumentDetail(docId) {
     try {
+        setUrlParam('doc', docId, false);
         const doc = await apiCall(`/documents/${docId}/detail`);
         const modal = document.getElementById('document-modal');
         document.getElementById('document-modal-content').innerHTML = `
@@ -240,6 +254,7 @@ async function showDocumentDetail(docId) {
 }
 
 function closeDocumentModal() {
+    setUrlParam('doc', null, false);
     document.getElementById('document-modal').classList.remove('active');
 }
 
@@ -1047,14 +1062,129 @@ function stopAllLogStreams() {
     });
 }
 
+// ==================== GLOBAL LOGS OVERLAY ====================
+function isGlobalLogsOpen() {
+    const el = document.getElementById('global-logs-overlay');
+    return el && el.classList.contains('open');
+}
+
+function toggleGlobalLogs() {
+    const overlay = document.getElementById('global-logs-overlay');
+    if (!overlay) return;
+
+    const willOpen = !overlay.classList.contains('open');
+    overlay.classList.toggle('open', willOpen);
+    setUrlParam('logs', willOpen ? '1' : null, false);
+
+    if (willOpen) {
+        initLogStreams();
+        const tab = getUrlParam('logs_tab') || 'api';
+        switchGlobalLogTab(tab);
+    } else {
+        stopAllLogStreams();
+    }
+}
+
+function switchGlobalLogTab(service) {
+    document.querySelectorAll('.global-log-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.service === service);
+    });
+
+    document.querySelectorAll('.global-log-output').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `global-log-output-${service}`);
+    });
+
+    setUrlParam('logs_tab', service, false);
+}
+
+function clearGlobalLogs() {
+    LOG_SERVICES.forEach(service => {
+        const el = document.getElementById(`global-log-output-${service}`);
+        if (el) el.textContent = '';
+    });
+}
+
+// mirror streams into overlay panels
+function startLogStreamFor(service) {
+    if (logStreams[service]) {
+        logStreams[service].close();
+    }
+
+    const tabDot = document.getElementById(`dot-${service}`);
+    const pageLogOutput = document.getElementById(`log-output-${service}`);
+    const overlayLogOutput = document.getElementById(`global-log-output-${service}`);
+
+    const eventSource = new EventSource(`${API_BASE}/logs/stream?service=${service}&lines=50`);
+    logStreams[service] = eventSource;
+
+    eventSource.onopen = () => {
+        if (tabDot) tabDot.className = 'tab-dot connected';
+    };
+
+    eventSource.onmessage = (event) => {
+        const line = event.data.replace(/\\n/g, '\n');
+        if (pageLogOutput) {
+            pageLogOutput.textContent += line + '\n';
+            pageLogOutput.scrollTop = pageLogOutput.scrollHeight;
+            const lines = pageLogOutput.textContent.split('\n');
+            if (lines.length > 500) pageLogOutput.textContent = lines.slice(-300).join('\n');
+        }
+        if (overlayLogOutput) {
+            overlayLogOutput.textContent += line + '\n';
+            overlayLogOutput.scrollTop = overlayLogOutput.scrollHeight;
+            const lines = overlayLogOutput.textContent.split('\n');
+            if (lines.length > 500) overlayLogOutput.textContent = lines.slice(-300).join('\n');
+        }
+    };
+
+    eventSource.onerror = () => {
+        if (tabDot) tabDot.className = 'tab-dot error';
+        eventSource.close();
+        logStreams[service] = null;
+        setTimeout(() => startLogStreamFor(service), 5000);
+    };
+}
+
 // Init
 window.addEventListener('popstate', () => {
     const page = getPageFromUrl();
     navigateTo(page, { updateUrl: false });
+
+    const logs = getUrlParam('logs');
+    const overlay = document.getElementById('global-logs-overlay');
+    if (overlay) {
+        const shouldOpen = logs === '1';
+        overlay.classList.toggle('open', shouldOpen);
+        if (shouldOpen) {
+            initLogStreams();
+            switchGlobalLogTab(getUrlParam('logs_tab') || 'api');
+        } else {
+            stopAllLogStreams();
+        }
+    }
+
+    const docId = getUrlParam('doc');
+    if (docId) {
+        showDocumentDetail(docId);
+    }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     const page = getPageFromUrl();
     setPageInUrl(page, false);
     navigateTo(page, { updateUrl: false });
+
+    if (getUrlParam('logs') === '1') {
+        const overlay = document.getElementById('global-logs-overlay');
+        if (overlay) {
+            overlay.classList.add('open');
+            initLogStreams();
+            switchGlobalLogTab(getUrlParam('logs_tab') || 'api');
+        }
+    }
+
+    const docId = getUrlParam('doc');
+    if (docId) {
+        showDocumentDetail(docId);
+    }
 });

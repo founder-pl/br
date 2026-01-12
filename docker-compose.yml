@@ -117,6 +117,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: br-api
+    user: root
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DEBUG=${DEBUG:-true}
@@ -137,6 +138,7 @@ services:
       - ./uploads:/app/uploads:rw
       - ./processed:/app/processed:rw
       - ./reports:/app/reports:rw
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8020:8000"
     depends_on:

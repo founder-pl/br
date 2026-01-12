@@ -19,6 +19,10 @@ def validate_nip(nip: str) -> bool:
     
     if len(nip) != 10 or not nip.isdigit():
         return False
+
+    # Reject repeated-digit NIPs (e.g. 0000000000, 1111111111)
+    if len(set(nip)) == 1:
+        return False
     
     weights = [6, 5, 7, 2, 3, 4, 5, 6, 7]
     checksum = sum(int(nip[i]) * weights[i] for i in range(9)) % 11

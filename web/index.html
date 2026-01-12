@@ -688,6 +688,34 @@
         </div>
     </div>
 
+    <button id="global-logs-toggle" class="global-logs-toggle" onclick="toggleGlobalLogs()">
+        📋 Logi
+    </button>
+
+    <div id="global-logs-overlay" class="global-logs-overlay">
+        <div class="global-logs-header">
+            <strong>Logi (live)</strong>
+            <div class="global-logs-actions">
+                <button class="btn btn-sm btn-outline" onclick="clearGlobalLogs()">Wyczyść</button>
+                <button class="btn btn-sm btn-secondary" onclick="toggleGlobalLogs()">Zamknij</button>
+            </div>
+        </div>
+        <div class="global-logs-tabs">
+            <button class="global-log-tab active" data-service="api" onclick="switchGlobalLogTab('api')">API</button>
+            <button class="global-log-tab" data-service="ocr" onclick="switchGlobalLogTab('ocr')">OCR</button>
+            <button class="global-log-tab" data-service="llm" onclick="switchGlobalLogTab('llm')">LLM</button>
+            <button class="global-log-tab" data-service="web" onclick="switchGlobalLogTab('web')">WEB</button>
+            <button class="global-log-tab" data-service="postgres" onclick="switchGlobalLogTab('postgres')">DB</button>
+        </div>
+        <div class="global-logs-panels">
+            <pre class="global-log-output active" id="global-log-output-api"></pre>
+            <pre class="global-log-output" id="global-log-output-ocr"></pre>
+            <pre class="global-log-output" id="global-log-output-llm"></pre>
+            <pre class="global-log-output" id="global-log-output-web"></pre>
+            <pre class="global-log-output" id="global-log-output-postgres"></pre>
+        </div>
+    </div>
+
     <!-- Toast notifications -->
     <div id="toast-container"></div>
 

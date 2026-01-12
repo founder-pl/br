@@ -57,7 +57,7 @@ class TestNIPValidation:
     @pytest.mark.parametrize("nip,expected", [
         ("5881918662", True),
         ("5252344078", True),
-        ("7792348835", True),
+        ("8232197954", True),
         ("1111111111", False),
         ("9999999999", False),
     ])

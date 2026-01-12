@@ -7,6 +7,7 @@ from typing import AsyncGenerator, Generator
 from datetime import datetime, date
 from decimal import Decimal
 import uuid
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -23,7 +24,27 @@ os.environ.setdefault(
     "REDIS_URL",
     "redis://redis:6379/15"
 )
+os.environ.setdefault(
+    "OCR_SERVICE_URL",
+    "http://ocr-service:8001"
+)
+os.environ.setdefault(
+    "LLM_SERVICE_URL",
+    "http://llm-service:4000"
+)
 os.environ["SECRET_KEY"] = "test-secret-key"
+
+# Isolate integrations config DB for tests (avoid leaking state between runs)
+os.environ.setdefault("CONFIG_DB_TYPE", "sqlite")
+os.environ.setdefault("CONFIG_DB_URL", "sqlite:////tmp/br_config_test.db")
+os.environ.setdefault("CONFIG_ENCRYPTION_KEY", "7o2OQ4p0s6lK0f5rV2uWcWlG2Q1mWnq0wQ0z5m7J8mM=")
+
+_config_db_path = Path("/tmp/br_config_test.db")
+if _config_db_path.exists():
+    try:
+        _config_db_path.unlink()
+    except Exception:
+        pass
 
 from src.api.main import app
 from src.api.database import Base, get_db

@@ -3,6 +3,7 @@ Logs Router - Real-time log streaming via SSE
 """
 import asyncio
 import subprocess
+import time
 from typing import Optional
 from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
@@ -12,8 +13,48 @@ logger = structlog.get_logger()
 router = APIRouter()
 
 
+def _escape_sse(text: str) -> str:
+    return text.replace("\n", "\\n").replace("\r", "")
+
+
+def _try_get_docker_client():
+    try:
+        import docker  # type: ignore
+        return docker.from_env()
+    except Exception:
+        return None
+
+
 async def stream_docker_logs(container: str, lines: int = 100):
     """Stream Docker container logs via SSE"""
+    docker_client = _try_get_docker_client()
+
+    if docker_client is not None:
+        try:
+            c = docker_client.containers.get(container)
+            yield f"data: [Connected to {container} logs]\n\n"
+
+            initial = c.logs(tail=lines)
+            if initial:
+                for raw_line in initial.decode("utf-8", errors="replace").splitlines():
+                    if raw_line:
+                        yield f"data: {_escape_sse(raw_line)}\n\n"
+
+            stream = c.logs(stream=True, follow=True, tail=0, since=int(time.time()))
+            it = iter(stream)
+            while True:
+                chunk = await asyncio.to_thread(next, it)
+                if not chunk:
+                    await asyncio.sleep(0.1)
+                    continue
+                text = chunk.decode("utf-8", errors="replace")
+                for raw_line in text.splitlines():
+                    if raw_line:
+                        yield f"data: {_escape_sse(raw_line)}\n\n"
+        except Exception as e:
+            yield f"data: [Error: {str(e)}]\n\n"
+        return
+
     try:
         # Start docker logs process with follow
         process = await asyncio.create_subprocess_exec(
@@ -35,8 +76,7 @@ async def stream_docker_logs(container: str, lines: int = 100):
             text = line.decode('utf-8', errors='replace').rstrip()
             if text:
                 # Escape newlines and format for SSE
-                escaped = text.replace('\n', '\\n').replace('\r', '')
-                yield f"data: {escaped}\n\n"
+                yield f"data: {_escape_sse(text)}\n\n"
                 
     except Exception as e:
         yield f"data: [Error: {str(e)}]\n\n"
@@ -68,8 +108,7 @@ async def stream_all_logs(services: list, lines: int = 50):
             
             text = line.decode('utf-8', errors='replace').rstrip()
             if text:
-                escaped = text.replace('\n', '\\n').replace('\r', '')
-                yield f"data: {escaped}\n\n"
+                yield f"data: {_escape_sse(text)}\n\n"
                 
     except Exception as e:
         yield f"data: [Error: {str(e)}]\n\n"
@@ -149,6 +188,18 @@ async def get_logs_snapshot(
         return {"error": f"Unknown service: {service}"}
     
     try:
+        docker_client = _try_get_docker_client()
+        if docker_client is not None:
+            c = docker_client.containers.get(container)
+            out = c.logs(tail=lines)
+            text_out = out.decode("utf-8", errors="replace") if out else ""
+            return {
+                "service": service,
+                "container": container,
+                "lines": text_out.split('\n') if text_out else [],
+                "errors": []
+            }
+
         result = subprocess.run(
             ['docker', 'logs', '--tail', str(lines), container],
             capture_output=True,

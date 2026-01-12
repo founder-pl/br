@@ -72,6 +72,9 @@ tenacity==9.0.0
 orjson==3.10.12
 pyyaml==6.0.2
 
+# Docker SDK (for log streaming via docker.sock)
+docker==7.0.0
+
 # Testing (dev)
 pytest==8.3.4
 pytest-asyncio==0.25.2

@@ -428,6 +428,7 @@ async def trigger_auto_classification(
 async def classify_expense_with_llm(expense_id: str):
     """Background task to classify expense using LLM"""
     from ..database import get_db_context
+    import json
     
     try:
         # Get expense data
@@ -482,10 +483,10 @@ async def classify_expense_with_llm(expense_id: str):
                         br_deduction_rate = :br_rate,
                         ip_qualified = :ip_qualified,
                         nexus_category = :nexus,
-                        llm_classification = :llm_data::jsonb,
+                        llm_classification = CAST(:llm_data AS jsonb),
                         llm_confidence = :confidence,
                         needs_clarification = :needs_clarification,
-                        clarification_questions = :questions::jsonb,
+                        clarification_questions = CAST(:questions AS jsonb),
                         status = 'classified',
                         updated_at = NOW()
                     WHERE id = :id
@@ -498,10 +499,10 @@ async def classify_expense_with_llm(expense_id: str):
                         "br_rate": classification.get('br_rate', 1.0),
                         "ip_qualified": classification.get('ip_qualified', False),
                         "nexus": classification.get('nexus_category'),
-                        "llm_data": str(classification),
+                        "llm_data": json.dumps(classification),
                         "confidence": classification.get('confidence', 0.5),
                         "needs_clarification": classification.get('needs_clarification', False),
-                        "questions": str(classification.get('questions', []))
+                        "questions": json.dumps(classification.get('questions', []))
                     }
                 )
             
