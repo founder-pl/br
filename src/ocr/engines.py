@@ -274,12 +274,12 @@ class EasyOCREngine(BaseOCREngine):
         )
 
 
-def get_ocr_engine(
+async def get_ocr_engine(
     engine_name: str = "paddleocr",
     language: str = "pol",
     use_gpu: bool = True
 ) -> BaseOCREngine:
-    """Factory function to get OCR engine instance"""
+    """Factory function to get OCR engine instance (async)"""
     
     engines = {
         "tesseract": TesseractEngine,
@@ -293,7 +293,7 @@ def get_ocr_engine(
     
     engine = engine_class(language=language, use_gpu=use_gpu)
     
-    # Initialize synchronously
-    asyncio.get_event_loop().run_until_complete(engine.initialize())
+    # Initialize asynchronously
+    await engine.initialize()
     
     return engine

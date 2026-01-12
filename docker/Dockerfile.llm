@@ -13,6 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    libatomic1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -22,14 +23,18 @@ RUN useradd -m -u 1000 -s /bin/bash llmuser
 # Set working directory
 WORKDIR /app
 
-# Install LiteLLM
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir \
+# Install LiteLLM with BuildKit cache
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip \
+    && pip install \
         litellm[proxy]==1.56.4 \
         prisma==0.15.0 \
         pyyaml==6.0.2 \
         redis==5.2.1 \
         asyncpg==0.30.0
+
+# Generate Prisma client binaries
+RUN prisma generate || true
 
 # Copy config
 COPY config/litellm_config.yaml /app/config.yaml

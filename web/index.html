@@ -42,6 +42,14 @@
                     <span class="nav-icon">🔗</span>
                     <span>Integracje</span>
                 </li>
+                <li class="nav-item" data-page="logs">
+                    <span class="nav-icon">📋</span>
+                    <span>Logi</span>
+                </li>
+                <li class="nav-item" data-page="ai-config">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI / OCR</span>
+                </li>
                 <li class="nav-item" data-page="settings">
                     <span class="nav-icon">⚙️</span>
                     <span>Ustawienia</span>
@@ -133,16 +141,8 @@
                     <input type="file" id="file-input" multiple accept=".pdf,.png,.jpg,.jpeg,.tiff">
                 </div>
                 
-                <div class="upload-options">
-                    <div class="form-group">
-                        <label for="document-type">Typ dokumentu:</label>
-                        <select id="document-type">
-                            <option value="invoice">Faktura VAT</option>
-                            <option value="receipt">Paragon</option>
-                            <option value="contract">Umowa</option>
-                            <option value="other">Inny</option>
-                        </select>
-                    </div>
+                <div class="upload-info">
+                    <p class="auto-detect-info">💡 Typ dokumentu zostanie wykryty automatycznie na podstawie OCR</p>
                 </div>
                 
                 <div id="upload-queue" class="upload-queue">
@@ -373,6 +373,191 @@
                 </div>
             </section>
 
+            <!-- Logs Page -->
+            <section id="page-logs" class="page">
+                <header class="page-header">
+                    <h2>Logi systemowe</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-outline" onclick="clearAllLogs()">
+                            🗑 Wyczyść wszystkie
+                        </button>
+                        <button class="btn btn-secondary" onclick="reconnectAllLogs()">
+                            🔄 Odśwież
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="logs-tabs-container">
+                    <div class="logs-tabs">
+                        <button class="log-tab active" data-service="api" onclick="switchLogTab('api')">
+                            <span class="tab-dot" id="dot-api"></span> API
+                        </button>
+                        <button class="log-tab" data-service="ocr" onclick="switchLogTab('ocr')">
+                            <span class="tab-dot" id="dot-ocr"></span> OCR
+                        </button>
+                        <button class="log-tab" data-service="llm" onclick="switchLogTab('llm')">
+                            <span class="tab-dot" id="dot-llm"></span> LLM
+                        </button>
+                        <button class="log-tab" data-service="web" onclick="switchLogTab('web')">
+                            <span class="tab-dot" id="dot-web"></span> Web
+                        </button>
+                        <button class="log-tab" data-service="postgres" onclick="switchLogTab('postgres')">
+                            <span class="tab-dot" id="dot-postgres"></span> DB
+                        </button>
+                    </div>
+                    
+                    <div class="log-panels">
+                        <div class="log-panel active" id="log-panel-api">
+                            <pre class="log-output" id="log-output-api"></pre>
+                        </div>
+                        <div class="log-panel" id="log-panel-ocr">
+                            <pre class="log-output" id="log-output-ocr"></pre>
+                        </div>
+                        <div class="log-panel" id="log-panel-llm">
+                            <pre class="log-output" id="log-output-llm"></pre>
+                        </div>
+                        <div class="log-panel" id="log-panel-web">
+                            <pre class="log-output" id="log-output-web"></pre>
+                        </div>
+                        <div class="log-panel" id="log-panel-postgres">
+                            <pre class="log-output" id="log-output-postgres"></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Config Page -->
+            <section id="page-ai-config" class="page">
+                <header class="page-header">
+                    <h2>Konfiguracja AI / OCR</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="saveAIConfig()">💾 Zapisz</button>
+                        <button class="btn btn-outline" onclick="testConnections()">🔍 Testuj połączenia</button>
+                    </div>
+                </header>
+                
+                <div class="ai-config-grid">
+                    <!-- OCR Config -->
+                    <div class="card">
+                        <h3>🔤 Silniki OCR</h3>
+                        <div class="form-group">
+                            <label>Główny silnik:</label>
+                            <select id="ocr-primary-engine">
+                                <option value="paddleocr">PaddleOCR (szybki, dokładny)</option>
+                                <option value="tesseract">Tesseract (klasyczny, stabilny)</option>
+                                <option value="easyocr">EasyOCR (wielojęzyczny)</option>
+                                <option value="doctr">DocTR (transformer, dokładny)</option>
+                                <option value="surya">Surya (layout detection)</option>
+                                <option value="trocr">TrOCR (rękopis)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Strategia:</label>
+                            <select id="ocr-strategy">
+                                <option value="single">Pojedynczy silnik</option>
+                                <option value="fallback" selected>Fallback (kolejne silniki)</option>
+                                <option value="ensemble">Ensemble (łączenie wyników)</option>
+                                <option value="field_specific">Specyficzny dla pola</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Min. pewność OCR:</label>
+                            <input type="range" id="ocr-min-confidence" min="0" max="100" value="75">
+                            <span id="ocr-confidence-value">75%</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Język:</label>
+                            <select id="ocr-language">
+                                <option value="pol" selected>Polski</option>
+                                <option value="eng">Angielski</option>
+                                <option value="deu">Niemiecki</option>
+                                <option value="fra">Francuski</option>
+                            </select>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label><input type="checkbox" id="ocr-use-gpu" checked> Użyj GPU</label>
+                            <label><input type="checkbox" id="ocr-field-specific" checked> Używaj najlepszego silnika dla pola</label>
+                        </div>
+                    </div>
+                    
+                    <!-- LLM Config -->
+                    <div class="card">
+                        <h3>🧠 Model LLM</h3>
+                        <div class="form-group">
+                            <label>Provider:</label>
+                            <select id="llm-provider" onchange="updateModelList()">
+                                <option value="ollama" selected>Ollama (lokalny)</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Model:</label>
+                            <select id="llm-model">
+                                <option value="llama3.2">Llama 3.2 (3B)</option>
+                                <option value="llama3.1:8b">Llama 3.1 (8B)</option>
+                                <option value="mistral">Mistral 7B</option>
+                                <option value="gemma2:9b">Gemma 2 (9B)</option>
+                                <option value="qwen2.5:7b">Qwen 2.5 (7B)</option>
+                                <option value="phi3">Phi-3</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>API Base URL:</label>
+                            <input type="text" id="llm-api-base" value="http://host.docker.internal:11434">
+                        </div>
+                        <div class="form-group">
+                            <label>API Key (opcjonalnie):</label>
+                            <input type="password" id="llm-api-key" placeholder="sk-...">
+                        </div>
+                        <div class="form-group">
+                            <label>Temperatura: <span id="llm-temp-value">0.1</span></label>
+                            <input type="range" id="llm-temperature" min="0" max="100" value="10" oninput="document.getElementById('llm-temp-value').textContent = (this.value/100).toFixed(2)">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label><input type="checkbox" id="llm-use-extraction" checked> Ekstrakcja danych</label>
+                            <label><input type="checkbox" id="llm-use-classification" checked> Klasyfikacja dokumentów</label>
+                            <label><input type="checkbox" id="llm-use-validation" checked> Walidacja danych</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Engines Info -->
+                    <div class="card card-full">
+                        <h3>📊 Dostępne silniki OCR</h3>
+                        <div id="ocr-engines-list" class="engines-grid">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Document Types -->
+                    <div class="card card-full">
+                        <h3>📄 Typy dokumentów i zalecane silniki</h3>
+                        <div id="document-types-list" class="doc-types-grid">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Connection Status -->
+                    <div class="card card-full">
+                        <h3>🔌 Status połączeń</h3>
+                        <div id="connection-status" class="connection-grid">
+                            <div class="connection-item">
+                                <span class="connection-name">OCR Service</span>
+                                <span class="connection-status" id="status-ocr">⏳ Sprawdzanie...</span>
+                            </div>
+                            <div class="connection-item">
+                                <span class="connection-name">LLM Service</span>
+                                <span class="connection-status" id="status-llm">⏳ Sprawdzanie...</span>
+                            </div>
+                            <div class="connection-item">
+                                <span class="connection-name">Ollama</span>
+                                <span class="connection-status" id="status-ollama">⏳ Sprawdzanie...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Settings Page -->
             <section id="page-settings" class="page">
                 <header class="page-header">
@@ -490,6 +675,16 @@
                     <button type="submit" class="btn btn-primary">Zapisz integrację</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Document Detail Modal -->
+    <div class="modal" id="document-modal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" onclick="closeDocumentModal()">&times;</button>
+            <div id="document-modal-content">
+                <!-- Content loaded dynamically -->
+            </div>
         </div>
     </div>
 

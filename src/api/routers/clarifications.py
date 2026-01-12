@@ -8,6 +8,7 @@ from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 import structlog
 
 from ..database import get_db
@@ -63,7 +64,7 @@ async def list_clarifications(
     query += " ORDER BY created_at DESC LIMIT :limit"
     params["limit"] = limit
     
-    result = await db.execute(query, params)
+    result = await db.execute(text(query), params)
     
     return [
         ClarificationResponse(
@@ -85,7 +86,7 @@ async def list_clarifications(
 async def get_pending_count(db: AsyncSession = Depends(get_db)):
     """Get count of unanswered clarifications"""
     result = await db.execute(
-        "SELECT COUNT(*) FROM read_models.clarifications WHERE answer IS NULL"
+        text("SELECT COUNT(*) FROM read_models.clarifications WHERE answer IS NULL")
     )
     count = result.scalar() or 0
     return {"pending_count": count}
@@ -95,11 +96,11 @@ async def get_pending_count(db: AsyncSession = Depends(get_db)):
 async def get_clarification(clarification_id: str, db: AsyncSession = Depends(get_db)):
     """Get clarification details"""
     result = await db.execute(
-        """
+        text("""
         SELECT id, expense_id, question, question_type, answer, answered_at,
                auto_generated, llm_suggested_answer, created_at
         FROM read_models.clarifications WHERE id = :id
-        """,
+        """),
         {"id": clarification_id}
     )
     row = result.fetchone()
@@ -129,11 +130,11 @@ async def create_clarification(
     clarification_id = str(uuid.uuid4())
     
     await db.execute(
-        """
+        text("""
         INSERT INTO read_models.clarifications 
         (id, expense_id, question, question_type, auto_generated)
         VALUES (:id, :expense_id, :question, :question_type, false)
-        """,
+        """),
         {
             "id": clarification_id,
             "expense_id": clarification.expense_id,
@@ -144,7 +145,7 @@ async def create_clarification(
     
     # Update expense needs_clarification flag
     await db.execute(
-        "UPDATE read_models.expenses SET needs_clarification = true WHERE id = :id",
+        text("UPDATE read_models.expenses SET needs_clarification = true WHERE id = :id"),
         {"id": clarification.expense_id}
     )
     
@@ -161,24 +162,24 @@ async def answer_clarification(
     """Answer a clarification question"""
     # Update clarification
     await db.execute(
-        """
+        text("""
         UPDATE read_models.clarifications SET
             answer = :answer,
             answered_at = NOW(),
             updated_at = NOW()
         WHERE id = :id
-        """,
+        """),
         {"id": clarification_id, "answer": answer.answer}
     )
     
     # Check if expense has any remaining unanswered clarifications
     result = await db.execute(
-        """
+        text("""
         SELECT c.expense_id, COUNT(*) as pending
         FROM read_models.clarifications c
         WHERE c.id = :id
         GROUP BY c.expense_id
-        """,
+        """),
         {"id": clarification_id}
     )
     row = result.fetchone()
@@ -187,17 +188,17 @@ async def answer_clarification(
         expense_id = row[0]
         # Check for remaining unanswered
         remaining = await db.execute(
-            """
+        text("""
             SELECT COUNT(*) FROM read_models.clarifications 
             WHERE expense_id = :expense_id AND answer IS NULL
-            """,
+            """),
             {"expense_id": expense_id}
         )
         remaining_count = remaining.scalar() or 0
         
         if remaining_count == 0:
             await db.execute(
-                "UPDATE read_models.expenses SET needs_clarification = false WHERE id = :id",
+                text("UPDATE read_models.expenses SET needs_clarification = false WHERE id = :id"),
                 {"id": expense_id}
             )
     
@@ -209,7 +210,7 @@ async def answer_clarification(
 async def delete_clarification(clarification_id: str, db: AsyncSession = Depends(get_db)):
     """Delete a clarification question"""
     await db.execute(
-        "DELETE FROM read_models.clarifications WHERE id = :id",
+        text("DELETE FROM read_models.clarifications WHERE id = :id"),
         {"id": clarification_id}
     )
     return {"status": "deleted", "id": clarification_id}

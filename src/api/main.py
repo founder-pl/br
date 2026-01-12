@@ -13,7 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .routers import documents, expenses, projects, reports, auth, clarifications, integrations
+from .routers import documents, expenses, projects, reports, auth, clarifications, integrations, logs, config
 from .database import init_database, close_database
 from .config import settings
 
@@ -103,6 +103,8 @@ app.include_router(projects.router, prefix="/projects", tags=["Projekty"])
 app.include_router(reports.router, prefix="/reports", tags=["Raporty"])
 app.include_router(clarifications.router, prefix="/clarifications", tags=["Wyjaśnienia"])
 app.include_router(integrations.router, prefix="/integrations", tags=["Integracje"])
+app.include_router(logs.router, prefix="/logs", tags=["Logi"])
+app.include_router(config.router, prefix="/config", tags=["Konfiguracja"])
 
 
 # Health check

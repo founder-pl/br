@@ -10,6 +10,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 import structlog
 
 from ..database import get_db
@@ -179,7 +180,7 @@ async def create_expense(
     expense_id = str(uuid.uuid4())
     
     await db.execute(
-        """
+        text("""
         INSERT INTO read_models.expenses 
         (id, project_id, document_id, invoice_number, invoice_date, 
          vendor_name, vendor_nip, net_amount, vat_amount, gross_amount, 
@@ -187,7 +188,7 @@ async def create_expense(
         VALUES (:id, :project_id, :document_id, :invoice_number, :invoice_date,
                 :vendor_name, :vendor_nip, :net_amount, :vat_amount, :gross_amount,
                 :currency, :expense_category, 'draft')
-        """,
+        """),
         {
             "id": expense_id,
             "project_id": expense.project_id,
@@ -216,7 +217,7 @@ async def create_expense(
 async def get_expense(expense_id: str, db: AsyncSession = Depends(get_db)):
     """Get expense details"""
     result = await db.execute(
-        """
+        text("""
         SELECT id, project_id, document_id, invoice_number, invoice_date,
                vendor_name, vendor_nip, net_amount, vat_amount, gross_amount,
                currency, expense_category, br_category, br_qualified,
@@ -225,7 +226,7 @@ async def get_expense(expense_id: str, db: AsyncSession = Depends(get_db)):
                manual_override, status, needs_clarification, clarification_questions,
                created_at
         FROM read_models.expenses WHERE id = :id
-        """,
+        """),
         {"id": expense_id}
     )
     row = result.fetchone()
@@ -316,7 +317,7 @@ async def list_expenses(
     params["limit"] = limit
     params["offset"] = offset
     
-    result = await db.execute(query, params)
+    result = await db.execute(text(query), params)
     rows = result.fetchall()
     
     return [
@@ -396,7 +397,7 @@ async def classify_expense_manually(
         updates.append("updated_at = NOW()")
         
         await db.execute(
-            f"UPDATE read_models.expenses SET {', '.join(updates)} WHERE id = :id",
+            text(f"UPDATE read_models.expenses SET {', '.join(updates)} WHERE id = :id"),
             params
         )
     
@@ -413,7 +414,7 @@ async def trigger_auto_classification(
     """Trigger automatic LLM classification"""
     # Verify expense exists
     result = await db.execute(
-        "SELECT id FROM read_models.expenses WHERE id = :id",
+        text("SELECT id FROM read_models.expenses WHERE id = :id"),
         {"id": expense_id}
     )
     if not result.fetchone():
@@ -432,12 +433,12 @@ async def classify_expense_with_llm(expense_id: str):
         # Get expense data
         async with get_db_context() as db:
             result = await db.execute(
-                """
+        text("""
                 SELECT e.*, d.ocr_text, d.extracted_data
                 FROM read_models.expenses e
                 LEFT JOIN read_models.documents d ON e.document_id = d.id
                 WHERE e.id = :id
-                """,
+                """),
                 {"id": expense_id}
             )
             row = result.fetchone()
@@ -473,7 +474,7 @@ async def classify_expense_with_llm(expense_id: str):
             # Update expense with classification
             async with get_db_context() as db:
                 await db.execute(
-                    """
+        text("""
                     UPDATE read_models.expenses SET
                         br_qualified = :br_qualified,
                         br_category = :br_category,
@@ -488,7 +489,7 @@ async def classify_expense_with_llm(expense_id: str):
                         status = 'classified',
                         updated_at = NOW()
                     WHERE id = :id
-                    """,
+                    """),
                     {
                         "id": expense_id,
                         "br_qualified": classification.get('br_qualified', False),

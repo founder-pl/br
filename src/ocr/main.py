@@ -94,7 +94,7 @@ async def lifespan(app: FastAPI):
     app.state.redis = await redis.from_url(REDIS_URL, decode_responses=True)
     
     # Initialize OCR engines
-    app.state.ocr_engine = get_ocr_engine(
+    app.state.ocr_engine = await get_ocr_engine(
         engine_name=os.getenv("OCR_ENGINE", "paddleocr"),
         language=os.getenv("OCR_LANG", "pol"),
         use_gpu=True

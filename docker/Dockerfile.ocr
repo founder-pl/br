@@ -1,7 +1,7 @@
 # =============================================================================
 # OCR Service Dockerfile - Tesseract + PaddleOCR z GPU NVIDIA
 # =============================================================================
-FROM nvidia/cuda:12.2-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 
 LABEL maintainer="Tomasz Sapletta <kontakt@prototypowy.pl>"
 LABEL description="OCR Service dla systemu B+R z obsługą GPU NVIDIA"
@@ -49,9 +49,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create app user
 RUN useradd -m -u 1000 -s /bin/bash ocruser
 
-# Setup Python
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+# Setup Python - ensure python3.11 is default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && ln -sf /usr/bin/python3.11 /usr/bin/python
 
 # Set working directory
 WORKDIR /app
@@ -60,13 +60,15 @@ WORKDIR /app
 RUN mkdir -p /app/uploads /app/processed /app/cache /app/models \
     && chown -R ocruser:ocruser /app
 
-# Install Python dependencies
+# Install Python dependencies with BuildKit cache
 COPY docker/requirements-ocr.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3.11 -m pip install --upgrade pip setuptools wheel \
+    && python3.11 -m pip install -r requirements.txt
 
-# Download PaddleOCR models for Polish/Latin
-RUN python -c "from paddleocr import PaddleOCR; ocr = PaddleOCR(lang='latin', use_gpu=True, show_log=False); print('PaddleOCR models downloaded')"
+# Download PaddleOCR models (cached in /app/models)
+RUN --mount=type=cache,target=/root/.paddleocr \
+    python3.11 -c "from paddleocr import PaddleOCR; ocr = PaddleOCR(lang='latin', use_gpu=True, show_log=False); print('PaddleOCR models downloaded')"
 
 # Copy application code
 COPY src/ocr /app/src/ocr
@@ -90,4 +92,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8001/health || exit 1
 
 # Run the OCR service
-CMD ["python", "-m", "uvicorn", "src.ocr.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["python3.11", "-m", "uvicorn", "src.ocr.main:app", "--host", "0.0.0.0", "--port", "8001"]

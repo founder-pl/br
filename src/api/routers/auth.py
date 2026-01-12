@@ -10,6 +10,7 @@ from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 import structlog
 
 from ..database import get_db
@@ -83,7 +84,7 @@ async def get_current_user(
         raise credentials_exception
     
     result = await db.execute(
-        "SELECT id, email, full_name, role, is_active FROM auth.users WHERE email = :email",
+        text("SELECT id, email, full_name, role, is_active FROM auth.users WHERE email = :email"),
         {"email": email}
     )
     user = result.fetchone()
@@ -109,7 +110,7 @@ async def login_for_access_token(
 ):
     """OAuth2 compatible token login"""
     result = await db.execute(
-        "SELECT id, email, password_hash, is_active FROM auth.users WHERE email = :email",
+        text("SELECT id, email, password_hash, is_active FROM auth.users WHERE email = :email"),
         {"email": form_data.username}
     )
     user = result.fetchone()
@@ -139,7 +140,7 @@ async def register_user(
     """Register a new user"""
     # Check if user exists
     result = await db.execute(
-        "SELECT id FROM auth.users WHERE email = :email",
+        text("SELECT id FROM auth.users WHERE email = :email"),
         {"email": user.email}
     )
     if result.fetchone():
@@ -151,10 +152,10 @@ async def register_user(
     password_hash = get_password_hash(user.password)
     
     await db.execute(
-        """
+        text("""
         INSERT INTO auth.users (id, email, password_hash, full_name, role, is_active)
         VALUES (:id, :email, :password_hash, :full_name, 'user', true)
-        """,
+        """),
         {
             "id": user_id,
             "email": user.email,
@@ -182,7 +183,7 @@ async def get_current_user_info(
 ):
     """Get current user info"""
     result = await db.execute(
-        "SELECT id, email, full_name, role, is_active, created_at FROM auth.users WHERE id = :id",
+        text("SELECT id, email, full_name, role, is_active, created_at FROM auth.users WHERE id = :id"),
         {"id": current_user["id"]}
     )
     user = result.fetchone()

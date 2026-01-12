@@ -33,9 +33,9 @@ setup-env:
 		echo "Plik .env już istnieje"; \
 	fi
 
-# Build images
+# Build images with BuildKit cache
 build:
-	docker compose build
+	DOCKER_BUILDKIT=1 docker compose build
 
 # Start services (without GPU)
 up: setup-env
@@ -88,12 +88,12 @@ db-reset:
 	@sleep 10
 	docker compose up -d
 
-# Setup Ollama models
+# Setup Ollama models (lokalny Ollama na hoście)
 setup-ollama:
-	@echo "Pobieranie modeli Ollama..."
-	docker compose exec ollama ollama pull llama3.2
-	docker compose exec ollama ollama pull mistral
-	docker compose exec ollama ollama pull qwen2.5
+	@echo "Pobieranie modeli Ollama (lokalny)..."
+	ollama pull llama3.2
+	ollama pull mistral
+	ollama pull qwen2.5
 	@echo "Modele pobrane!"
 
 # Run tests
@@ -119,9 +119,9 @@ clean:
 
 # Development mode with hot reload
 dev: setup-env
+	@echo "Upewnij się, że lokalny Ollama jest uruchomiony (ollama serve)"
 	docker compose up -d postgres redis
 	@sleep 5
-	docker compose up -d ollama
 	@echo "Uruchamiam serwisy w trybie deweloperskim..."
 	@echo "API: http://localhost:8000"
 	@echo "OCR: http://localhost:8001"
@@ -137,5 +137,5 @@ status:
 health:
 	@echo "Sprawdzam status serwisów..."
 	@curl -s http://localhost:8000/health | jq . || echo "API: niedostępne"
-	@curl -s http://localhost:8001/health | jq . || echo "OCR: niedostępne"
+	@curl -s http://localhost:8021/health | jq . || echo "OCR: niedostępne"
 	@curl -s http://localhost:4000/health | jq . || echo "LLM: niedostępne"

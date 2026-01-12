@@ -15,8 +15,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 
 # Set test environment
 os.environ["ENVIRONMENT"] = "testing"
-os.environ["DATABASE_URL"] = "postgresql+asyncpg://br_admin:br_secret_2025@localhost:5432/br_system_test"
-os.environ["REDIS_URL"] = "redis://localhost:6379/15"
+os.environ.setdefault(
+    "DATABASE_URL",
+    "postgresql+asyncpg://br_admin:br_secret_2025@postgres:5432/br_system"
+)
+os.environ.setdefault(
+    "REDIS_URL",
+    "redis://redis:6379/15"
+)
 os.environ["SECRET_KEY"] = "test-secret-key"
 
 from src.api.main import app
@@ -30,7 +36,7 @@ from src.api.config import settings
 
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL",
-    "postgresql+asyncpg://br_admin:br_secret_2025@localhost:5432/br_system_test"
+    os.getenv("DATABASE_URL", "postgresql+asyncpg://br_admin:br_secret_2025@postgres:5432/br_system")
 )
 
 test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)

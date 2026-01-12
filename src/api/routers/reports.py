@@ -9,6 +9,7 @@ import json
 from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 import structlog
 
 from ..database import get_db
@@ -83,8 +84,8 @@ async def generate_monthly_report(
 ):
     """Generate or regenerate monthly B+R report"""
     existing = await db.execute(
-        """SELECT id FROM read_models.monthly_reports 
-        WHERE project_id = :project_id AND fiscal_year = :year AND month = :month""",
+        text("""SELECT id FROM read_models.monthly_reports 
+        WHERE project_id = :project_id AND fiscal_year = :year AND month = :month"""),
         {"project_id": request.project_id, "year": request.fiscal_year, "month": request.month}
     )
     existing_row = existing.fetchone()
@@ -97,19 +98,19 @@ async def generate_monthly_report(
     
     if existing_row:
         await db.execute(
-            """UPDATE read_models.monthly_reports SET
+        text("""UPDATE read_models.monthly_reports SET
                 total_expenses = :total_expenses, br_expenses = :br_expenses,
                 br_deduction = :br_deduction, ip_expenses = :ip_expenses,
                 total_revenues = :total_revenues, ip_revenues = :ip_revenues,
                 documents_count = :doc_count, pending_documents = :pending,
                 needs_clarification = :needs_clarification, status = 'generated',
                 generated_at = NOW(), report_data = :report_data::jsonb, updated_at = NOW()
-            WHERE id = :id""",
+            WHERE id = :id"""),
             {"id": report_id, **report_data}
         )
     else:
         await db.execute(
-            """INSERT INTO read_models.monthly_reports
+        text("""INSERT INTO read_models.monthly_reports
             (id, project_id, fiscal_year, month, total_expenses, br_expenses,
              br_deduction, ip_expenses, total_revenues, ip_revenues,
              documents_count, pending_documents, needs_clarification,
@@ -117,7 +118,7 @@ async def generate_monthly_report(
             VALUES (:id, :project_id, :fiscal_year, :month, :total_expenses,
                     :br_expenses, :br_deduction, :ip_expenses, :total_revenues,
                     :ip_revenues, :doc_count, :pending, :needs_clarification,
-                    'generated', NOW(), :report_data::jsonb)""",
+                    'generated', NOW(), :report_data::jsonb)"""),
             {"id": report_id, "project_id": request.project_id, "fiscal_year": request.fiscal_year,
              "month": request.month, **report_data}
         )
@@ -128,37 +129,37 @@ async def generate_monthly_report(
 
 async def calculate_monthly_report(db: AsyncSession, project_id: str, year: int, month: int) -> dict:
     expense_result = await db.execute(
-        """SELECT COALESCE(SUM(gross_amount), 0), 
+        text("""SELECT COALESCE(SUM(gross_amount), 0), 
             COALESCE(SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END), 0),
             COALESCE(SUM(CASE WHEN br_qualified THEN gross_amount * br_deduction_rate ELSE 0 END), 0),
             COALESCE(SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END), 0)
         FROM read_models.expenses WHERE project_id = :project_id
-        AND EXTRACT(YEAR FROM invoice_date) = :year AND EXTRACT(MONTH FROM invoice_date) = :month""",
+        AND EXTRACT(YEAR FROM invoice_date) = :year AND EXTRACT(MONTH FROM invoice_date) = :month"""),
         {"project_id": project_id, "year": year, "month": month}
     )
     e = expense_result.fetchone()
     
     revenue_result = await db.execute(
-        """SELECT COALESCE(SUM(gross_amount), 0), 
+        text("""SELECT COALESCE(SUM(gross_amount), 0), 
             COALESCE(SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END), 0)
         FROM read_models.revenues WHERE project_id = :project_id
-        AND EXTRACT(YEAR FROM invoice_date) = :year AND EXTRACT(MONTH FROM invoice_date) = :month""",
+        AND EXTRACT(YEAR FROM invoice_date) = :year AND EXTRACT(MONTH FROM invoice_date) = :month"""),
         {"project_id": project_id, "year": year, "month": month}
     )
     r = revenue_result.fetchone()
     
     doc_result = await db.execute(
-        """SELECT COUNT(*), SUM(CASE WHEN ocr_status = 'pending' THEN 1 ELSE 0 END)
+        text("""SELECT COUNT(*), SUM(CASE WHEN ocr_status = 'pending' THEN 1 ELSE 0 END)
         FROM read_models.documents WHERE project_id = :project_id
-        AND EXTRACT(YEAR FROM created_at) = :year AND EXTRACT(MONTH FROM created_at) = :month""",
+        AND EXTRACT(YEAR FROM created_at) = :year AND EXTRACT(MONTH FROM created_at) = :month"""),
         {"project_id": project_id, "year": year, "month": month}
     )
     d = doc_result.fetchone()
     
     clarification_count = (await db.execute(
-        """SELECT COUNT(*) FROM read_models.expenses WHERE project_id = :project_id
+        text("""SELECT COUNT(*) FROM read_models.expenses WHERE project_id = :project_id
         AND EXTRACT(YEAR FROM invoice_date) = :year AND EXTRACT(MONTH FROM invoice_date) = :month
-        AND needs_clarification = true""",
+        AND needs_clarification = true"""),
         {"project_id": project_id, "year": year, "month": month}
     )).scalar() or 0
     
@@ -174,11 +175,11 @@ async def calculate_monthly_report(db: AsyncSession, project_id: str, year: int,
 @router.get("/monthly/{report_id}", response_model=MonthlyReportResponse)
 async def get_monthly_report(report_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        """SELECT id, project_id, fiscal_year, month, total_expenses, br_expenses,
+        text("""SELECT id, project_id, fiscal_year, month, total_expenses, br_expenses,
                br_deduction, ip_expenses, total_revenues, ip_revenues,
                documents_count, pending_documents, needs_clarification,
                status, generated_at, report_data, created_at
-        FROM read_models.monthly_reports WHERE id = :id""",
+        FROM read_models.monthly_reports WHERE id = :id"""),
         {"id": report_id}
     )
     row = result.fetchone()
@@ -216,7 +217,7 @@ async def list_monthly_reports(
         params["fiscal_year"] = fiscal_year
     query += " ORDER BY fiscal_year DESC, month DESC"
     
-    result = await db.execute(query, params)
+    result = await db.execute(text(query), params)
     return [MonthlyReportResponse(
         id=str(r[0]), project_id=str(r[1]), fiscal_year=r[2], month=r[3],
         total_expenses=float(r[4] or 0), br_expenses=float(r[5] or 0),
@@ -235,16 +236,16 @@ async def get_annual_br_summary(
     db: AsyncSession = Depends(get_db)
 ):
     project_result = await db.execute(
-        "SELECT name FROM read_models.projects WHERE id = :id", {"id": project_id}
+        text("SELECT name FROM read_models.projects WHERE id = :id"), {"id": project_id}
     )
     project_row = project_result.fetchone()
     project_name = project_row[0] if project_row else "Unknown"
     
     category_result = await db.execute(
-        """SELECT br_category, SUM(gross_amount), SUM(gross_amount * br_deduction_rate)
+        text("""SELECT br_category, SUM(gross_amount), SUM(gross_amount * br_deduction_rate)
         FROM read_models.expenses WHERE project_id = :project_id
         AND EXTRACT(YEAR FROM invoice_date) = :year AND br_qualified = true
-        GROUP BY br_category""",
+        GROUP BY br_category"""),
         {"project_id": project_id, "year": fiscal_year}
     )
     
@@ -260,11 +261,11 @@ async def get_annual_br_summary(
         total_deduction += deduction
     
     monthly_result = await db.execute(
-        """SELECT EXTRACT(MONTH FROM invoice_date), SUM(gross_amount),
+        text("""SELECT EXTRACT(MONTH FROM invoice_date), SUM(gross_amount),
                SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END)
         FROM read_models.expenses WHERE project_id = :project_id
         AND EXTRACT(YEAR FROM invoice_date) = :year
-        GROUP BY EXTRACT(MONTH FROM invoice_date) ORDER BY 1""",
+        GROUP BY EXTRACT(MONTH FROM invoice_date) ORDER BY 1"""),
         {"project_id": project_id, "year": fiscal_year}
     )
     monthly = [{"month": int(r[0]), "total": float(r[1] or 0), "br": float(r[2] or 0)}
@@ -292,17 +293,17 @@ async def get_annual_ip_box_summary(
     db: AsyncSession = Depends(get_db)
 ):
     ip_revenues = float((await db.execute(
-        """SELECT COALESCE(SUM(gross_amount), 0) FROM read_models.revenues 
+        text("""SELECT COALESCE(SUM(gross_amount), 0) FROM read_models.revenues 
         WHERE project_id = :project_id AND EXTRACT(YEAR FROM invoice_date) = :year
-        AND ip_qualified = true""",
+        AND ip_qualified = true"""),
         {"project_id": project_id, "year": fiscal_year}
     )).scalar() or 0)
     
     nexus_result = await db.execute(
-        """SELECT nexus_category, COALESCE(SUM(gross_amount), 0)
+        text("""SELECT nexus_category, COALESCE(SUM(gross_amount), 0)
         FROM read_models.expenses WHERE project_id = :project_id
         AND EXTRACT(YEAR FROM invoice_date) = :year AND ip_qualified = true
-        GROUP BY nexus_category""",
+        GROUP BY nexus_category"""),
         {"project_id": project_id, "year": fiscal_year}
     )
     

@@ -9,6 +9,7 @@ from decimal import Decimal
 from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 import structlog
 
 from ..database import get_db
@@ -85,11 +86,11 @@ async def create_project(
     project_id = str(uuid.uuid4())
     
     await db.execute(
-        """
+        text("""
         INSERT INTO read_models.projects 
         (id, name, description, fiscal_year, start_date, end_date, status)
         VALUES (:id, :name, :description, :fiscal_year, :start_date, :end_date, 'active')
-        """,
+        """),
         {
             "id": project_id,
             "name": project.name,
@@ -108,12 +109,12 @@ async def create_project(
 async def get_project(project_id: str, db: AsyncSession = Depends(get_db)):
     """Get project details"""
     result = await db.execute(
-        """
+        text("""
         SELECT id, name, description, status, start_date, end_date,
                fiscal_year, total_expenses, br_qualified_expenses,
                ip_qualified_expenses, created_at, updated_at
         FROM read_models.projects WHERE id = :id
-        """,
+        """),
         {"id": project_id}
     )
     row = result.fetchone()
@@ -162,7 +163,7 @@ async def list_projects(
     
     query += " ORDER BY created_at DESC"
     
-    result = await db.execute(query, params)
+    result = await db.execute(text(query), params)
     rows = result.fetchall()
     
     return [
@@ -217,7 +218,7 @@ async def update_project(
     if updates:
         updates.append("updated_at = NOW()")
         await db.execute(
-            f"UPDATE read_models.projects SET {', '.join(updates)} WHERE id = :id",
+            text(f"UPDATE read_models.projects SET {', '.join(updates)} WHERE id = :id"),
             params
         )
     
@@ -232,48 +233,48 @@ async def get_project_summary(project_id: str, db: AsyncSession = Depends(get_db
     
     # Get expense statistics
     expense_result = await db.execute(
-        """
+        text("""
         SELECT 
             COUNT(*) as total,
             SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END) as br_total,
             SUM(CASE WHEN br_qualified THEN gross_amount * br_deduction_rate ELSE 0 END) as br_deduction,
             SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END) as ip_total
         FROM read_models.expenses WHERE project_id = :project_id
-        """,
+        """),
         {"project_id": project_id}
     )
     expense_row = expense_result.fetchone()
     
     # Get document counts
     doc_result = await db.execute(
-        """
+        text("""
         SELECT 
             COUNT(*) as total,
             SUM(CASE WHEN ocr_status = 'pending' THEN 1 ELSE 0 END) as pending
         FROM read_models.documents WHERE project_id = :project_id
-        """,
+        """),
         {"project_id": project_id}
     )
     doc_row = doc_result.fetchone()
     
     # Get clarification count
     clarification_result = await db.execute(
-        """
+        text("""
         SELECT COUNT(*) FROM read_models.expenses 
         WHERE project_id = :project_id AND needs_clarification = true
-        """,
+        """),
         {"project_id": project_id}
     )
     clarification_count = clarification_result.scalar() or 0
     
     # Get expenses by category
     category_result = await db.execute(
-        """
+        text("""
         SELECT br_category, SUM(gross_amount) as total
         FROM read_models.expenses 
         WHERE project_id = :project_id AND br_qualified = true
         GROUP BY br_category
-        """,
+        """),
         {"project_id": project_id}
     )
     category_rows = category_result.fetchall()
@@ -302,27 +303,27 @@ async def recalculate_project_totals(
     """Recalculate project expense totals"""
     # Calculate totals from expenses
     result = await db.execute(
-        """
+        text("""
         SELECT 
             SUM(gross_amount) as total,
             SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END) as br_total,
             SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END) as ip_total
         FROM read_models.expenses WHERE project_id = :project_id
-        """,
+        """),
         {"project_id": project_id}
     )
     row = result.fetchone()
     
     # Update project
     await db.execute(
-        """
+        text("""
         UPDATE read_models.projects SET
             total_expenses = :total,
             br_qualified_expenses = :br_total,
             ip_qualified_expenses = :ip_total,
             updated_at = NOW()
         WHERE id = :id
-        """,
+        """),
         {
             "id": project_id,
             "total": float(row[0] or 0),

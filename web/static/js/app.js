@@ -11,16 +11,47 @@ document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => navigateTo(item.dataset.page));
 });
 
-function navigateTo(page) {
+function getPageFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('page') || 'dashboard';
+}
+
+function setPageInUrl(page, pushState = true) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+
+    if (pushState) {
+        history.pushState({ page }, '', url.pathname + url.search);
+    } else {
+        history.replaceState({ page }, '', url.pathname + url.search);
+    }
+}
+
+function navigateTo(page, options = {}) {
+    const { updateUrl = true } = options;
+
+    const navItem = document.querySelector(`[data-page="${page}"]`);
+    const pageEl = document.getElementById(`page-${page}`);
+    if (!navItem || !pageEl) {
+        page = 'dashboard';
+    }
+
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector(`[data-page="${page}"]`).classList.add('active');
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(`page-${page}`).classList.add('active');
+
+    if (updateUrl) {
+        setPageInUrl(page, true);
+    }
     
     const loaders = { dashboard: loadDashboard, upload: loadRecentDocuments, 
                       expenses: loadExpenses, reports: loadReports, clarifications: loadClarifications,
-                      integrations: loadIntegrations };
+                      integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig };
     if (loaders[page]) loaders[page]();
+    
+    // Stop log streams when leaving logs page
+    if (page !== 'logs') stopAllLogStreams();
 }
 
 // API
@@ -70,7 +101,6 @@ function handleFiles(files) { Array.from(files).forEach(uploadFile); }
 
 async function uploadFile(file) {
     const itemId = `upload-${Date.now()}`;
-    const documentType = document.getElementById('document-type').value;
     
     document.getElementById('upload-queue').insertAdjacentHTML('beforeend', `
         <div class="upload-item" id="${itemId}">
@@ -84,7 +114,7 @@ async function uploadFile(file) {
     formData.append('file', file);
     
     try {
-        const response = await fetch(`${API_BASE}/documents/upload?project_id=${PROJECT_ID}&document_type=${documentType}`, { method: 'POST', body: formData });
+        const response = await fetch(`${API_BASE}/documents/upload?project_id=${PROJECT_ID}&document_type=auto`, { method: 'POST', body: formData });
         const result = await response.json();
         
         if (response.ok) {
@@ -120,10 +150,106 @@ async function loadRecentDocuments() {
     try {
         const docs = await apiCall(`/documents/?project_id=${PROJECT_ID}&limit=10`);
         const html = docs.length === 0 ? '<p class="empty-state">Brak dokumentów</p>' :
-            docs.map(d => `<div class="document-item"><span>📄 ${d.filename}</span><span class="status-badge ${d.ocr_status}">${getStatusLabel(d.ocr_status)}</span></div>`).join('');
+            docs.map(d => `
+                <div class="document-item" data-id="${d.id}">
+                    <div class="doc-info" onclick="showDocumentDetail('${d.id}')">
+                        <span class="doc-icon">📄</span>
+                        <span class="doc-name">${d.filename}</span>
+                        <span class="doc-type">${getDocTypeName(d.document_type)}</span>
+                    </div>
+                    <div class="doc-actions">
+                        <span class="status-badge ${d.ocr_status}">${getStatusLabel(d.ocr_status)}</span>
+                        <button class="btn-icon" onclick="retryOcr('${d.id}')" title="Powtórz OCR">🔄</button>
+                        <button class="btn-icon btn-danger" onclick="deleteDocument('${d.id}')" title="Usuń">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
         document.getElementById('recent-documents').innerHTML = html;
         document.getElementById('uploaded-documents').innerHTML = html;
     } catch (e) { console.error('Error:', e); }
+}
+
+function getDocTypeName(type) {
+    const types = { invoice: 'Faktura', receipt: 'Paragon', contract: 'Umowa', protocol: 'Protokół', report: 'Raport', other: 'Inny', auto: 'Auto' };
+    return types[type] || type;
+}
+
+async function deleteDocument(docId) {
+    if (!confirm('Czy na pewno chcesz usunąć ten dokument?')) return;
+    try {
+        await apiCall(`/documents/${docId}`, { method: 'DELETE' });
+        // Optimistic UI update
+        document.querySelectorAll(`.document-item[data-id="${docId}"]`).forEach(el => el.remove());
+        showToast('Dokument usunięty', 'success');
+        loadRecentDocuments();
+    } catch (e) { showToast('Błąd usuwania dokumentu', 'error'); }
+}
+
+async function retryOcr(docId) {
+    try {
+        await apiCall(`/documents/${docId}/reprocess`, { method: 'POST' });
+        showToast('OCR uruchomiony ponownie', 'success');
+        loadRecentDocuments();
+    } catch (e) { showToast('Błąd uruchamiania OCR', 'error'); }
+}
+
+async function showDocumentDetail(docId) {
+    try {
+        const doc = await apiCall(`/documents/${docId}/detail`);
+        const modal = document.getElementById('document-modal');
+        document.getElementById('document-modal-content').innerHTML = `
+            <div class="doc-detail-header">
+                <h3>📄 ${doc.filename}</h3>
+                <span class="status-badge ${doc.ocr_status}">${getStatusLabel(doc.ocr_status)}</span>
+            </div>
+            <div class="doc-detail-info">
+                <p><strong>Typ:</strong> ${getDocTypeName(doc.document_type)}</p>
+                <p><strong>Pewność OCR:</strong> ${doc.ocr_confidence ? (doc.ocr_confidence * 100).toFixed(1) + '%' : '-'}</p>
+                <p><strong>Data dodania:</strong> ${new Date(doc.created_at).toLocaleString('pl-PL')}</p>
+            </div>
+            ${doc.extracted_data && Object.keys(doc.extracted_data).length > 0 ? `
+                <div class="doc-detail-section">
+                    <h4>Wyodrębnione dane</h4>
+                    <div class="extracted-data">
+                        ${Object.entries(doc.extracted_data)
+                            .filter(([k]) => !k.startsWith('_'))
+                            .map(([k, v]) => `<div class="data-row"><span class="data-key">${k}:</span> <span class="data-value">${v}</span></div>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            ${doc.ocr_text ? `
+                <div class="doc-detail-section">
+                    <h4>Tekst OCR</h4>
+                    <pre class="ocr-text">${doc.ocr_text}</pre>
+                </div>
+            ` : ''}
+            ${doc.validation_errors && doc.validation_errors.length > 0 ? `
+                <div class="doc-detail-section error-section">
+                    <h4>Błędy</h4>
+                    <ul>${doc.validation_errors.map(e => `<li>${e}</li>`).join('')}</ul>
+                </div>
+            ` : ''}
+            <div class="doc-detail-actions">
+                <button class="btn btn-primary" onclick="retryOcr('${docId}'); closeDocumentModal();">🔄 Powtórz OCR</button>
+                <button class="btn btn-success" onclick="approveDocument('${docId}')">✅ Zatwierdź</button>
+                <button class="btn btn-danger" onclick="deleteDocument('${docId}'); closeDocumentModal();">🗑️ Usuń</button>
+            </div>
+        `;
+        modal.classList.add('active');
+    } catch (e) { showToast('Błąd ładowania szczegółów', 'error'); }
+}
+
+function closeDocumentModal() {
+    document.getElementById('document-modal').classList.remove('active');
+}
+
+async function approveDocument(docId) {
+    try {
+        await apiCall(`/documents/${docId}?ocr_status=approved`, { method: 'PATCH' });
+        showToast('Dokument zatwierdzony', 'success');
+        closeDocumentModal();
+        loadRecentDocuments();
+    } catch (e) { showToast('Błąd zatwierdzania', 'error'); }
 }
 
 // Expenses
@@ -659,5 +785,276 @@ async function deleteIntegration(id) {
     }
 }
 
+// ==================== AI CONFIG ====================
+async function loadAIConfig() {
+    try {
+        // Load current config
+        const ocrConfig = await apiCall('/config/ocr/config');
+        const llmConfig = await apiCall('/config/llm/config');
+        
+        // Set OCR values
+        document.getElementById('ocr-primary-engine').value = ocrConfig.primary_engine;
+        document.getElementById('ocr-strategy').value = ocrConfig.strategy;
+        document.getElementById('ocr-min-confidence').value = ocrConfig.min_confidence * 100;
+        document.getElementById('ocr-confidence-value').textContent = Math.round(ocrConfig.min_confidence * 100) + '%';
+        document.getElementById('ocr-language').value = ocrConfig.language;
+        document.getElementById('ocr-use-gpu').checked = ocrConfig.use_gpu;
+        document.getElementById('ocr-field-specific').checked = ocrConfig.use_field_specific;
+        
+        // Set LLM values
+        document.getElementById('llm-provider').value = llmConfig.provider;
+        document.getElementById('llm-model').value = llmConfig.model;
+        document.getElementById('llm-api-base').value = llmConfig.api_base;
+        document.getElementById('llm-temperature').value = llmConfig.temperature * 100;
+        document.getElementById('llm-temp-value').textContent = llmConfig.temperature.toFixed(2);
+        document.getElementById('llm-use-extraction').checked = llmConfig.use_for_extraction;
+        document.getElementById('llm-use-classification').checked = llmConfig.use_for_classification;
+        document.getElementById('llm-use-validation').checked = llmConfig.use_for_validation;
+        
+        // Load engines list
+        await loadOCREngines();
+        await loadDocumentTypes();
+        
+        // Test connections
+        testConnections();
+        
+        // Add slider listener
+        document.getElementById('ocr-min-confidence').addEventListener('input', function() {
+            document.getElementById('ocr-confidence-value').textContent = this.value + '%';
+        });
+    } catch (e) { console.error('Error loading AI config:', e); }
+}
+
+async function loadOCREngines() {
+    try {
+        const data = await apiCall('/config/ocr/engines');
+        const html = data.engines.map(e => `
+            <div class="engine-card ${e.gpu_required ? 'gpu-required' : ''}">
+                <div class="engine-header">
+                    <strong>${e.name}</strong>
+                    ${e.gpu_required ? '<span class="gpu-badge">GPU</span>' : ''}
+                </div>
+                <p class="engine-desc">${e.description}</p>
+                <div class="engine-scores">
+                    <span title="Dokładność">🎯 ${Math.round(e.accuracy_score * 100)}%</span>
+                    <span title="Szybkość">⚡ ${Math.round(e.speed_score * 100)}%</span>
+                </div>
+                <div class="engine-tags">
+                    ${e.strengths.slice(0, 3).map(s => `<span class="tag">${s}</span>`).join('')}
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('ocr-engines-list').innerHTML = html;
+    } catch (e) { console.error('Error loading OCR engines:', e); }
+}
+
+async function loadDocumentTypes() {
+    try {
+        const data = await apiCall('/config/ocr/document-types');
+        const html = data.document_types.map(t => `
+            <div class="doc-type-card">
+                <strong>${t.name}</strong>
+                <div class="recommended-engines">
+                    ${t.recommended_engines.slice(0, 3).map(e => `<span class="engine-tag">${e}</span>`).join('')}
+                </div>
+                ${t.required_fields.length > 0 ? `
+                    <div class="required-fields">
+                        Wymagane: ${t.required_fields.join(', ')}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+        document.getElementById('document-types-list').innerHTML = html;
+    } catch (e) { console.error('Error loading document types:', e); }
+}
+
+async function saveAIConfig() {
+    try {
+        // Save OCR config
+        const ocrParams = new URLSearchParams({
+            primary_engine: document.getElementById('ocr-primary-engine').value,
+            strategy: document.getElementById('ocr-strategy').value,
+            min_confidence: document.getElementById('ocr-min-confidence').value / 100,
+            language: document.getElementById('ocr-language').value,
+            use_gpu: document.getElementById('ocr-use-gpu').checked,
+            use_field_specific: document.getElementById('ocr-field-specific').checked
+        });
+        await apiCall(`/config/ocr/config?${ocrParams}`, { method: 'PUT' });
+        
+        // Save LLM config
+        const llmParams = new URLSearchParams({
+            provider: document.getElementById('llm-provider').value,
+            model: document.getElementById('llm-model').value,
+            api_base: document.getElementById('llm-api-base').value,
+            temperature: document.getElementById('llm-temperature').value / 100,
+            use_for_extraction: document.getElementById('llm-use-extraction').checked,
+            use_for_classification: document.getElementById('llm-use-classification').checked,
+            use_for_validation: document.getElementById('llm-use-validation').checked
+        });
+        await apiCall(`/config/llm/config?${llmParams}`, { method: 'PUT' });
+        
+        showToast('Konfiguracja zapisana', 'success');
+    } catch (e) { showToast('Błąd zapisywania konfiguracji', 'error'); }
+}
+
+async function testConnections() {
+    // Test OCR
+    document.getElementById('status-ocr').innerHTML = '⏳ Sprawdzanie...';
+    try {
+        const health = await fetch('/api/health').then(r => r.json());
+        document.getElementById('status-ocr').innerHTML = '✅ Połączony';
+    } catch (e) {
+        document.getElementById('status-ocr').innerHTML = '❌ Brak połączenia';
+    }
+    
+    // Test LLM
+    document.getElementById('status-llm').innerHTML = '⏳ Sprawdzanie...';
+    try {
+        const result = await apiCall('/config/test-llm', { method: 'POST' });
+        if (result.status === 'connected') {
+            document.getElementById('status-llm').innerHTML = '✅ Połączony';
+            document.getElementById('status-ollama').innerHTML = `✅ ${result.available_models?.length || 0} modeli`;
+        } else {
+            document.getElementById('status-llm').innerHTML = '❌ Brak połączenia';
+            document.getElementById('status-ollama').innerHTML = '❌ Niedostępny';
+        }
+    } catch (e) {
+        document.getElementById('status-llm').innerHTML = '❌ Błąd';
+        document.getElementById('status-ollama').innerHTML = '❌ Błąd';
+    }
+}
+
+function updateModelList() {
+    const provider = document.getElementById('llm-provider').value;
+    const modelSelect = document.getElementById('llm-model');
+    
+    const models = {
+        ollama: [
+            { id: 'llama3.2', name: 'Llama 3.2 (3B)' },
+            { id: 'llama3.1:8b', name: 'Llama 3.1 (8B)' },
+            { id: 'mistral', name: 'Mistral 7B' },
+            { id: 'gemma2:9b', name: 'Gemma 2 (9B)' },
+            { id: 'qwen2.5:7b', name: 'Qwen 2.5 (7B)' },
+            { id: 'phi3', name: 'Phi-3' }
+        ],
+        openai: [
+            { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+            { id: 'gpt-4o', name: 'GPT-4o' },
+            { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' }
+        ],
+        anthropic: [
+            { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet' },
+            { id: 'claude-3-5-haiku-latest', name: 'Claude 3.5 Haiku' }
+        ]
+    };
+    
+    modelSelect.innerHTML = models[provider].map(m => 
+        `<option value="${m.id}">${m.name}</option>`
+    ).join('');
+}
+
+// ==================== LOGS ====================
+const logStreams = {};
+const LOG_SERVICES = ['api', 'ocr', 'llm', 'web', 'postgres'];
+
+function initLogStreams() {
+    LOG_SERVICES.forEach(service => {
+        startLogStreamFor(service);
+    });
+}
+
+function startLogStreamFor(service) {
+    // Close existing stream if any
+    if (logStreams[service]) {
+        logStreams[service].close();
+    }
+    
+    const logOutput = document.getElementById(`log-output-${service}`);
+    const tabDot = document.getElementById(`dot-${service}`);
+    
+    if (!logOutput) return;
+    
+    // Start SSE stream
+    const eventSource = new EventSource(`${API_BASE}/logs/stream?service=${service}&lines=50`);
+    logStreams[service] = eventSource;
+    
+    eventSource.onopen = () => {
+        if (tabDot) tabDot.className = 'tab-dot connected';
+    };
+    
+    eventSource.onmessage = (event) => {
+        const line = event.data.replace(/\\n/g, '\n');
+        logOutput.textContent += line + '\n';
+        // Auto-scroll to bottom
+        logOutput.scrollTop = logOutput.scrollHeight;
+        
+        // Limit lines to prevent memory issues
+        const lines = logOutput.textContent.split('\n');
+        if (lines.length > 500) {
+            logOutput.textContent = lines.slice(-300).join('\n');
+        }
+    };
+    
+    eventSource.onerror = () => {
+        if (tabDot) tabDot.className = 'tab-dot error';
+        eventSource.close();
+        logStreams[service] = null;
+        // Try to reconnect after 5 seconds
+        setTimeout(() => startLogStreamFor(service), 5000);
+    };
+}
+
+function switchLogTab(service) {
+    // Update tabs
+    document.querySelectorAll('.log-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.service === service);
+    });
+    
+    // Update panels
+    document.querySelectorAll('.log-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `log-panel-${service}`);
+    });
+    
+    // Scroll to bottom of active panel
+    const logOutput = document.getElementById(`log-output-${service}`);
+    if (logOutput) logOutput.scrollTop = logOutput.scrollHeight;
+}
+
+function clearAllLogs() {
+    LOG_SERVICES.forEach(service => {
+        const logOutput = document.getElementById(`log-output-${service}`);
+        if (logOutput) logOutput.textContent = '';
+    });
+}
+
+function reconnectAllLogs() {
+    LOG_SERVICES.forEach(service => {
+        if (logStreams[service]) {
+            logStreams[service].close();
+        }
+        const logOutput = document.getElementById(`log-output-${service}`);
+        if (logOutput) logOutput.textContent = '';
+    });
+    initLogStreams();
+}
+
+function stopAllLogStreams() {
+    LOG_SERVICES.forEach(service => {
+        if (logStreams[service]) {
+            logStreams[service].close();
+            logStreams[service] = null;
+        }
+    });
+}
+
 // Init
-document.addEventListener('DOMContentLoaded', loadDashboard);
+window.addEventListener('popstate', () => {
+    const page = getPageFromUrl();
+    navigateTo(page, { updateUrl: false });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const page = getPageFromUrl();
+    setPageInUrl(page, false);
+    navigateTo(page, { updateUrl: false });
+});
