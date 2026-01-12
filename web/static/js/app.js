@@ -208,7 +208,7 @@ async function retryOcr(docId) {
 
 async function showDocumentDetail(docId) {
     try {
-        setUrlParam('doc', docId, false);
+        setUrlParam('doc', docId, true);
         const doc = await apiCall(`/documents/${docId}/detail`);
         const modal = document.getElementById('document-modal');
         document.getElementById('document-modal-content').innerHTML = `
@@ -254,7 +254,7 @@ async function showDocumentDetail(docId) {
 }
 
 function closeDocumentModal() {
-    setUrlParam('doc', null, false);
+    setUrlParam('doc', null, true);
     document.getElementById('document-modal').classList.remove('active');
 }
 
@@ -1074,7 +1074,7 @@ function toggleGlobalLogs() {
 
     const willOpen = !overlay.classList.contains('open');
     overlay.classList.toggle('open', willOpen);
-    setUrlParam('logs', willOpen ? '1' : null, false);
+    setUrlParam('logs', willOpen ? '1' : null, true);
 
     if (willOpen) {
         initLogStreams();
