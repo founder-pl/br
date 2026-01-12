@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System B+R - Prototypowy System Modularny</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>System B+R</h1>
+                <p class="company-info">Tomasz Sapletta<br>NIP: 588-191-86-62</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-page="upload">
+                    <span class="nav-icon">📄</span>
+                    <span>Upload dokumentów</span>
+                </li>
+                <li class="nav-item" data-page="expenses">
+                    <span class="nav-icon">💰</span>
+                    <span>Wydatki B+R</span>
+                </li>
+                <li class="nav-item" data-page="reports">
+                    <span class="nav-icon">📈</span>
+                    <span>Raporty miesięczne</span>
+                </li>
+                <li class="nav-item" data-page="clarifications">
+                    <span class="nav-icon">❓</span>
+                    <span>Wyjaśnienia</span>
+                    <span class="badge" id="clarification-badge">0</span>
+                </li>
+                <li class="nav-item" data-page="integrations">
+                    <span class="nav-icon">🔗</span>
+                    <span>Integracje</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Ustawienia</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="project-info">
+                    <strong>Aktywny projekt:</strong><br>
+                    <span id="active-project">Prototypowy system modularny</span>
+                </div>
+                <div class="fiscal-year">
+                    Rok podatkowy: <span id="fiscal-year">2025</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="page active">
+                <header class="page-header">
+                    <h2>Dashboard</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="generateAllReports()">
+                            Generuj raporty
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <h3>Wydatki ogółem</h3>
+                            <p class="stat-value" id="total-expenses">0,00 zł</p>
+                        </div>
+                    </div>
+                    <div class="stat-card highlight">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3>Koszty kwalifikowane B+R</h3>
+                            <p class="stat-value" id="br-expenses">0,00 zł</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📉</div>
+                        <div class="stat-content">
+                            <h3>Odliczenie B+R</h3>
+                            <p class="stat-value" id="br-deduction">0,00 zł</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <h3>Koszty IP Box</h3>
+                            <p class="stat-value" id="ip-expenses">0,00 zł</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Ostatnie dokumenty</h3>
+                        <div id="recent-documents" class="document-list">
+                            <p class="empty-state">Brak dokumentów</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Wydatki wg kategorii B+R</h3>
+                        <div id="category-breakdown" class="category-list">
+                            <p class="empty-state">Brak danych</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Page -->
+            <section id="page-upload" class="page">
+                <header class="page-header">
+                    <h2>Upload dokumentów</h2>
+                </header>
+                
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📄</div>
+                    <h3>Przeciągnij dokumenty tutaj</h3>
+                    <p>lub kliknij, aby wybrać pliki</p>
+                    <p class="upload-formats">Obsługiwane formaty: PDF, PNG, JPG, TIFF</p>
+                    <input type="file" id="file-input" multiple accept=".pdf,.png,.jpg,.jpeg,.tiff">
+                </div>
+                
+                <div class="upload-options">
+                    <div class="form-group">
+                        <label for="document-type">Typ dokumentu:</label>
+                        <select id="document-type">
+                            <option value="invoice">Faktura VAT</option>
+                            <option value="receipt">Paragon</option>
+                            <option value="contract">Umowa</option>
+                            <option value="other">Inny</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="upload-queue" class="upload-queue">
+                    <!-- Upload queue items will be added here -->
+                </div>
+                
+                <div class="card">
+                    <h3>Ostatnio przesłane</h3>
+                    <div id="uploaded-documents" class="document-list">
+                        <p class="empty-state">Brak przesłanych dokumentów</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expenses Page -->
+            <section id="page-expenses" class="page">
+                <header class="page-header">
+                    <h2>Wydatki B+R</h2>
+                    <div class="header-actions">
+                        <select id="expense-filter-status">
+                            <option value="">Wszystkie statusy</option>
+                            <option value="draft">Szkic</option>
+                            <option value="classified">Sklasyfikowane</option>
+                            <option value="approved">Zatwierdzone</option>
+                        </select>
+                        <select id="expense-filter-br">
+                            <option value="">B+R: Wszystkie</option>
+                            <option value="true">Kwalifikowane</option>
+                            <option value="false">Niekwalifikowane</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="loadExpenses()">
+                            Odśwież
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Nr faktury</th>
+                                <th>Dostawca</th>
+                                <th>Kwota brutto</th>
+                                <th>Kategoria B+R</th>
+                                <th>Stawka</th>
+                                <th>Status</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenses-table-body">
+                            <tr>
+                                <td colspan="8" class="empty-state">Brak wydatków</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Page -->
+            <section id="page-reports" class="page">
+                <header class="page-header">
+                    <h2>Raporty miesięczne</h2>
+                    <div class="header-actions">
+                        <select id="report-year">
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="generateMonthlyReport()">
+                            Generuj raport
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="reports-grid">
+                    <div class="card report-summary">
+                        <h3>Podsumowanie roczne B+R</h3>
+                        <div id="annual-br-summary">
+                            <p class="empty-state">Wybierz rok i wygeneruj raport</p>
+                        </div>
+                    </div>
+                    <div class="card report-summary">
+                        <h3>Podsumowanie IP Box</h3>
+                        <div id="annual-ip-summary">
+                            <p class="empty-state">Wybierz rok i wygeneruj raport</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Raporty miesięczne</h3>
+                    <div id="monthly-reports-list" class="reports-list">
+                        <p class="empty-state">Brak raportów</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Clarifications Page -->
+            <section id="page-clarifications" class="page">
+                <header class="page-header">
+                    <h2>Wyjaśnienia</h2>
+                    <div class="header-actions">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-unanswered" checked>
+                            Tylko bez odpowiedzi
+                        </label>
+                    </div>
+                </header>
+                
+                <div id="clarifications-list" class="clarifications-list">
+                    <p class="empty-state">Brak pytań wymagających wyjaśnienia</p>
+                </div>
+            </section>
+
+            <!-- Integrations Page -->
+            <section id="page-integrations" class="page">
+                <header class="page-header">
+                    <h2>Integracje</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="showAddIntegrationModal()">
+                            + Dodaj integrację
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="integrations-container">
+                    <!-- Accounting Integrations -->
+                    <div class="card">
+                        <h3>📊 Programy księgowe</h3>
+                        <p class="card-description">Automatyczny import faktur kosztowych do systemu B+R</p>
+                        
+                        <div id="accounting-integrations" class="integrations-list">
+                            <div class="integration-placeholder">
+                                <p>Brak skonfigurowanych integracji księgowych</p>
+                                <button class="btn btn-outline" onclick="showAddIntegrationModal('accounting')">
+                                    Dodaj integrację
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="available-providers">
+                            <h4>Dostępne programy:</h4>
+                            <div class="provider-badges">
+                                <span class="provider-badge" data-provider="ifirma">iFirma</span>
+                                <span class="provider-badge" data-provider="fakturownia">Fakturownia</span>
+                                <span class="provider-badge" data-provider="wfirma">wFirma</span>
+                                <span class="provider-badge" data-provider="infakt">InFakt</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cloud Storage Integrations -->
+                    <div class="card">
+                        <h3>☁️ Magazyn w chmurze</h3>
+                        <p class="card-description">Automatyczny upload raportów miesięcznych do chmury</p>
+                        
+                        <div id="cloud-integrations" class="integrations-list">
+                            <div class="integration-placeholder">
+                                <p>Brak skonfigurowanych integracji chmurowych</p>
+                                <button class="btn btn-outline" onclick="showAddIntegrationModal('cloud_storage')">
+                                    Dodaj integrację
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="available-providers">
+                            <h4>Dostępne usługi:</h4>
+                            <div class="provider-badges">
+                                <span class="provider-badge" data-provider="nextcloud">Nextcloud</span>
+                                <span class="provider-badge" data-provider="google_drive">Google Drive</span>
+                                <span class="provider-badge" data-provider="dropbox">Dropbox</span>
+                                <span class="provider-badge" data-provider="onedrive">OneDrive</span>
+                                <span class="provider-badge" data-provider="aws_s3">AWS S3</span>
+                                <span class="provider-badge" data-provider="minio">MinIO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sync Actions -->
+                    <div class="card">
+                        <h3>🔄 Akcje synchronizacji</h3>
+                        
+                        <div class="sync-actions">
+                            <div class="sync-action">
+                                <div class="sync-info">
+                                    <strong>Synchronizuj faktury</strong>
+                                    <p>Pobierz wszystkie faktury z programów księgowych</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="syncAllInvoices()">
+                                    Synchronizuj
+                                </button>
+                            </div>
+                            
+                            <div class="sync-action">
+                                <div class="sync-info">
+                                    <strong>Upload raportów</strong>
+                                    <p>Wyślij raporty miesięczne do wszystkich magazynów chmurowych</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="uploadAllReports()">
+                                    Wyślij raporty
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sync Logs -->
+                    <div class="card">
+                        <h3>📋 Historia synchronizacji</h3>
+                        <div id="sync-logs-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Integracja</th>
+                                        <th>Typ</th>
+                                        <th>Status</th>
+                                        <th>Elementy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sync-logs-table">
+                                    <tr>
+                                        <td colspan="5" class="empty-state">Brak historii synchronizacji</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Page -->
+            <section id="page-settings" class="page">
+                <header class="page-header">
+                    <h2>Ustawienia</h2>
+                </header>
+                
+                <div class="settings-grid">
+                    <div class="card">
+                        <h3>Dane firmy</h3>
+                        <div class="form-group">
+                            <label>Nazwa firmy:</label>
+                            <input type="text" id="setting-company-name" value="Tomasz Sapletta" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>NIP:</label>
+                            <input type="text" id="setting-nip" value="5881918662" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>PKD:</label>
+                            <input type="text" id="setting-pkd" value="72.10.Z" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Projekt B+R</h3>
+                        <div class="form-group">
+                            <label>Nazwa projektu:</label>
+                            <input type="text" id="setting-project-name" value="Prototypowy system modularny">
+                        </div>
+                        <div class="form-group">
+                            <label>Rok podatkowy:</label>
+                            <select id="setting-fiscal-year">
+                                <option value="2025" selected>2025</option>
+                                <option value="2024">2024</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveProjectSettings()">
+                            Zapisz ustawienia
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Integracje</h3>
+                        <div class="integration-status">
+                            <div class="integration-item">
+                                <span class="status-dot green"></span>
+                                <span>OCR Service</span>
+                            </div>
+                            <div class="integration-item">
+                                <span class="status-dot green"></span>
+                                <span>LLM Service</span>
+                            </div>
+                            <div class="integration-item">
+                                <span class="status-dot green"></span>
+                                <span>Database</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for expense details -->
+    <div id="expense-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>Szczegóły wydatku</h3>
+            <div id="expense-modal-content">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding integration -->
+    <div id="integration-modal" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="modal-close" onclick="closeIntegrationModal()">&times;</span>
+            <h3 id="integration-modal-title">Dodaj integrację</h3>
+            
+            <form id="integration-form" onsubmit="saveIntegration(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="integration-id">ID integracji:</label>
+                        <input type="text" id="integration-id" required placeholder="np. moja-ifirma">
+                    </div>
+                    <div class="form-group">
+                        <label for="integration-type">Typ:</label>
+                        <select id="integration-type" required onchange="updateProviderOptions()">
+                            <option value="">Wybierz typ...</option>
+                            <option value="accounting">Program księgowy</option>
+                            <option value="cloud_storage">Magazyn chmurowy</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="integration-provider">Dostawca:</label>
+                    <select id="integration-provider" required onchange="updateCredentialFields()">
+                        <option value="">Najpierw wybierz typ...</option>
+                    </select>
+                </div>
+                
+                <div id="credential-fields">
+                    <!-- Dynamic credential fields -->
+                </div>
+                
+                <div class="form-group">
+                    <label for="integration-base-url">URL bazowy (opcjonalnie):</label>
+                    <input type="url" id="integration-base-url" placeholder="https://api.example.com">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeIntegrationModal()">Anuluj</button>
+                    <button type="submit" class="btn btn-primary">Zapisz integrację</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast-container"></div>
+
+    <script src="static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+# =============================================================================
+# OCR Service Dockerfile - Tesseract + PaddleOCR z GPU NVIDIA
+# =============================================================================
+FROM nvidia/cuda:12.2-cudnn8-runtime-ubuntu22.04
+
+LABEL maintainer="Tomasz Sapletta <kontakt@prototypowy.pl>"
+LABEL description="OCR Service dla systemu B+R z obsługą GPU NVIDIA"
+LABEL version="1.0.0"
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Warsaw
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build essentials
+    build-essential \
+    cmake \
+    pkg-config \
+    # Python
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
+    python3-pip \
+    # Tesseract OCR
+    tesseract-ocr \
+    tesseract-ocr-pol \
+    tesseract-ocr-eng \
+    tesseract-ocr-deu \
+    libtesseract-dev \
+    leptonica-progs \
+    # Image processing
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    # PDF processing
+    poppler-utils \
+    ghostscript \
+    libmagickwand-dev \
+    # Network & utilities
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create app user
+RUN useradd -m -u 1000 -s /bin/bash ocruser
+
+# Setup Python
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
+# Set working directory
+WORKDIR /app
+
+# Create directories
+RUN mkdir -p /app/uploads /app/processed /app/cache /app/models \
+    && chown -R ocruser:ocruser /app
+
+# Install Python dependencies
+COPY docker/requirements-ocr.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Download PaddleOCR models for Polish/Latin
+RUN python -c "from paddleocr import PaddleOCR; ocr = PaddleOCR(lang='latin', use_gpu=True, show_log=False); print('PaddleOCR models downloaded')"
+
+# Copy application code
+COPY src/ocr /app/src/ocr
+
+# Switch to non-root user
+USER ocruser
+
+# Environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV OCR_ENGINE=paddleocr
+ENV OCR_LANG=pol
+ENV OCR_DPI=300
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+
+# Expose port
+EXPOSE 8001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
+# Run the OCR service
+CMD ["python", "-m", "uvicorn", "src.ocr.main:app", "--host", "0.0.0.0", "--port", "8001"]

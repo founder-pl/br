@@ -1,0 +1,26 @@
+# =============================================================================
+# Web Frontend Dockerfile - Nginx
+# =============================================================================
+FROM nginx:1.27-alpine
+
+LABEL maintainer="Tomasz Sapletta <kontakt@prototypowy.pl>"
+LABEL description="Web Frontend dla systemu B+R"
+LABEL version="1.0.0"
+
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy nginx config
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# Copy static files
+COPY web /usr/share/nginx/html
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

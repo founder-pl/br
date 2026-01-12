@@ -1,0 +1,144 @@
+"""
+API Backend - Main Application
+System B+R dla Tomasz Sapletta (NIP: 5881918662)
+FastAPI z CQRS i Event Sourcing
+"""
+import os
+from datetime import datetime
+from contextlib import asynccontextmanager
+from typing import Optional
+
+import structlog
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from .routers import documents, expenses, projects, reports, auth, clarifications, integrations
+from .database import init_database, close_database
+from .config import settings
+
+# Configure logging
+structlog.configure(
+    processors=[
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ]
+)
+logger = structlog.get_logger()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager"""
+    logger.info("Starting API Backend",
+               environment=settings.ENVIRONMENT,
+               company=settings.COMPANY_NAME,
+               project=settings.PROJECT_NAME)
+    
+    # Initialize database
+    await init_database()
+    
+    logger.info("API Backend started successfully")
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down API Backend")
+    await close_database()
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="System B+R - API",
+    description=f"""
+    System zarządzania dokumentacją B+R dla **{settings.COMPANY_NAME}** (NIP: {settings.COMPANY_NIP})
+    
+    ## Funkcjonalności
+    
+    * **Dokumenty** - Upload i OCR dokumentów finansowych
+    * **Wydatki** - Klasyfikacja kosztów B+R i IP Box
+    * **Przychody** - Ewidencja przychodów z kwalifikowanych IP
+    * **Raporty** - Generowanie raportów miesięcznych dla US
+    * **Wyjaśnienia** - System pytań i odpowiedzi dla niejasności
+    
+    ## Projekt B+R
+    
+    Aktywny projekt: **{settings.PROJECT_NAME}**
+    Rok podatkowy: {settings.FISCAL_YEAR}
+    """,
+    version="1.0.0",
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if settings.DEBUG else settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Exception handlers
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled exception", 
+                 path=request.url.path,
+                 method=request.method,
+                 error=str(exc))
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error", "error_id": str(datetime.utcnow().timestamp())}
+    )
+
+
+# Include routers
+app.include_router(auth.router, prefix="/auth", tags=["Autoryzacja"])
+app.include_router(documents.router, prefix="/documents", tags=["Dokumenty"])
+app.include_router(expenses.router, prefix="/expenses", tags=["Wydatki B+R"])
+app.include_router(projects.router, prefix="/projects", tags=["Projekty"])
+app.include_router(reports.router, prefix="/reports", tags=["Raporty"])
+app.include_router(clarifications.router, prefix="/clarifications", tags=["Wyjaśnienia"])
+app.include_router(integrations.router, prefix="/integrations", tags=["Integracje"])
+
+
+# Health check
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "api",
+        "timestamp": datetime.utcnow().isoformat(),
+        "environment": settings.ENVIRONMENT,
+        "company_nip": settings.COMPANY_NIP,
+        "project": settings.PROJECT_NAME
+    }
+
+
+# Root endpoint
+@app.get("/")
+async def root():
+    """Root endpoint with API info"""
+    return {
+        "name": "System B+R API",
+        "version": "1.0.0",
+        "company": settings.COMPANY_NAME,
+        "nip": settings.COMPANY_NIP,
+        "project": settings.PROJECT_NAME,
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
+# Metrics endpoint (basic)
+@app.get("/metrics")
+async def metrics():
+    """Basic metrics endpoint"""
+    return {
+        "uptime": "running",
+        "timestamp": datetime.utcnow().isoformat()
+    }

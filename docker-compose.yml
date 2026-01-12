@@ -1,0 +1,280 @@
+version: '3.9'
+
+services:
+  # =============================================================================
+  # PostgreSQL - Event Store & Read Models
+  # =============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: br-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-br_system}
+      POSTGRES_USER: ${POSTGRES_USER:-br_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-br_secret_2025}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-br_admin} -d ${POSTGRES_DB:-br_system}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - br-network
+
+  # =============================================================================
+  # Redis - Caching & Message Queue
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: br-redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - br-network
+
+  # =============================================================================
+  # OCR Service - Tesseract + PaddleOCR z GPU NVIDIA
+  # =============================================================================
+  ocr-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ocr
+    container_name: br-ocr
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - OCR_ENGINE=${OCR_ENGINE:-paddleocr}
+      - OCR_LANG=${OCR_LANG:-pol}
+      - OCR_DPI=${OCR_DPI:-300}
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./uploads:/app/uploads:rw
+      - ./processed:/app/processed:rw
+      - ocr_cache:/app/cache
+    ports:
+      - "8001:8001"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - br-network
+
+  # =============================================================================
+  # LLM Service - LiteLLM Proxy z routerem
+  # =============================================================================
+  llm-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.llm
+    container_name: br-llm
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-br-llm-2025}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OLLAMA_API_BASE=${OLLAMA_API_BASE:-http://ollama:11434}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-br_admin}:${POSTGRES_PASSWORD:-br_secret_2025}@postgres:5432/${POSTGRES_DB:-br_system}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./config/litellm_config.yaml:/app/config.yaml:ro
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - br-network
+
+  # =============================================================================
+  # Ollama - Lokalne modele LLM z GPU
+  # =============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: br-ollama
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_MAX_LOADED_MODELS=2
+    networks:
+      - br-network
+
+  # =============================================================================
+  # API Backend - FastAPI z CQRS/Event Sourcing
+  # =============================================================================
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: br-api
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-true}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-br_admin}:${POSTGRES_PASSWORD:-br_secret_2025}@postgres:5432/${POSTGRES_DB:-br_system}
+      - REDIS_URL=redis://redis:6379/1
+      - OCR_SERVICE_URL=http://ocr-service:8001
+      - LLM_SERVICE_URL=http://llm-service:4000
+      - SECRET_KEY=${SECRET_KEY:-br-secret-key-change-in-production-2025}
+      - JWT_ALGORITHM=HS256
+      - JWT_EXPIRE_MINUTES=1440
+      - COMPANY_NIP=${COMPANY_NIP:-5881918662}
+      - COMPANY_NAME=${COMPANY_NAME:-Tomasz Sapletta}
+      - PROJECT_NAME=${PROJECT_NAME:-Prototypowy system modularny}
+    volumes:
+      - ./src:/app/src:ro
+      - ./uploads:/app/uploads:rw
+      - ./processed:/app/processed:rw
+      - ./reports:/app/reports:rw
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ocr-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - br-network
+
+  # =============================================================================
+  # Web Frontend - Nginx + Static Files
+  # =============================================================================
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    container_name: br-web
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - br-network
+
+  # =============================================================================
+  # Celery Worker - Background Tasks
+  # =============================================================================
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: br-celery-worker
+    command: celery -A src.infrastructure.celery_app worker -l info -Q default,ocr,llm,reports
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-br_admin}:${POSTGRES_PASSWORD:-br_secret_2025}@postgres:5432/${POSTGRES_DB:-br_system}
+      - REDIS_URL=redis://redis:6379/2
+      - OCR_SERVICE_URL=http://ocr-service:8001
+      - LLM_SERVICE_URL=http://llm-service:4000
+    volumes:
+      - ./src:/app/src:ro
+      - ./uploads:/app/uploads:rw
+      - ./processed:/app/processed:rw
+      - ./reports:/app/reports:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - br-network
+
+  # =============================================================================
+  # Celery Beat - Scheduled Tasks
+  # =============================================================================
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: br-celery-beat
+    command: celery -A src.infrastructure.celery_app beat -l info --scheduler celery.beat:PersistentScheduler
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-br_admin}:${POSTGRES_PASSWORD:-br_secret_2025}@postgres:5432/${POSTGRES_DB:-br_system}
+      - REDIS_URL=redis://redis:6379/2
+    volumes:
+      - ./src:/app/src:ro
+      - celery_schedule:/app/schedule
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - br-network
+
+  # =============================================================================
+  # Flower - Celery Monitoring
+  # =============================================================================
+  flower:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: br-flower
+    command: celery -A src.infrastructure.celery_app flower --port=5555
+    environment:
+      - REDIS_URL=redis://redis:6379/2
+      - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-admin123}
+    ports:
+      - "5555:5555"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - br-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_models:
+  ocr_cache:
+  celery_schedule:
+
+networks:
+  br-network:
+    driver: bridge

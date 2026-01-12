@@ -1,0 +1,55 @@
+# =============================================================================
+# API Backend Dockerfile - FastAPI z CQRS/Event Sourcing
+# =============================================================================
+FROM python:3.11-slim-bookworm
+
+LABEL maintainer="Tomasz Sapletta <kontakt@prototypowy.pl>"
+LABEL description="API Backend dla systemu B+R z CQRS i Event Sourcing"
+LABEL version="1.0.0"
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Warsaw
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create app user
+RUN useradd -m -u 1000 -s /bin/bash apiuser
+
+# Set working directory
+WORKDIR /app
+
+# Create directories
+RUN mkdir -p /app/uploads /app/processed /app/reports /app/schedule \
+    && chown -R apiuser:apiuser /app
+
+# Install Python dependencies
+COPY docker/requirements-api.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src /app/src
+
+# Switch to non-root user
+USER apiuser
+
+# Environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the API
+CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
