@@ -1,8 +1,9 @@
 """
-Unit Tests - NIP and REGON Validation
+Unit Tests - NIP, REGON, Invoice and Currency Validation
 """
 import pytest
 from src.ocr.extractors import validate_nip, validate_regon
+from src.api.validators.invoice_validator import InvoiceValidator, InvoiceValidationResult
 
 
 class TestNIPValidation:
@@ -94,3 +95,87 @@ class TestREGONValidation:
     def test_empty_regon(self):
         """Test empty REGON"""
         assert validate_regon("") is False
+
+
+class TestInvoiceValidator:
+    """Tests for Polish invoice number validation"""
+    
+    @pytest.fixture
+    def validator(self):
+        return InvoiceValidator()
+    
+    @pytest.mark.unit
+    def test_valid_invoice_fv_format(self, validator):
+        """Test valid invoice number in FV format"""
+        result = validator.validate("FV/123/01/2025")
+        assert result.is_valid is True
+        assert result.normalized_number == "FV/123/01/2025"
+    
+    @pytest.mark.unit
+    def test_valid_invoice_numeric_format(self, validator):
+        """Test valid invoice number in numeric format"""
+        result = validator.validate("269/11/2025")
+        assert result.is_valid is True
+    
+    @pytest.mark.unit
+    def test_valid_invoice_alphanumeric(self, validator):
+        """Test valid alphanumeric invoice number"""
+        result = validator.validate("SVFOB8UM-0001")
+        assert result.is_valid is True
+    
+    @pytest.mark.unit
+    def test_generic_invoice_faktury(self, validator):
+        """Test generic 'faktury' is rejected"""
+        result = validator.validate("faktury")
+        assert result.is_valid is False
+        assert len(result.errors) > 0
+        assert "Generyczny" in result.errors[0]
+    
+    @pytest.mark.unit
+    def test_generic_invoice_sprzedazy(self, validator):
+        """Test generic 'sprzedazy' is rejected"""
+        result = validator.validate("sprzedazy")
+        assert result.is_valid is False
+    
+    @pytest.mark.unit
+    def test_generic_invoice_short_number(self, validator):
+        """Test short numbers (1-3 digits) are rejected"""
+        result = validator.validate("123")
+        assert result.is_valid is False
+    
+    @pytest.mark.unit
+    def test_empty_invoice(self, validator):
+        """Test empty invoice number"""
+        result = validator.validate("")
+        assert result.is_valid is False
+        assert "Brak numeru faktury" in result.errors[0]
+    
+    @pytest.mark.unit
+    def test_none_invoice(self, validator):
+        """Test None invoice number"""
+        result = validator.validate(None)
+        assert result.is_valid is False
+    
+    @pytest.mark.unit
+    def test_is_generic_helper(self, validator):
+        """Test is_generic helper method"""
+        assert validator.is_generic("faktury") is True
+        assert validator.is_generic("FV/123/01/2025") is False
+        assert validator.is_generic(None) is True
+    
+    @pytest.mark.unit
+    @pytest.mark.parametrize("invoice,expected_valid", [
+        ("FV/123/01/2025", True),
+        ("269/11/2025", True),
+        ("SVFOB8UM-0001", True),
+        ("12345678", True),  # Long numeric ID
+        ("faktury", False),
+        ("sprzedazy", False),
+        ("brak", False),
+        ("123", False),
+        ("", False),
+    ])
+    def test_various_invoice_numbers(self, validator, invoice, expected_valid):
+        """Parametrized test for various invoice numbers"""
+        result = validator.validate(invoice)
+        assert result.is_valid is expected_valid

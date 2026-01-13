@@ -379,8 +379,10 @@ async function loadRecentDocuments() {
                     </div>
                 </div>
             `).join('');
-        document.getElementById('recent-documents').innerHTML = html;
-        document.getElementById('uploaded-documents').innerHTML = html;
+        const recentDocs = document.getElementById('recent-documents');
+        const uploadedDocs = document.getElementById('uploaded-documents');
+        if (recentDocs) recentDocs.innerHTML = html;
+        if (uploadedDocs) uploadedDocs.innerHTML = html;
     } catch (e) { console.error('Error:', e); }
 }
 

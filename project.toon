@@ -1,9 +1,9 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T15:32:04.488976
+generated: 2026-01-13T15:45:15.557859
 stats:
   files: 90
-  lines: 28176
+  lines: 28221
   languages[2]: python:88,javascript:2
 
 modules[90]{path,lang,lines,kb}:
@@ -54,7 +54,7 @@ modules[90]{path,lang,lines,kb}:
   src/api/routers/__init__.py,python,5,0.2
   src/api/routers/integrations.py,python,329,14.5
   src/api/routers/logs.py,python,268,11.3
-  src/api/routers/git_timesheet.py,python,395,15.2
+  src/api/routers/git_timesheet.py,python,397,15.4
   src/api/routers/reports.py,python,285,13.3
   src/api/routers/documents.py,python,665,29.8
   src/api/routers/expenses.py,python,1090,46.7
@@ -75,7 +75,7 @@ modules[90]{path,lang,lines,kb}:
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
   web/static/js/markdown-renderer.js,javascript,136,5.4
-  web/static/js/app.js,javascript,2755,136.6
+  web/static/js/app.js,javascript,2793,138.3
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -1296,7 +1296,7 @@ module_details:
       translate_path_to_host,"(container_path:str)->str",-,false,-,6
       scan_for_repositories,"(request:ScanRequest)->None",router.post,true,-,65
       get_commit_history,"(request:CommitHistoryRequest)->None",router.post,true,-,49
-      generate_timesheet_from_commits,"(request:GenerateTimesheetRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,92
+      generate_timesheet_from_commits,"(request:GenerateTimesheetRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,97
       get_detailed_commits,"(repo_path:str=Query(...);author:Optional[str]=None;since:Optional[str]=None;until:Optional[str]=None)->None",router.get,true,-,74
     function_docs:
       run_git_command: starts git command
@@ -2028,7 +2028,7 @@ module_details:
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[148]: generateExpenseDoc,loadDashboardModules,updateGitProjectMapping,convertToRevenue,downloadPdf,initLogStreams,getStatusLabel,saveAIConfig,toggleSelectAll,syncInvoices
+    exports[150]: loadIntegrations,loadAIConfig,getPageFromUrl,regenerateMonthReport,changeExpenseStatus,showToast,viewProjectExpenses,renderDashboard,toggleSelectAll,switchLogTab
     const[7]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
@@ -2037,7 +2037,7 @@ module_details:
       TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[148]{name,sig,decorators,async,category,lines}:
+    functions[150]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
       getUrlParam,(key)->None,-,false,-,4
       setUrlParam,(key;value)->None,-,false,-,14
@@ -2064,7 +2064,7 @@ module_details:
       handleFiles,(files)->None,-,false,-,1
       uploadFile,(file)->None,-,true,-,29
       pollDocumentStatus,(docId;itemId)->None,-,true,-,16
-      loadRecentDocuments,()->None,-,true,-,22
+      loadRecentDocuments,()->None,-,true,-,24
       getDocTypeName,(type)->None,-,false,-,4
       deleteDocument,(docId)->None,-,true,-,10
       retryOcr,(docId)->None,-,true,-,7
@@ -2174,6 +2174,8 @@ module_details:
       toggleGlobalLogs,()->None,-,false,-,16
       switchGlobalLogTab,(service)->None,-,false,-,11
       clearGlobalLogs,()->None,-,false,-,6
+      copyGlobalLogs,()->None,-,false,-,15
+      downloadGlobalLogs,()->None,-,false,-,21
       startLogStreamFor,(service)->None,-,false,-,39
       initGitTimesheet,()->None,-,true,-,15
       scanGitRepos,()->None,-,true,-,52
@@ -2323,6 +2325,8 @@ module_details:
       toggleGlobalLogs: toggle global logs
       switchGlobalLogTab: switch global log tab
       clearGlobalLogs: deletes global logs
+      copyGlobalLogs: copy global logs
+      downloadGlobalLogs: download global logs
       startLogStreamFor: starts log stream for
       initGitTimesheet: creates git timesheet
       scanGitRepos: scan git repos

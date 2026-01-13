@@ -399,3 +399,61 @@ async def bulk_assign_expenses(
     
     logger.info("Bulk assigned expenses", project_id=request.project_id, count=updated)
     return {"status": "assigned", "project_id": request.project_id, "expenses_updated": updated}
+
+
+@router.post("/{project_id}/generate-uncertainty")
+async def generate_uncertainty_section(
+    project_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Generate the 'Niepewność technologiczna' section for B+R documentation.
+    
+    This is a CRITICAL section - its absence is the main reason for B+R rejection.
+    """
+    from ..services.uncertainty_generator import get_uncertainty_generator
+    from ..models.project_extended import (
+        ProjectInputExtended, TechnicalProblem, RiskAnalysis,
+        DEFAULT_TECHNICAL_PROBLEM, DEFAULT_RISK_ANALYSIS
+    )
+    
+    # Get project data
+    result = await db.execute(
+        text("SELECT id, name, description, fiscal_year FROM read_models.projects WHERE id = :id"),
+        {"id": project_id}
+    )
+    row = result.fetchone()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Build extended project model with defaults
+    project = ProjectInputExtended(
+        name=row[1],
+        code=str(row[0])[:8],
+        fiscal_year=row[3] or 2025,
+        company_name=settings.COMPANY_NAME,
+        company_nip=settings.COMPANY_NIP,
+        technical_problem=DEFAULT_TECHNICAL_PROBLEM,
+        risk_analysis=DEFAULT_RISK_ANALYSIS
+    )
+    
+    # Generate uncertainty section
+    generator = get_uncertainty_generator()
+    section = await generator.generate(project)
+    
+    logger.info("Uncertainty section generated", 
+                project_id=project_id, 
+                words=section.word_count,
+                keywords=len(section.keywords_present))
+    
+    return {
+        "project_id": project_id,
+        "section": {
+            "content": section.content,
+            "word_count": section.word_count,
+            "keywords_present": section.keywords_present,
+            "confidence_score": section.confidence_score,
+            "is_sufficient": section.is_sufficient
+        }
+    }

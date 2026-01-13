@@ -15,8 +15,13 @@ import structlog
 
 from ..database import get_db
 from ..config import settings
+from ..validators import InvoiceValidator, CurrencyConverter
 
 logger = structlog.get_logger()
+
+# Validator instances
+invoice_validator = InvoiceValidator()
+currency_converter = CurrencyConverter()
 router = APIRouter()
 
 
@@ -212,6 +217,117 @@ async def create_expense(
     
     return await get_expense(expense_id, db)
 
+
+# =============================================================================
+# Validation Endpoints (P0 - Critical) - MUST be before /{expense_id} routes
+# =============================================================================
+
+@router.post("/validate-invoice")
+async def validate_invoice_number(invoice_number: str = Query(...)):
+    """
+    Validate invoice number against Polish standards.
+    Detects generic/placeholder numbers and normalizes valid ones.
+    """
+    result = invoice_validator.validate(invoice_number)
+    return {
+        "is_valid": result.is_valid,
+        "normalized_number": result.normalized_number,
+        "errors": result.errors,
+        "warnings": result.warnings
+    }
+
+
+@router.post("/convert-currency")
+async def convert_currency_to_pln(
+    amount: Decimal = Query(...),
+    currency: str = Query(...),
+    expense_date: date = Query(...)
+):
+    """
+    Convert foreign currency to PLN using NBP exchange rates.
+    Uses the rate from the expense date (or previous business day).
+    """
+    try:
+        pln_amount = await currency_converter.convert_to_pln(amount, currency, expense_date)
+        return {
+            "original_amount": float(amount),
+            "original_currency": currency,
+            "pln_amount": float(pln_amount),
+            "expense_date": expense_date.isoformat(),
+            "status": "converted"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/validate-all")
+async def validate_all_expenses(
+    project_id: str = Query(default="00000000-0000-0000-0000-000000000001"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Validate all expenses for a project.
+    Returns validation issues for invoice numbers, currencies, and missing data.
+    """
+    result = await db.execute(
+        text("""
+            SELECT id, invoice_number, vendor_name, vendor_nip, currency, gross_amount
+            FROM read_models.expenses
+            WHERE project_id = :project_id
+        """),
+        {"project_id": project_id}
+    )
+    rows = result.fetchall()
+    
+    issues = []
+    valid_count = 0
+    
+    for row in rows:
+        expense_id, invoice_num, vendor_name, vendor_nip, currency, amount = row
+        expense_issues = []
+        
+        # Validate invoice number
+        inv_result = invoice_validator.validate(invoice_num)
+        if not inv_result.is_valid:
+            expense_issues.extend([{"type": "invoice", "message": e} for e in inv_result.errors])
+        if inv_result.warnings:
+            expense_issues.extend([{"type": "invoice_warning", "message": w} for w in inv_result.warnings])
+        
+        # Check for missing vendor data
+        if not vendor_name or vendor_name.lower() in ("none", "null", ""):
+            expense_issues.append({"type": "vendor", "message": "Brak nazwy dostawcy"})
+        
+        # Check for foreign currency
+        if currency and currency.upper() != "PLN":
+            expense_issues.append({
+                "type": "currency",
+                "message": f"Waluta {currency} wymaga przeliczenia na PLN",
+                "amount": float(amount) if amount else 0
+            })
+        
+        if expense_issues:
+            issues.append({
+                "expense_id": str(expense_id),
+                "invoice_number": invoice_num,
+                "issues": expense_issues
+            })
+        else:
+            valid_count += 1
+    
+    total = len(rows)
+    return {
+        "project_id": project_id,
+        "total_expenses": total,
+        "valid_count": valid_count,
+        "invalid_count": total - valid_count,
+        "validation_rate": round(valid_count / total * 100, 1) if total > 0 else 0,
+        "issues": issues
+    }
+
+
+# =============================================================================
+# Single Expense Endpoints (with {expense_id} path parameter)
+# =============================================================================
 
 @router.get("/{expense_id}", response_model=ExpenseResponse)
 async def get_expense(expense_id: str, db: AsyncSession = Depends(get_db)):
@@ -494,6 +610,133 @@ async def delete_expense(expense_id: str, db: AsyncSession = Depends(get_db)):
     
     logger.info("Expense deleted", expense_id=expense_id)
     return {"status": "deleted", "expense_id": expense_id}
+
+
+@router.post("/{expense_id}/generate-justification")
+async def generate_expense_justification(
+    expense_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Generate individualized B+R justification for an expense using LLM.
+    This addresses the critical issue of generic justifications.
+    """
+    from ..services.justification_generator import (
+        get_justification_generator, ExpenseContext, ProjectContext
+    )
+    
+    # Get expense with project data
+    result = await db.execute(
+        text("""
+            SELECT e.invoice_number, e.invoice_date, e.gross_amount, e.currency,
+                   e.vendor_name, e.vendor_nip, e.expense_category,
+                   p.name as project_name, p.description as project_desc,
+                   d.ocr_text, e.br_qualification_reason
+            FROM read_models.expenses e
+            JOIN read_models.projects p ON e.project_id = p.id
+            LEFT JOIN read_models.documents d ON e.document_id = d.id
+            WHERE e.id = :id
+        """),
+        {"id": expense_id}
+    )
+    row = result.fetchone()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    # Build contexts
+    expense_ctx = ExpenseContext(
+        invoice_number=row[0] or "brak",
+        invoice_date=str(row[1]) if row[1] else None,
+        amount=float(row[2] or 0),
+        currency=row[3] or "PLN",
+        vendor_name=row[4],
+        vendor_nip=row[5],
+        category=row[6],
+        description=row[10],  # Use existing br_qualification_reason or OCR
+        ocr_text=row[9]
+    )
+    
+    project_ctx = ProjectContext(
+        name=row[7] or "Projekt B+R",
+        description=row[8]
+    )
+    
+    # Generate justification
+    generator = get_justification_generator()
+    result = await generator.generate_justification(expense_ctx, project_ctx)
+    
+    # Update expense with new justification
+    await db.execute(
+        text("""
+            UPDATE read_models.expenses SET
+                br_qualification_reason = :justification,
+                updated_at = NOW()
+            WHERE id = :id
+        """),
+        {"id": expense_id, "justification": result.justification}
+    )
+    await db.commit()
+    
+    logger.info("Justification generated", expense_id=expense_id, words=result.word_count)
+    
+    return {
+        "expense_id": expense_id,
+        "justification": result.justification,
+        "confidence": result.confidence,
+        "br_category_suggestion": result.br_category_suggestion,
+        "keywords_used": result.keywords_used,
+        "word_count": result.word_count
+    }
+
+
+@router.put("/{expense_id}/vendor")
+async def update_expense_vendor(
+    expense_id: str,
+    vendor_name: str = Query(...),
+    vendor_nip: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Update vendor information for an expense.
+    Addresses the P0 issue of missing vendor data.
+    """
+    # Check expense exists
+    result = await db.execute(
+        text("SELECT id FROM read_models.expenses WHERE id = :id"),
+        {"id": expense_id}
+    )
+    if not result.fetchone():
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    # Validate NIP if provided
+    if vendor_nip:
+        from ..validators import InvoiceValidator
+        from src.ocr.extractors import validate_nip
+        if not validate_nip(vendor_nip):
+            raise HTTPException(status_code=400, detail=f"Nieprawidłowy NIP: {vendor_nip}")
+    
+    # Update vendor data
+    await db.execute(
+        text("""
+            UPDATE read_models.expenses SET
+                vendor_name = :vendor_name,
+                vendor_nip = :vendor_nip,
+                updated_at = NOW()
+            WHERE id = :id
+        """),
+        {"id": expense_id, "vendor_name": vendor_name, "vendor_nip": vendor_nip}
+    )
+    await db.commit()
+    
+    logger.info("Vendor updated", expense_id=expense_id, vendor=vendor_name)
+    
+    return {
+        "status": "updated",
+        "expense_id": expense_id,
+        "vendor_name": vendor_name,
+        "vendor_nip": vendor_nip
+    }
 
 
 @router.post("/{expense_id}/generate-doc")
@@ -1343,3 +1586,5 @@ def parse_llm_classification(response: str) -> dict:
         "needs_clarification": True,
         "questions": ["Nie udało się automatycznie sklasyfikować wydatku. Proszę o ręczną klasyfikację."]
     }
+
+

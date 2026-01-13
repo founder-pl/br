@@ -1,28 +1,57 @@
 # TODO - System B+R
 
-## Priorytet: Wysoki 🔴
+## Priorytet: Krytyczny P0 🔴 (Tydzień 1-2)
+
+### Jakość Dokumentacji B+R
+- [x] **Walidacja numerów faktur** ✅
+  - Moduł `src/api/validators/invoice_validator.py`
+  - Wykrywanie generycznych numerów ("faktury", "sprzedazy")
+  - Endpoint `/expenses/validate-invoice`
+  - 37 testów jednostkowych
+- [x] **Konwersja walut USD→PLN** ✅
+  - Moduł `src/api/validators/currency_converter.py`
+  - API NBP z fallback na poprzednie dni
+  - Endpoint `/expenses/convert-currency`
+- [x] **Walidacja zbiorcza wydatków** ✅
+  - Endpoint `/expenses/validate-all`
+  - Sprawdza: faktury, dostawców, waluty
+- [x] **Indywidualizacja uzasadnień wydatków** ✅
+  - Moduł `src/api/services/justification_generator.py`
+  - Endpoint `/expenses/{id}/generate-justification`
+  - LLM-based z template fallback
+- [x] **Uzupełnienie brakujących danych dostawców** ✅
+  - Endpoint `/expenses/{id}/vendor`
+  - Walidacja NIP przy aktualizacji
 
 ### Frontend
-- [ ] **Filtrowanie wydatków po miesiącach** w /expenses
-  - Dodać selecty rok/miesiąc w nagłówku
-  - Parametry URL: ?year=2026&month=1
-  - Widok kosztów vs przychodów (tabs)
-- [ ] **Szczegóły miesiąca z raportów**
-  - Przycisk "Zobacz szczegóły" przy każdym miesiącu
-  - Link do /expenses?year=X&month=Y
-  - Przypisane rachunki kosztowe i przychodowe
-- [ ] **Naprawić generowanie miesięcy** w /reports
-  - Weryfikacja API endpoint
-  - Obsługa błędów
+- [x] **Filtrowanie wydatków po miesiącach** ✅
+- [x] **Szczegóły miesiąca z raportów** ✅
+- [x] **Git Timesheet - wybór pracownika** ✅
+- [x] **Fix TypeError na stronie upload** ✅
 
-### Backend
-- [ ] **Testy dla git-timesheet**
-  - Test scan endpoint
-  - Test commits endpoint  
-  - Test generate-timesheet endpoint
+### Backend  
+- [x] **Testy git-timesheet** ✅ (8 passed)
+- [x] **Fix git-timesheet work_date** ✅ (string→date)
+- [x] **Fix usuwania wydatków** ✅ (db.commit)
 - [ ] **Walidacja ścieżek** w git-timesheet
-  - Sprawdzanie uprawnień
-  - Obsługa błędów dostępu
+
+## Priorytet: Wysoki P1 🟠 (Tydzień 3-4)
+
+### Struktura Dokumentacji
+- [x] **Sekcja niepewności technologicznej** ✅
+  - Moduł `src/api/services/uncertainty_generator.py`
+  - Endpoint `/projects/{id}/generate-uncertainty`
+  - Min. 100 słów, 6+ słów kluczowych
+- [x] **Rozbudowa opisu projektu** ✅
+  - Model `src/api/models/project_extended.py`
+  - TechnicalProblem, ResearchMethodology, RiskAnalysis
+  - Domyślne szablony dla szybkiego startu
+- [ ] **Dzienny rejestr czasu pracy**
+  - Model DailyTimeEntry z walidacją
+  - Min. 50 znaków opisu
+- [ ] **Integracja Git z ewidencją**
+  - Wzbogacanie wpisów o commity
+  - Dowody pracy (linki do commitów)
 
 ## Priorytet: Średni 🟡
 
@@ -79,6 +108,28 @@
 - [x] Fix SQL bug (COUNT → SUM)
 - [x] Fix git-timesheet path mapping
 - [x] Fix expenses API limit
+- [x] Filtrowanie wydatków po roku/miesiącu
+- [x] Przycisk szczegółów miesiąca z raportów
+- [x] Testy git-timesheet (8 testów)
+- [x] Select pracownika na stronie git-timesheet
+- [x] Checkbox "zaznacz wszystkie" dla projektów
+- [x] Fix usuwania wydatków (db.commit)
+- [x] Fix dashboard null check (clarification-badge)
+- [x] Zwiększone logowanie console.log
+- [x] Fix git-timesheet work_date (string→date)
+- [x] Kopiowanie/pobieranie logów do pliku
+- [x] Fix TypeError upload page (loadRecentDocuments)
+- [x] Moduł walidacji faktur (InvoiceValidator)
+- [x] Moduł konwersji walut NBP (CurrencyConverter)
+- [x] Endpoint /expenses/validate-all
+- [x] 37 testów walidatorów
+- [x] Generator uzasadnień wydatków (justification_generator.py)
+- [x] Endpoint /expenses/{id}/generate-justification
+- [x] Endpoint /expenses/{id}/vendor
+- [x] Model rozszerzonego projektu (project_extended.py)
+- [x] Generator sekcji niepewności (uncertainty_generator.py)
+- [x] Endpoint /projects/{id}/generate-uncertainty
+- [x] 166 testów jednostkowych passed
 
 ### 2026-01-12
 - [x] URL state management
