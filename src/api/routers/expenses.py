@@ -713,6 +713,169 @@ async def generate_project_documentation_summary(
     return result
 
 
+@router.get("/revenues/")
+async def list_revenues(
+    project_id: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_db)
+):
+    """List revenues (sales invoices) with optional project filter."""
+    query = """
+        SELECT r.id, r.project_id, r.document_id, r.invoice_number, r.invoice_date,
+               r.client_name, r.client_nip, r.net_amount, r.vat_amount, r.gross_amount,
+               r.currency, r.ip_qualified, r.ip_type, r.ip_description,
+               r.created_at, p.name as project_name
+        FROM read_models.revenues r
+        LEFT JOIN read_models.projects p ON r.project_id = p.id
+        WHERE 1=1
+    """
+    params = {}
+    
+    if project_id:
+        query += " AND r.project_id = :project_id"
+        params["project_id"] = project_id
+    
+    query += " ORDER BY r.invoice_date DESC"
+    
+    result = await db.execute(text(query), params)
+    rows = result.fetchall()
+    
+    return [
+        {
+            "id": str(r[0]),
+            "project_id": str(r[1]) if r[1] else None,
+            "document_id": str(r[2]) if r[2] else None,
+            "invoice_number": r[3],
+            "invoice_date": str(r[4]) if r[4] else None,
+            "client_name": r[5],
+            "client_nip": r[6],
+            "net_amount": float(r[7] or 0),
+            "vat_amount": float(r[8] or 0),
+            "gross_amount": float(r[9] or 0),
+            "currency": r[10] or "PLN",
+            "ip_qualified": r[11] or False,
+            "ip_category": r[12],
+            "ip_description": r[13],
+            "created_at": r[14].isoformat() if r[14] else None,
+            "project_name": r[15],
+            "type": "revenue"
+        }
+        for r in rows
+    ]
+
+
+@router.put("/revenues/{revenue_id}/classify")
+async def classify_revenue(
+    revenue_id: str,
+    classification: dict,
+    db: AsyncSession = Depends(get_db)
+):
+    """Classify a revenue for IP Box purposes."""
+    # Get current revenue
+    result = await db.execute(
+        text("SELECT * FROM read_models.revenues WHERE id = :id"),
+        {"id": revenue_id}
+    )
+    row = result.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Revenue not found")
+    
+    # Update classification
+    await db.execute(
+        text("""
+            UPDATE read_models.revenues SET
+                ip_qualified = :ip_qualified,
+                ip_type = :ip_type,
+                ip_description = COALESCE(:ip_description, ip_description),
+                updated_at = NOW()
+            WHERE id = :id
+        """),
+        {
+            "id": revenue_id,
+            "ip_qualified": classification.get("ip_qualified", False),
+            "ip_type": classification.get("ip_type") or classification.get("ip_category"),
+            "ip_description": classification.get("ip_description")
+        }
+    )
+    
+    # Fetch updated record
+    result = await db.execute(
+        text("""SELECT id, project_id, invoice_number, invoice_date, client_name, client_nip,
+                       net_amount, vat_amount, gross_amount, currency, ip_qualified, ip_type,
+                       ip_description, created_at
+                FROM read_models.revenues WHERE id = :id"""),
+        {"id": revenue_id}
+    )
+    r = result.fetchone()
+    
+    return {
+        "id": str(r[0]),
+        "project_id": str(r[1]) if r[1] else None,
+        "invoice_number": r[2],
+        "invoice_date": str(r[3]) if r[3] else None,
+        "client_name": r[4],
+        "client_nip": r[5],
+        "net_amount": float(r[6] or 0),
+        "vat_amount": float(r[7] or 0),
+        "gross_amount": float(r[8] or 0),
+        "currency": r[9] or "PLN",
+        "ip_qualified": r[10] or False,
+        "ip_category": r[11],
+        "ip_description": r[12],
+        "created_at": r[13].isoformat() if r[13] else None,
+        "type": "revenue"
+    }
+
+
+@router.post("/invoices/{invoice_id}/reclassify")
+async def reclassify_invoice(
+    invoice_id: str,
+    from_type: str = Query(..., description="Current type: expense or revenue"),
+    to_type: str = Query(..., description="Target type: expense or revenue"),
+    reason: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Reclassify an invoice from expense to revenue or vice versa.
+    
+    Uses CQRS command pattern with event sourcing for audit trail.
+    """
+    from ..cqrs.commands import ReclassifyInvoiceCommand, ReclassifyInvoiceHandler
+    
+    command = ReclassifyInvoiceCommand(
+        invoice_id=invoice_id,
+        from_type=from_type,
+        to_type=to_type,
+        reason=reason,
+    )
+    
+    handler = ReclassifyInvoiceHandler(db)
+    result = await handler.handle(command)
+    
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("error", "Reclassification failed"))
+    
+    return result
+
+
+@router.get("/invoices/{invoice_id}/history")
+async def get_invoice_history(
+    invoice_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get event history for an invoice (expenses or revenues).
+    
+    Uses event sourcing to provide audit trail of all changes.
+    """
+    from ..cqrs.queries import GetInvoiceHistoryQuery, InvoiceHistoryQueryHandler
+    
+    query = GetInvoiceHistoryQuery(invoice_id=invoice_id)
+    handler = InvoiceHistoryQueryHandler(db)
+    result = await handler.execute(query)
+    
+    return result
+
+
 @router.get("/project/{project_id}/docs")
 async def list_project_documentation(project_id: str):
     """List all generated documentation files for a project"""
@@ -790,6 +953,70 @@ async def get_documentation_version(project_id: str, filename: str, commit: str)
         "filename": filename,
         "commit": commit,
         "content": content
+    }
+
+
+@router.post("/project/{project_id}/docs/{filename}/refine")
+async def refine_documentation_with_llm(project_id: str, filename: str):
+    """
+    Stage 6: Iterative Refinement - Use LLM to fix validation issues.
+    
+    Runs validation, then uses LLM to automatically fix detected issues.
+    """
+    from pathlib import Path
+    from ..services.doc_generator import get_doc_generator
+    import sys
+    sys.path.insert(0, '/app')
+    from tests.test_documentation_validation import BRDocumentationValidator
+    
+    if '..' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    # Get current content
+    file_path = Path('/app/reports/br_docs') / project_id / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Documentation file not found")
+    
+    content = file_path.read_text(encoding='utf-8')
+    
+    # Run validation
+    validator = BRDocumentationValidator(content)
+    results = validator.validate_all()
+    
+    # Collect issues
+    all_issues = []
+    for stage_name, report in results.items():
+        for issue in report.issues:
+            all_issues.append({
+                "severity": issue.severity.value,
+                "message": issue.message,
+                "location": issue.location,
+                "suggestion": issue.suggestion
+            })
+    
+    # If no issues, return current content
+    if not all_issues:
+        return {
+            "status": "no_changes_needed",
+            "validation_score": validator.get_overall_score(),
+            "issues_found": 0
+        }
+    
+    # Run LLM refinement
+    doc_generator = get_doc_generator()
+    refinement_result = await doc_generator.refine_with_llm(content, all_issues)
+    
+    # If refined, save new version
+    if refinement_result.get('status') == 'refined' and refinement_result.get('content'):
+        file_path.write_text(refinement_result['content'], encoding='utf-8')
+        doc_generator.version_control.commit_file(file_path, "LLM refinement applied")
+    
+    return {
+        "status": refinement_result.get('status'),
+        "validation_score_before": validator.get_overall_score(),
+        "issues_found": len(all_issues),
+        "iterations": refinement_result.get('iterations', 0),
+        "refinement_log": refinement_result.get('log', [])
     }
 
 

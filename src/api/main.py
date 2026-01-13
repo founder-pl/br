@@ -13,7 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .routers import documents, expenses, projects, reports, auth, clarifications, integrations, logs, config, timesheet
+from .routers import documents, expenses, projects, reports, auth, clarifications, integrations, logs, config, timesheet, git_timesheet
 from .database import init_database, close_database
 from .config import settings
 
@@ -106,6 +106,7 @@ app.include_router(integrations.router, prefix="/integrations", tags=["Integracj
 app.include_router(logs.router, prefix="/logs", tags=["Logi"])
 app.include_router(config.router, prefix="/config", tags=["Konfiguracja"])
 app.include_router(timesheet.router, prefix="/timesheet", tags=["Harmonogram"])
+app.include_router(git_timesheet.router, prefix="/git-timesheet", tags=["Harmonogram Git"])
 
 
 # Health check

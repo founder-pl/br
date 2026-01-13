@@ -139,6 +139,7 @@ services:
       - ./processed:/app/processed:rw
       - ./reports:/app/reports:rw
       - /var/run/docker.sock:/var/run/docker.sock
+      - /home/tom/github:/repos:ro
     ports:
       - "8020:8000"
     depends_on:

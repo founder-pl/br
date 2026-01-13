@@ -1,14 +1,19 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T10:47:44.412302
+generated: 2026-01-13T13:07:34.770770
 stats:
-  files: 54
-  lines: 13637
-  languages[2]: python:53,javascript:1
+  files: 84
+  lines: 25512
+  languages[2]: python:82,javascript:2
 
-modules[54]{path,lang,lines,kb}:
+modules[84]{path,lang,lines,kb}:
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
+  tests/test_documentation_validation.py,python,501,22.6
+  tests/test_invoice_detection.py,python,104,4.0
+  cli/validate_documentation.py,python,131,6.2
+  cli/generate_sample_invoices.py,python,186,7.8
+  cli/br_cli.py,python,210,10.6
   tests/unit/test_extractors.py,python,149,6.4
   tests/unit/__init__.py,python,1,0.0
   tests/unit/test_validators.py,python,76,2.9
@@ -35,19 +40,22 @@ modules[54]{path,lang,lines,kb}:
   src/api/config.py,python,28,1.2
   src/api/__init__.py,python,7,0.2
   src/api/ocr_config.py,python,191,8.2
-  src/api/document_classifier.py,python,204,7.4
+  src/api/document_classifier.py,python,226,8.3
   src/api/database.py,python,58,1.9
-  src/api/main.py,python,108,4.2
+  src/api/main.py,python,109,4.3
+  src/api/services/doc_generator.py,python,693,36.2
+  src/api/services/__init__.py,python,0,0.0
+  src/api/routers/timesheet.py,python,309,11.8
   src/api/routers/config.py,python,253,10.4
   src/api/routers/clarifications.py,python,177,6.4
-  src/api/routers/projects.py,python,275,10.0
+  src/api/routers/projects.py,python,325,12.1
   src/api/routers/auth.py,python,152,5.4
   src/api/routers/__init__.py,python,5,0.2
   src/api/routers/integrations.py,python,329,14.5
   src/api/routers/logs.py,python,268,11.3
   src/api/routers/reports.py,python,285,13.3
-  src/api/routers/documents.py,python,348,13.5
-  src/api/routers/expenses.py,python,489,20.9
+  src/api/routers/documents.py,python,665,29.8
+  src/api/routers/expenses.py,python,1016,43.6
   src/integrations/accounting/fakturownia.py,python,232,9.4
   src/integrations/accounting/base.py,python,272,10.0
   src/integrations/accounting/__init__.py,python,24,0.5
@@ -60,7 +68,29 @@ modules[54]{path,lang,lines,kb}:
   src/integrations/cloud/google_s3.py,python,509,21.6
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
-  web/static/js/app.js,javascript,1128,56.1
+  web/static/js/markdown-renderer.js,javascript,136,5.4
+  web/static/js/app.js,javascript,1931,96.5
+  brgenerator/tests/conftest.py,python,86,2.5
+  brgenerator/tests/__init__.py,python,0,0.0
+  brgenerator/tests/test_validators.py,python,325,14.7
+  brgenerator/tests/test_e2e.py,python,322,13.4
+  brgenerator/src/br_doc_generator/config.py,python,207,7.7
+  brgenerator/src/br_doc_generator/cli.py,python,460,18.1
+  brgenerator/src/br_doc_generator/__init__.py,python,332,12.4
+  brgenerator/src/br_doc_generator/web.py,python,406,19.0
+  brgenerator/src/br_doc_generator/llm_client.py,python,264,10.3
+  brgenerator/src/br_doc_generator/models.py,python,341,14.8
+  brgenerator/src/br_doc_generator/validators/content.py,python,165,7.7
+  brgenerator/src/br_doc_generator/validators/base.py,python,187,6.8
+  brgenerator/src/br_doc_generator/validators/structure.py,python,220,10.0
+  brgenerator/src/br_doc_generator/validators/financial.py,python,205,10.9
+  brgenerator/src/br_doc_generator/validators/__init__.py,python,19,0.6
+  brgenerator/src/br_doc_generator/validators/legal.py,python,244,11.9
+  brgenerator/src/br_doc_generator/validators/pipeline.py,python,283,12.8
+  brgenerator/src/br_doc_generator/generators/document.py,python,332,14.2
+  brgenerator/src/br_doc_generator/generators/__init__.py,python,13,0.3
+  brgenerator/src/br_doc_generator/generators/form.py,python,311,15.3
+  brgenerator/src/br_doc_generator/generators/pdf.py,python,504,14.1
 
 module_details:
   tests/conftest.py:
@@ -111,6 +141,167 @@ module_details:
       all_cloud_providers: all cloud providers
       temp_config_db: temp config db
   tests/__init__.py:
+  tests/test_documentation_validation.py:
+    imports[10]: pytest,re,json,dataclasses.dataclass,dataclasses.field,typing.List,typing.Dict,typing.Optional,enum.Enum,datetime
+    exports[9]: Severity,ValidationIssue,ValidationReport,BRDocumentationValidator,TestDocumentationStructure,TestDocumentationContent,TestLegalCompliance,TestFinancialValidation,TestFullValidation
+    types[1]{name,kind,values,def}:
+      Severity,enum,"CRITICAL=\"critical\"|WARNING=\"warning\"|INFO=\"info\"","-"
+    classes[9]{name,bases,decorators,props,methods}:
+      Severity,Enum,-,0,0
+      ValidationIssue,-,dataclass,0,0
+      ValidationReport,-,dataclass,0,1
+      BRDocumentationValidator,-,-,0,8
+      TestDocumentationStructure,-,-,0,3
+      TestDocumentationContent,-,-,0,2
+      TestLegalCompliance,-,-,0,2
+      TestFinancialValidation,-,-,0,2
+      TestFullValidation,-,-,0,2
+    class_details:
+      Severity:
+      ValidationIssue:
+        fields[5]{n,t,default,factory}:
+          type,str,"-","-"
+          severity,Severity,"-","-"
+          location,str,"-","-"
+          message,str,"-","-"
+          suggestion,str,"\"\"","-"
+      ValidationReport:
+        fields[5]{n,t,default,factory}:
+          stage,str,"-","-"
+          timestamp,str,"-","-"
+          status,str,"-","-"
+          score,float,"-","-"
+          issues,"List[ValidationIssue]","-",list
+        methods[1]{name,sig,decorators,async,lines}:
+          to_dict,()->dict,-,false,17
+      BRDocumentationValidator:
+        doc: Multi-level documentation validator following brgenerator pipeline.
+        methods[8]{name,sig,decorators,async,lines}:
+          __init__,"(content:str)->None",-,false,4
+          validate_all,"()->Dict[str, ValidationReport]",-,false,8
+          validate_structure,()->ValidationReport,-,false,67
+          validate_content,()->ValidationReport,-,false,73
+          validate_legal_compliance,()->ValidationReport,-,false,71
+          validate_financial,()->ValidationReport,-,false,88
+          get_overall_score,()->float,-,false,5
+          get_full_report,()->dict,-,false,18
+      TestDocumentationStructure:
+        doc: "Test Stage 2: Structure Validation"
+        methods[3]{name,sig,decorators,async,lines}:
+          test_structure_valid,()->None,-,false,6
+          test_structure_missing_header,()->None,-,false,6
+          test_structure_missing_sections,()->None,-,false,7
+      TestDocumentationContent:
+        doc: "Test Stage 3: Content Validation"
+        methods[2]{name,sig,decorators,async,lines}:
+          test_content_with_expenses,()->None,-,false,11
+          test_content_missing_justification,()->None,-,false,6
+      TestLegalCompliance:
+        doc: "Test Stage 4: Legal Compliance"
+        methods[2]{name,sig,decorators,async,lines}:
+          test_legal_with_all_requirements,()->None,-,false,12
+          test_legal_missing_nip,()->None,-,false,6
+      TestFinancialValidation:
+        doc: "Test Stage 5: Financial Validation"
+        methods[2]{name,sig,decorators,async,lines}:
+          test_financial_with_amounts,()->None,-,false,11
+          test_financial_missing_amounts,()->None,-,false,6
+      TestFullValidation:
+        doc: Test complete validation pipeline.
+        methods[2]{name,sig,decorators,async,lines}:
+          test_full_validation_pipeline,()->None,-,false,13
+          test_full_report_format,()->None,-,false,12
+  tests/test_invoice_detection.py:
+    imports[2]: pytest,src.api.routers.documents.detect_invoice_type
+    exports[3]: TestInvoiceTypeDetection,SAMPLE_COST_INVOICE,SAMPLE_REVENUE_INVOICE
+    const[2]{n,t,v,keys}:
+      SAMPLE_COST_INVOICE,Dict,"{     \"invoice_number\": \"FV/2025/COST/001\",     \"invoice_date\": \"2025-12-15\",     \"vendor_name\": \"Test Vendor Sp. z o...","-"
+      SAMPLE_REVENUE_INVOICE,Dict,"{     \"invoice_number\": \"FV/2025/REV/001\",      \"invoice_date\": \"2025-12-20\",     \"vendor_name\": \"Tomasz Sapletta\",  ...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      TestInvoiceTypeDetection,-,-,0,9
+    class_details:
+      TestInvoiceTypeDetection:
+        doc: Test suite for detect_invoice_type function.
+        methods[9]{name,sig,decorators,async,lines}:
+          test_cost_invoice_vendor_nip_different,()->None,-,false,8
+          test_revenue_invoice_we_are_seller,()->None,-,false,8
+          test_cost_invoice_seller_nip_field,()->None,-,false,8
+          test_revenue_invoice_nip_sprzedawcy_field,()->None,-,false,8
+          test_cost_invoice_no_buyer_nip,()->None,-,false,7
+          test_revenue_invoice_nip_with_dashes,()->None,-,false,8
+          test_cost_invoice_empty_nips,()->None,-,false,8
+          test_cost_invoice_none_nips,()->None,-,false,8
+          test_revenue_from_ocr_text_hint,()->None,-,false,7
+  cli/validate_documentation.py:
+    imports[9]: argparse,json,sys,os,datetime,requests,yaml,tests.test_documentation_validation.BRDocumentationValidator,tests.test_documentation_validation.Severity
+    exports[5]: API_BASE,fetch_documentation,validate_and_report,print_report,main
+    const[1]{n,t,v,keys}:
+      API_BASE,"-","os.environ.get(\"BR_API_URL\", \"http://localhost:8020\")","-"
+    functions[6]{name,sig,decorators,async,category,lines}:
+      fetch_documentation,"(project_id:str;filename:str=None)->str",-,false,-,24
+      validate_and_report,"(content:str;output_format:str='text')->dict",-,false,-,7
+      print_report,"(report:dict;output_format:str='text')->None",-,false,-,52
+      _status_icon,"(status:str)->str",-,false,-,2
+      _severity_icon,"(severity:str)->str",-,false,-,2
+      main,()->None,-,false,-,48
+    function_docs:
+      fetch_documentation: retrieves documentation
+      validate_and_report: validates and report
+      print_report: logs report
+      _status_icon: status icon
+      _severity_icon: severity icon
+      main: main
+  cli/generate_sample_invoices.py:
+    imports[8]: os,sys,pathlib.Path,datetime,reportlab.lib.pagesizes.A4,reportlab.lib.units.cm,reportlab.pdfgen.canvas,reportlab.lib.colors
+    exports[8]: OUTPUT_DIR,OUR_COMPANY,VENDORS,CLIENTS,generate_html_invoice,generate_pdf_invoice,generate_invoice,main
+    const[4]{n,t,v,keys}:
+      OUTPUT_DIR,"-","Path(__file__).parent / \"sample_invoices\"","-"
+      OUR_COMPANY,Dict,"{     \"name\": \"Tomasz Sapletta\",     \"nip\": \"5881918662\",     \"address\": \"ul. Testowa 1, 00-001 Warszawa\" }","-"
+      VENDORS,List,"[     {\"name\": \"InsERT S.A.\", \"nip\": \"5542926469\", \"address\": \"ul. Programistów 10, 50-001 Wrocław\"},     {\"name\": \"C...","-"
+      CLIENTS,List,"[     {\"name\": \"Klient ABC Sp. z o.o.\", \"nip\": \"1111111111\", \"address\": \"ul. Biznesowa 20, 00-002 Warszawa\"},     {\"n...","-"
+    functions[4]{name,sig,decorators,async,category,lines}:
+      generate_html_invoice,"(invoice_data:dict;output_path:Path)->None",-,false,-,67
+      generate_pdf_invoice,"(invoice_data:dict;output_path:Path)->None",-,false,-,55
+      generate_invoice,"(invoice_data:dict;output_path:Path)->None",-,false,-,6
+      main,()->None,-,false,-,51
+    function_docs:
+      generate_html_invoice: creates html invoice
+      generate_pdf_invoice: creates pdf invoice
+      generate_invoice: creates invoice
+      main: main
+  cli/br_cli.py:
+    imports[7]: argparse,json,sys,os,pathlib.Path,datetime,requests
+    exports[14]: API_BASE,api_call,cmd_health,cmd_projects_list,cmd_expenses_list,cmd_revenues_list,cmd_upload,cmd_docs_list,cmd_docs_generate,cmd_docs_view
+    const[1]{n,t,v,keys}:
+      API_BASE,"-","os.environ.get(\"BR_API_URL\", \"http://localhost:8020\")","-"
+    functions[13]{name,sig,decorators,async,category,lines}:
+      api_call,"(method:str;endpoint:str;data=None;files=None)->None",-,false,-,23
+      cmd_health,(args)->None,-,false,-,7
+      cmd_projects_list,(args)->None,-,false,-,7
+      cmd_expenses_list,(args)->None,-,false,-,12
+      cmd_revenues_list,(args)->None,-,false,-,11
+      cmd_upload,(args)->None,-,false,-,16
+      cmd_docs_list,(args)->None,-,false,-,12
+      cmd_docs_generate,(args)->None,-,false,-,11
+      cmd_docs_view,(args)->None,-,false,-,6
+      cmd_docs_history,(args)->None,-,false,-,9
+      cmd_expense_qualify,(args)->None,-,false,-,13
+      cmd_timesheet_list,(args)->None,-,false,-,9
+      main,()->None,-,false,-,92
+    function_docs:
+      api_call: api call
+      cmd_health: cmd health
+      cmd_projects_list: cmd projects list
+      cmd_expenses_list: cmd expenses list
+      cmd_revenues_list: cmd revenues list
+      cmd_upload: cmd upload
+      cmd_docs_list: cmd docs list
+      cmd_docs_generate: cmd docs generate
+      cmd_docs_view: cmd docs view
+      cmd_docs_history: cmd docs history
+      cmd_expense_qualify: cmd expense qualify
+      cmd_timesheet_list: cmd timesheet list
+      main: main
   tests/unit/test_extractors.py:
     imports[4]: pytest,datetime.date,src.ocr.extractors.InvoiceExtractor,src.ocr.extractors.get_extractor
     exports[4]: TestInvoiceExtractor,TestDateParsing,TestAmountParsing,TestExtractorFactory
@@ -691,16 +882,18 @@ module_details:
       evaluate_extraction_completeness: processes extraction completeness
   src/api/document_classifier.py:
     imports[5]: re,typing.Dict,typing.Any,typing.Optional,typing.Tuple
-    exports[5]: DOCUMENT_PATTERNS,EXTRACTION_PATTERNS,detect_document_type,extract_document_data,classify_and_extract
+    exports[6]: DOCUMENT_PATTERNS,EXTRACTION_PATTERNS,detect_document_type,normalize_currency,extract_document_data,classify_and_extract
     const[2]{n,t,v,keys}:
       DOCUMENT_PATTERNS,Dict,"-",invoice|keywords|faktura|faktura vat|invoice|numer faktury|nr faktury|data wystawienia|data sprzedaży|nabywca
       EXTRACTION_PATTERNS,Dict,"-","invoice|invoice_number|(?:faktura|invoice)\\s*(?:vat)?\\s*(?:nr|numer|no\\.?)?[:\\s]*([A-Z0-9/\\-]+)|nr\\s*faktury[:\\s]*([A-Z0-9/\\-]+)|numer\\s*faktury[:\\s]*([A-Z0-9/\\-]+)|nip_seller|(?:sprzedawca|seller).*?nip[:\\s]*(\\d{10}|\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2})|nip[:\\s]*(\\d{10}|\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2})|nip_buyer"
-    functions[3]{name,sig,decorators,async,category,lines}:
+    functions[4]{name,sig,decorators,async,category,lines}:
       detect_document_type,"(ocr_text:str)->Tuple[str, float]",-,false,-,39
-      extract_document_data,"(ocr_text:str;document_type:str)->Dict[str, Any]",-,false,-,21
+      normalize_currency,"(raw_currency:Optional[str])->str",-,false,-,14
+      extract_document_data,"(ocr_text:str;document_type:str)->Dict[str, Any]",-,false,-,26
       classify_and_extract,"(ocr_text:str;initial_type:str='auto')->Dict[str, Any]",-,false,-,20
     function_docs:
       detect_document_type: detect document type
+      normalize_currency: normalize currency
       extract_document_data: parses document data
       classify_and_extract: classify and extract
   src/api/database.py:
@@ -731,6 +924,90 @@ module_details:
       health_check: health check
       root: root
       metrics: metrics
+  src/api/services/doc_generator.py:
+    imports[11]: os,json,subprocess,datetime,pathlib.Path,typing.Optional,typing.Dict,typing.Any,typing.List,httpx,structlog
+    exports[5]: LLM_REFINEMENT_PROMPT,DocumentVersionControl,BR_EXPENSE_DOC_PROMPT,ExpenseDocumentGenerator,get_doc_generator
+    const[2]{n,t,v,keys}:
+      LLM_REFINEMENT_PROMPT,str,"\"\"\"Jesteś ekspertem w dokumentacji B+R (ulga badawczo-rozwojowa w Polsce).  Poniższy dokument B+R zawiera błędy/ostrz...","-"
+      BR_EXPENSE_DOC_PROMPT,str,"\"\"\"Jesteś ekspertem w przygotowywaniu dokumentacji do polskiej ulgi badawczo-rozwojowej (B+R). Generujesz profesjonal...","-"
+    classes[2]{name,bases,decorators,props,methods}:
+      DocumentVersionControl,-,-,0,4
+      ExpenseDocumentGenerator,-,-,0,13
+    class_details:
+      DocumentVersionControl:
+        doc: Simple file-based version control for documents.
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(repo_path:Path)->None",-,false,4
+          commit_file,"(file_path:Path;message:str)->Optional[str]",-,false,32
+          get_file_history,"(file_path:Path;limit:int=20)->List[Dict[str, Any]]",-,false,27
+          get_file_at_commit,"(file_path:Path;commit:str)->Optional[str]",-,false,13
+      ExpenseDocumentGenerator:
+        doc: Generator dokumentacji B+R dla wydatków.
+        methods[13]{name,sig,decorators,async,lines}:
+          __init__,"(llm_service_url:Optional[str]=None)->None",-,false,5
+          generate_expense_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]]=None)->Dict[str, Any]",-,true,39
+          _build_expense_prompt,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,60
+          _generate_with_llm,"(prompt:str)->str",-,true,21
+          _generate_from_template,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,138
+          _save_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];content:str)->Path",-,false,30
+          get_document_history,"(project_id:str;filename:str)->List[Dict[str, Any]]",-,false,4
+          get_document_at_version,"(project_id:str;filename:str;commit:str)->Optional[str]",-,false,4
+          refine_with_llm,"(content:str;validation_issues:List[Dict[str;Any]];max_iterations:int=3)->Dict[str, Any]",-,true,106
+          generate_project_summary,"(project:Dict[str;Any];expenses:list[Dict[str;Any]];timesheet_data:Optional[Dict[str;Any]]=None;contractors:Optional[list[Dict[str;Any]]]=None;revenues:Optional[list[Dict[str;Any]]]=None)->Dict[str, Any]",-,true,65
+          _generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float)->str",-,false,210
+          _build_expense_details,"(expenses:list;company_nip:str='5881918662')->str",-,false,79
+          _build_expense_list,"(expenses:list)->str",-,false,11
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_doc_generator,()->ExpenseDocumentGenerator,-,false,-,6
+    function_docs:
+      get_doc_generator: retrieves doc generator
+  src/api/services/__init__.py:
+  src/api/routers/timesheet.py:
+    imports[17]: uuid,datetime.date,datetime,typing.Optional,typing.List,decimal.Decimal,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
+    exports[17]: TIME_SLOTS,WorkerCreate,WorkerResponse,TimesheetEntry,TimesheetResponse,ContractorResponse,ensure_tables,list_workers,create_worker,delete_worker
+    const[1]{n,t,v,keys}:
+      TIME_SLOTS,List,"[     {\"id\": \"morning\", \"label\": \"8:00-12:00\", \"start\": 8, \"end\": 12},     {\"id\": \"afternoon\", \"label\": \"12:00-16:00\"...","-"
+    classes[5]{name,bases,decorators,props,methods}:
+      WorkerCreate,BaseModel,-,3,0
+      WorkerResponse,BaseModel,-,5,0
+      TimesheetEntry,BaseModel,-,6,0
+      TimesheetResponse,BaseModel,-,7,0
+      ContractorResponse,BaseModel,-,4,0
+    class_details:
+      WorkerCreate:
+        properties[3]: "name: str","role: Optional[str]","hourly_rate: Optional[float]"
+      WorkerResponse:
+        properties[5]: "id: str","name: str","role: Optional[str]","hourly_rate: Optional[float]","created_at: datetime"
+      TimesheetEntry:
+        properties[6]: "project_id: str","worker_id: str","work_date: date","time_slot: str","hours: float","description: Optional[str]"
+      TimesheetResponse:
+        properties[7]: "id: str","project_id: str","worker_id: str","work_date: date","time_slot: str","hours: float","description: Optional[str]"
+      ContractorResponse:
+        properties[4]: "vendor_name: str","vendor_nip: Optional[str]","total_amount: float","invoice_count: int"
+    functions[11]{name,sig,decorators,async,category,lines}:
+      ensure_tables,"(db:AsyncSession)->None",-,true,-,38
+      list_workers,"(db:AsyncSession=Depends(get_db))->None",router.get,true,-,21
+      create_worker,"(worker:WorkerCreate;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
+      delete_worker,"(worker_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,7
+      get_timesheet_entries,"(year:int=Query(...);month:int=Query(...);project_id:Optional[str]=None;worker_id:Optional[str]=None;db:AsyncSession=Depends(get_db))->None",router.get,true,-,48
+      save_timesheet_entry,"(entry:TimesheetEntry;db:AsyncSession=Depends(get_db))->None",router.post,true,-,24
+      save_timesheet_batch,"(entries:List[TimesheetEntry];db:AsyncSession=Depends(get_db))->None",router.post,true,-,27
+      delete_timesheet_entry,"(entry_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,7
+      get_timesheet_summary,"(year:int=Query(...);month:int=Query(...);db:AsyncSession=Depends(get_db))->None",router.get,true,-,53
+      get_contractors,"(db:AsyncSession=Depends(get_db))->None",router.get,true,-,19
+      get_time_slots,()->None,router.get,true,-,3
+    function_docs:
+      ensure_tables: ensure tables
+      list_workers: list workers
+      create_worker: creates worker
+      delete_worker: deletes worker
+      get_timesheet_entries: retrieves timesheet entries
+      save_timesheet_entry: caches timesheet entry
+      save_timesheet_batch: caches timesheet batch
+      delete_timesheet_entry: deletes timesheet entry
+      get_timesheet_summary: retrieves timesheet summary
+      get_contractors: retrieves contractors
+      get_time_slots: retrieves time slots
   src/api/routers/config.py:
     imports[20]: json,typing.Optional,typing.List,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,pydantic.BaseModel,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,ocr_config.OCREngine,ocr_config.ExtractionStrategy,ocr_config.DocumentType,ocr_config.ENGINE_CAPABILITIES
     exports[13]: OCREngineInfo,DocumentTypeInfo,list_ocr_engines,list_document_types,get_field_mappings,get_ocr_config,update_ocr_config,get_llm_config,update_llm_config,list_available_models
@@ -796,12 +1073,13 @@ module_details:
       delete_clarification: deletes clarification
   src/api/routers/projects.py:
     imports[17]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
-    exports[10]: ProjectCreate,ProjectUpdate,ProjectResponse,ProjectSummary,create_project,get_project,list_projects,update_project,get_project_summary,recalculate_project_totals
-    classes[4]{name,bases,decorators,props,methods}:
+    exports[13]: ProjectCreate,ProjectUpdate,ProjectResponse,ProjectSummary,create_project,get_project,list_projects,update_project,get_project_summary,recalculate_project_totals
+    classes[5]{name,bases,decorators,props,methods}:
       ProjectCreate,BaseModel,-,5,0
       ProjectUpdate,BaseModel,-,5,0
       ProjectResponse,BaseModel,-,12,0
       ProjectSummary,BaseModel,-,11,0
+      BulkAssignRequest,BaseModel,-,2,0
     class_details:
       ProjectCreate:
         doc: Create project request
@@ -815,13 +1093,18 @@ module_details:
       ProjectSummary:
         doc: Project summary with B+R statistics
         properties[11]: "id: str","name: str","fiscal_year: int","total_expenses: float","br_qualified_expenses: float","br_deduction_amount: float","ip_qualified_expenses: float","documents_count: int","pending_documents: int","needs_clarification: int"
-    functions[6]{name,sig,decorators,async,category,lines}:
+      BulkAssignRequest:
+        doc: Bulk assign expenses to project
+        properties[2]: "expense_ids: List[str]","project_id: str"
+    functions[8]{name,sig,decorators,async,category,lines}:
       create_project,"(project:ProjectCreate;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
       get_project,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,30
       list_projects,"(fiscal_year:Optional[int]=Query(default=None);status:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,44
       update_project,"(project_id:str;project:ProjectUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,37
       get_project_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,67
       recalculate_project_totals,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,37
+      delete_project,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,30
+      bulk_assign_expenses,"(request:BulkAssignRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,24
     function_docs:
       create_project: creates project
       get_project: retrieves project
@@ -829,6 +1112,8 @@ module_details:
       update_project: updates project
       get_project_summary: retrieves project summary
       recalculate_project_totals: recalculate project totals
+      delete_project: deletes project
+      bulk_assign_expenses: bulk assign expenses
   src/api/routers/auth.py:
     imports[19]: datetime,datetime.timedelta,typing.Optional,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.status,fastapi.security.OAuth2PasswordBearer,fastapi.security.OAuth2PasswordRequestForm,pydantic.BaseModel,pydantic.EmailStr,passlib.context.CryptContext,jose.JWTError,jose.jwt,sqlalchemy.ext.asyncio.AsyncSession
     exports[11]: Token,TokenData,UserCreate,UserResponse,verify_password,get_password_hash,create_access_token,get_current_user,login_for_access_token,register_user
@@ -979,7 +1264,7 @@ module_details:
       get_annual_ip_box_summary: retrieves annual ip box summary
   src/api/routers/documents.py:
     imports[20]: json,uuid,datetime,typing.Optional,typing.List,pathlib.Path,httpx,aiofiles,fastapi.APIRouter,fastapi.UploadFile,fastapi.File,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks
-    exports[12]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,upload_document,process_document_ocr,get_document,list_documents,reprocess_document,delete_document,update_document
+    exports[17]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr,get_document,list_documents,reprocess_document
     const[1]{n,t,v,keys}:
       UPLOAD_DIR,"-","Path(\"/app/uploads\")","-"
     classes[3]{name,bases,decorators,props,methods}:
@@ -996,17 +1281,24 @@ module_details:
       DocumentDetailResponse:
         doc: Extended document response with OCR text
         properties[10]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","ocr_text: Optional[str]","extracted_data: Optional[dict]","validation_errors: Optional[list]","created_at: datetime","updated_at: Optional[datetime]"
-    functions[8]{name,sig,decorators,async,category,lines}:
+    functions[13]{name,sig,decorators,async,category,lines}:
       upload_document,"(background_tasks:BackgroundTasks;file:UploadFile=File(...);project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001');document_type:str=Query(default='invoice');db:AsyncSession=Depends(get_db))->None",router.post,true,-,68
-      process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,97
+      detect_invoice_type,"(extracted_data:dict;our_nip:str='5881918662')->str",-,false,-,48
+      create_expense_from_document,"(doc_id:str;extracted_data:dict;doc_type:str)->None",-,true,-,160
+      process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,101
       get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,25
       list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,43
       reprocess_document,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
       delete_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,28
       update_document,"(document_id:str;db:AsyncSession=Depends(get_db);document_type:Optional[str]=None;ocr_status:Optional[str]=None;extracted_data:Optional[dict]=None)->None",router.patch,true,-,34
       get_document_detail,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,28
+      sync_expenses_from_documents,"(background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,37
+      check_document_duplicates,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,80
+      re_extract_document_data,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,60
     function_docs:
       upload_document: upload document
+      detect_invoice_type: detect invoice type
+      create_expense_from_document: creates expense from document
       process_document_ocr: processes document ocr
       get_document: retrieves document
       list_documents: list documents
@@ -1014,16 +1306,20 @@ module_details:
       delete_document: deletes document
       update_document: updates document
       get_document_detail: retrieves document detail
+      sync_expenses_from_documents: sync expenses from documents
+      check_document_duplicates: checks document duplicates
+      re_extract_document_data: re extract document data
   src/api/routers/expenses.py:
     imports[19]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,httpx,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession
-    exports[15]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,BRCategory,BR_CATEGORIES,get_br_categories,create_expense,get_expense,list_expenses,classify_expense_manually
+    exports[28]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,BRCategory,BR_CATEGORIES,get_br_categories,create_expense,get_expense,list_expenses,classify_expense_manually
     const[1]{n,t,v,keys}:
       BR_CATEGORIES,List,"[     BRCategory(         code=\"personnel_employment\",         name=\"Wynagrodzenia pracowników (umowa o pracę)\",     ...","-"
-    classes[4]{name,bases,decorators,props,methods}:
+    classes[5]{name,bases,decorators,props,methods}:
       ExpenseCreate,BaseModel,-,12,0
       ExpenseResponse,BaseModel,-,26,0
       ExpenseClassifyRequest,BaseModel,-,7,0
       BRCategory,BaseModel,-,5,0
+      ExpenseStatusUpdate,BaseModel,-,1,0
     class_details:
       ExpenseCreate:
         doc: Create expense request
@@ -1037,13 +1333,28 @@ module_details:
       BRCategory:
         doc: B+R expense category
         properties[5]: "code: str","name: str","description: str","deduction_rate: float","examples: List[str]"
-    functions[10]{name,sig,decorators,async,category,lines}:
+      ExpenseStatusUpdate:
+        doc: Status update request
+        properties[1]: "status: str"
+    functions[22]{name,sig,decorators,async,category,lines}:
       get_br_categories,()->None,router.get,true,-,3
       create_expense,"(expense:ExpenseCreate;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
       get_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,48
       list_expenses,"(project_id:Optional[str]=Query(default=None);br_qualified:Optional[bool]=Query(default=None);ip_qualified:Optional[bool]=Query(default=None);status:Optional[str]=Query(default=None);year:Optional[int]=Query(default=None);month:Optional[int]=Query(default=None);...+1)->None",router.get,true,-,86
       classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,49
       trigger_auto_classification,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,17
+      update_expense_status,"(expense_id:str;status_update:ExpenseStatusUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,24
+      delete_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,16
+      generate_expense_documentation,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,67
+      generate_project_documentation_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,164
+      list_revenues,"(project_id:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,47
+      classify_revenue,"(revenue_id:str;classification:dict;db:AsyncSession=Depends(get_db))->None",router.put,true,-,60
+      list_project_documentation,"(project_id:str)->None",router.get,true,-,19
+      get_documentation_content,"(project_id:str;filename:str)->None",router.get,true,-,15
+      get_documentation_history,"(project_id:str;filename:str)->None",router.get,true,-,15
+      get_documentation_version,"(project_id:str;filename:str;commit:str)->None",router.get,true,-,19
+      refine_documentation_with_llm,"(project_id:str;filename:str)->None",router.post,true,-,61
+      get_documentation_pdf,"(project_id:str;filename:str)->None",router.get,true,-,107
       classify_expense_with_llm,"(expense_id:str)->None",-,true,-,87
       get_br_classifier_system_prompt,()->str,-,false,-,37
       build_classification_prompt,(expense_row)->str,-,false,-,21
@@ -1055,6 +1366,18 @@ module_details:
       list_expenses: list expenses
       classify_expense_manually: classify expense manually
       trigger_auto_classification: trigger auto classification
+      update_expense_status: updates expense status
+      delete_expense: deletes expense
+      generate_expense_documentation: creates expense documentation
+      generate_project_documentation_summary: creates project documentation summary
+      list_revenues: list revenues
+      classify_revenue: classify revenue
+      list_project_documentation: list project documentation
+      get_documentation_content: retrieves documentation content
+      get_documentation_history: retrieves documentation history
+      get_documentation_version: retrieves documentation version
+      refine_documentation_with_llm: refine documentation with llm
+      get_documentation_pdf: retrieves documentation pdf
       classify_expense_with_llm: classify expense with llm
       get_br_classifier_system_prompt: retrieves br classifier system prompt
       build_classification_prompt: creates classification prompt
@@ -1427,19 +1750,21 @@ module_details:
           create_folder,"(folder_path:str)->bool",-,true,17
           get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,35
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
+  web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[68]: loadExpenses,loadSyncLogs,getUrlParam,testConnections,generateMonthlyReport,updateProviderOptions,retryOcr,showExpenseDetails,saveIntegration,setUrlParam
-    const[4]{n,t,v,keys}:
+    exports[113]: loadReports,apiCall,saveTimesheet,loadProjects,escapeHtml,clearGlobalLogs,setupUploadListeners,saveExtractedData,testConnections,switchLogTab
+    const[5]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
+      TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[68]{name,sig,decorators,async,category,lines}:
+    functions[113]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
       getUrlParam,(key)->None,-,false,-,4
       setUrlParam,(key;value)->None,-,false,-,14
       setPageInUrl,(page)->None,-,false,-,3
-      navigateTo,(page)->None,-,false,-,26
+      navigateTo,(page)->None,-,false,-,27
       apiCall,(endpoint)->None,-,true,-,13
       loadDashboard,()->None,-,true,-,16
       setupUploadListeners,()->None,-,false,-,13
@@ -1450,15 +1775,31 @@ module_details:
       getDocTypeName,(type)->None,-,false,-,4
       deleteDocument,(docId)->None,-,true,-,10
       retryOcr,(docId)->None,-,true,-,7
-      showDocumentDetail,(docId)->None,-,true,-,69
+      showDocumentDetail,(docId)->None,-,true,-,72
       getFieldLabel,(field)->None,-,false,-,13
       toggleEditMode,()->None,-,false,-,9
       saveExtractedData,(docId)->None,-,true,-,23
       createExpenseFromDoc,(docId)->None,-,true,-,40
       closeDocumentModal,()->None,-,false,-,7
       approveDocument,(docId)->None,-,true,-,8
-      loadExpenses,()->None,-,true,-,20
-      showExpenseDetails,(id)->None,-,true,-,20
+      loadProjects,()->None,-,true,-,44
+      showCreateProjectModal,()->None,-,false,-,8
+      createProject,(name;description;fiscalYear)->None,-,true,-,10
+      editProject,(id)->None,-,true,-,17
+      deleteProject,(id)->None,-,true,-,10
+      viewProjectExpenses,(projectId)->None,-,false,-,7
+      loadProjectsForFilter,()->None,-,true,-,19
+      getProjectName,(projectId)->None,-,false,-,4
+      loadExpenses,()->None,-,true,-,85
+      classifyRevenue,(revenueId;ipQualified)->None,-,true,-,12
+      showRevenueDetails,(revenueId)->None,-,true,-,4
+      deleteRevenue,(revenueId)->None,-,true,-,4
+      toggleExpenseSelection,(id;checked)->None,-,false,-,8
+      toggleSelectAll,(checkbox)->None,-,false,-,12
+      updateBulkActionsBar,()->None,-,false,-,10
+      clearSelection,()->None,-,false,-,6
+      bulkAssignToProject,()->None,-,true,-,26
+      showExpenseDetails,(id)->None,-,true,-,34
       classifyExpense,(id)->None,-,true,-,11
       reclassifyWithLLM,(id)->None,-,true,-,4
       loadReports,()->None,-,true,-,22
@@ -1468,9 +1809,38 @@ module_details:
       answerClarification,(id)->None,-,true,-,6
       saveProjectSettings,()->None,-,false,-,6
       formatCurrency,(amount)->None,-,false,-,1
+      formatCurrencyWithCode,(amount)->None,-,false,-,8
       getStatusLabel,(s)->None,-,false,-,1
       getCategoryName,(c)->None,-,false,-,1
       showToast,(msg)->None,-,false,-,1
+      changeExpenseStatus,(id;status)->None,-,true,-,6
+      saveExpenseStatus,(id)->None,-,true,-,9
+      deleteExpense,(id)->None,-,true,-,9
+      checkDuplicates,(docId)->None,-,true,-,31
+      reExtractData,(docId)->None,-,true,-,12
+      generateExpenseDoc,(expenseId)->None,-,true,-,18
+      generateProjectSummary,(projectId)->None,-,true,-,19
+      viewProjectDocs,(projectId)->None,-,true,-,42
+      viewDocContent,(projectId;filename)->None,-,true,-,25
+      renderMarkdown,(md)->None,-,false,-,3
+      downloadDoc,(projectId;filename)->None,-,false,-,4
+      downloadPdf,(projectId;filename)->None,-,false,-,4
+      viewDocHistory,(projectId;filename)->None,-,true,-,33
+      viewDocVersion,(projectId;filename;commit)->None,-,true,-,19
+      compareDocs,(projectId;filename;oldCommit)->None,-,true,-,61
+      escapeHtml,(text)->None,-,false,-,5
+      printDoc,()->None,-,false,-,31
+      closeDocsModal,()->None,-,false,-,3
+      initTimesheet,()->None,-,true,-,22
+      loadWorkers,()->None,-,true,-,10
+      loadContractors,()->None,-,true,-,19
+      loadTimesheet,()->None,-,true,-,94
+      toggleTimesheetBlock,(checkbox)->None,-,true,-,36
+      updateTimesheetCell,(input)->None,-,false,-,14
+      saveTimesheet,()->None,-,true,-,37
+      updateTimesheetSummary,(year;month)->None,-,true,-,26
+      showAddWorkerModal,()->None,-,false,-,10
+      createWorker,(name;role;hourlyRate)->None,-,true,-,12
       loadIntegrations,()->None,-,true,-,33
       renderIntegrationCard,(integration)->None,-,false,-,26
       loadSyncLogs,()->None,-,true,-,28
@@ -1526,7 +1896,23 @@ module_details:
       createExpenseFromDoc: creates expense from doc
       closeDocumentModal: stops document modal
       approveDocument: approve document
+      loadProjects: retrieves projects
+      showCreateProjectModal: show create project modal
+      createProject: creates project
+      editProject: updates project
+      deleteProject: deletes project
+      viewProjectExpenses: view project expenses
+      loadProjectsForFilter: retrieves projects for filter
+      getProjectName: retrieves project name
       loadExpenses: retrieves expenses
+      classifyRevenue: classify revenue
+      showRevenueDetails: show revenue details
+      deleteRevenue: deletes revenue
+      toggleExpenseSelection: toggle expense selection
+      toggleSelectAll: toggle select all
+      updateBulkActionsBar: updates bulk actions bar
+      clearSelection: deletes selection
+      bulkAssignToProject: bulk assign to project
       showExpenseDetails: show expense details
       classifyExpense: classify expense
       reclassifyWithLLM: reclassify with llm
@@ -1537,9 +1923,38 @@ module_details:
       answerClarification: answer clarification
       saveProjectSettings: caches project settings
       formatCurrency: formats currency
+      formatCurrencyWithCode: formats currency with code
       getStatusLabel: retrieves status label
       getCategoryName: retrieves category name
       showToast: show toast
+      changeExpenseStatus: updates expense status
+      saveExpenseStatus: caches expense status
+      deleteExpense: deletes expense
+      checkDuplicates: checks duplicates
+      reExtractData: re extract data
+      generateExpenseDoc: creates expense doc
+      generateProjectSummary: creates project summary
+      viewProjectDocs: view project docs
+      viewDocContent: view doc content
+      renderMarkdown: formats markdown
+      downloadDoc: download doc
+      downloadPdf: download pdf
+      viewDocHistory: view doc history
+      viewDocVersion: view doc version
+      compareDocs: compare docs
+      escapeHtml: escape html
+      printDoc: logs doc
+      closeDocsModal: stops docs modal
+      initTimesheet: creates timesheet
+      loadWorkers: retrieves workers
+      loadContractors: retrieves contractors
+      loadTimesheet: retrieves timesheet
+      toggleTimesheetBlock: toggle timesheet block
+      updateTimesheetCell: updates timesheet cell
+      saveTimesheet: caches timesheet
+      updateTimesheetSummary: updates timesheet summary
+      showAddWorkerModal: show add worker modal
+      createWorker: creates worker
       loadIntegrations: retrieves integrations
       renderIntegrationCard: formats integration card
       loadSyncLogs: retrieves sync logs
@@ -1567,8 +1982,619 @@ module_details:
       clearAllLogs: deletes all logs
       reconnectAllLogs: reconnect all logs
       stopAllLogStreams: stops all log streams
-      isGlobalLogsOpen: is global logs open
+      isGlobalLogsOpen: checks global logs open
       toggleGlobalLogs: toggle global logs
       switchGlobalLogTab: switch global log tab
       clearGlobalLogs: deletes global logs
       startLogStreamFor: starts log stream for
+  brgenerator/tests/conftest.py:
+    imports[4]: pytest,os,unittest.mock.AsyncMock,unittest.mock.MagicMock
+    exports[4]: env_setup,mock_llm_client,temp_output_dir,sample_yaml_form
+    functions[4]{name,sig,decorators,async,category,lines}:
+      env_setup,(monkeypatch)->None,pytest.fixture,false,-,6
+      mock_llm_client,()->None,pytest.fixture,false,-,26
+      temp_output_dir,(tmp_path)->None,pytest.fixture,false,-,5
+      sample_yaml_form,()->None,pytest.fixture,false,-,61
+    function_docs:
+      env_setup: env setup
+      mock_llm_client: mock llm client
+      temp_output_dir: temp output dir
+      sample_yaml_form: sample yaml form
+  brgenerator/tests/__init__.py:
+  brgenerator/tests/test_validators.py:
+    imports[20]: pytest,datetime.date,decimal.Decimal,br_doc_generator.models.ProjectInput,br_doc_generator.models.ProjectBasicInfo,br_doc_generator.models.CompanyInfo,br_doc_generator.models.ProjectTimeline,br_doc_generator.models.Milestone,br_doc_generator.models.InnovationInfo,br_doc_generator.models.MethodologyInfo,br_doc_generator.models.RiskFactor,br_doc_generator.models.ResearchMethod,br_doc_generator.models.ProjectCosts,br_doc_generator.models.PersonnelEmploymentCost,br_doc_generator.models.PersonnelCivilCost
+    exports[8]: validation_config,sample_project_input,valid_document,TestStructureValidator,TestLegalComplianceValidator,TestFinancialValidator,TestNIPValidation,TestProjectCostsCalculation
+    classes[5]{name,bases,decorators,props,methods}:
+      TestStructureValidator,-,-,0,3
+      TestLegalComplianceValidator,-,-,0,3
+      TestFinancialValidator,-,-,0,2
+      TestNIPValidation,-,-,0,2
+      TestProjectCostsCalculation,-,-,0,3
+    class_details:
+      TestStructureValidator:
+        doc: Tests for StructureValidator.
+        methods[3]{name,sig,decorators,async,lines}:
+          test_valid_document_passes,(validation_config;valid_document;sample_project_input)->None,-,false,14
+          test_missing_sections_fails,(validation_config;sample_project_input)->None,-,false,19
+          test_empty_document_fails,(validation_config;sample_project_input)->None,-,false,12
+      TestLegalComplianceValidator:
+        doc: Tests for LegalComplianceValidator.
+        methods[3]{name,sig,decorators,async,lines}:
+          test_valid_document_passes,(validation_config;valid_document;sample_project_input)->None,-,false,13
+          test_missing_keywords_fails,(validation_config;sample_project_input)->None,-,false,24
+          test_nip_validation,(validation_config;sample_project_input)->None,-,false,22
+      TestFinancialValidator:
+        doc: Tests for FinancialValidator.
+        methods[2]{name,sig,decorators,async,lines}:
+          test_valid_costs_pass,(validation_config;valid_document;sample_project_input)->None,-,false,12
+          test_missing_costs_fails,(validation_config;sample_project_input)->None,-,false,22
+      TestNIPValidation:
+        doc: Tests for NIP checksum validation.
+        methods[2]{name,sig,decorators,async,lines}:
+          test_valid_nips,()->None,-,false,13
+          test_invalid_nips,()->None,-,false,13
+      TestProjectCostsCalculation:
+        doc: Tests for cost calculations.
+        methods[3]{name,sig,decorators,async,lines}:
+          test_personnel_cost_calculation,()->None,-,false,15
+          test_material_cost_calculation,()->None,-,false,11
+          test_total_costs_aggregation,(sample_project_input)->None,-,false,17
+    functions[3]{name,sig,decorators,async,category,lines}:
+      validation_config,()->None,pytest.fixture,false,-,3
+      sample_project_input,()->None,pytest.fixture,false,-,78
+      valid_document,()->None,pytest.fixture,false,-,82
+    function_docs:
+      validation_config: validation config
+      sample_project_input: sample project input
+      valid_document: valid document
+  brgenerator/tests/test_e2e.py:
+    imports[20]: pytest,asyncio,tempfile,pathlib.Path,datetime.date,decimal.Decimal,br_doc_generator.BRDocumentationPipeline,br_doc_generator.FormGenerator,br_doc_generator.ValidationPipeline,br_doc_generator.DocumentGenerator,br_doc_generator.PDFRenderer,br_doc_generator.LLMClient,br_doc_generator.config.AppConfig,br_doc_generator.config.load_config,br_doc_generator.models.ProjectInput
+    exports[5]: TestFormGeneratorE2E,TestValidationPipelineE2E,TestCLICommands,TestPDFRendering,TestCostCalculations
+    classes[5]{name,bases,decorators,props,methods}:
+      TestFormGeneratorE2E,-,-,0,2
+      TestValidationPipelineE2E,-,-,0,4
+      TestCLICommands,-,-,0,2
+      TestPDFRendering,-,-,0,2
+      TestCostCalculations,-,-,0,2
+    class_details:
+      TestFormGeneratorE2E:
+        doc: E2E tests for form generation workflow.
+        methods[2]{name,sig,decorators,async,lines}:
+          test_generate_and_load_form,()->None,-,false,29
+          test_form_validation,()->None,-,false,45
+      TestValidationPipelineE2E:
+        doc: E2E tests for validation pipeline.
+        methods[4]{name,sig,decorators,async,lines}:
+          sample_project,()->None,pytest.fixture,false,59
+          sample_document,()->None,pytest.fixture,false,48
+          test_validation_pipeline_runs,(sample_project;sample_document)->None,-,false,24
+          test_validation_detects_issues,(sample_project)->None,-,false,25
+      TestCLICommands:
+        doc: Test CLI command execution (without actual LLM).
+        methods[2]{name,sig,decorators,async,lines}:
+          test_generate_form_command,()->None,-,false,17
+          test_info_command,()->None,-,false,14
+      TestPDFRendering:
+        doc: Test PDF rendering functionality.
+        methods[2]{name,sig,decorators,async,lines}:
+          test_pdf_renderer_initialization,()->None,-,false,9
+          test_render_simple_markdown,()->None,-,false,29
+      TestCostCalculations:
+        doc: Test cost calculation accuracy.
+        methods[2]{name,sig,decorators,async,lines}:
+          test_personnel_employment_costs,()->None,-,false,17
+          test_project_costs_aggregation,()->None,-,false,42
+  brgenerator/src/br_doc_generator/config.py:
+    imports[8]: os,enum.Enum,pathlib.Path,typing.Optional,pydantic.Field,pydantic.field_validator,pydantic_settings.BaseSettings,pydantic_settings.SettingsConfigDict
+    exports[13]: LLMProvider,ValidationLevel,PDFTemplate,LogFormat,LLMConfig,ValidationConfig,PDFConfig,OutputConfig,LogConfig,CompanyDefaults
+    types[4]{name,kind,values,def}:
+      LLMProvider,enum,"OPENROUTER=\"openrouter\"|OLLAMA=\"ollama\"|ANTHROPIC=\"anthropic\"|OPENAI=\"openai\"","-"
+      ValidationLevel,enum,"STRUCTURE=\"structure\"|CONTENT=\"content\"|LEGAL=\"legal\"|FINANCIAL=\"financial\"","-"
+      PDFTemplate,enum,"PROFESSIONAL=\"professional\"|MINIMAL=\"minimal\"|DETAILED=\"detailed\"","-"
+      LogFormat,enum,"JSON=\"json\"|CONSOLE=\"console\"","-"
+    classes[11]{name,bases,decorators,props,methods}:
+      LLMProvider,str|Enum,-,0,0
+      ValidationLevel,str|Enum,-,0,0
+      PDFTemplate,str|Enum,-,0,0
+      LogFormat,str|Enum,-,0,0
+      LLMConfig,BaseSettings,-,6,1
+      ValidationConfig,BaseSettings,-,3,1
+      PDFConfig,BaseSettings,-,7,1
+      OutputConfig,BaseSettings,-,3,1
+      LogConfig,BaseSettings,-,3,1
+      CompanyDefaults,BaseSettings,-,4,0
+      AppConfig,BaseSettings,-,6,1
+    class_details:
+      LLMProvider:
+        doc: Supported LLM providers.
+      ValidationLevel:
+        doc: Validation pipeline stages.
+      PDFTemplate:
+        doc: Available PDF templates.
+      LogFormat:
+        doc: Log output formats.
+      LLMConfig:
+        doc: LLM provider configuration.
+        properties[6]: "openrouter_api_key: Optional[str]","temperature: float","max_tokens: int","timeout: int","max_retries: int","retry_delay: int"
+        methods[1]{name,sig,decorators,async,lines}:
+          get_litellm_params,()->dict,-,false,23
+      ValidationConfig:
+        doc: Validation pipeline configuration.
+        properties[3]: "max_iterations: int","min_quality_score: float","verbose: bool"
+        methods[1]{name,sig,decorators,async,lines}:
+          parse_levels,(v)->None,field_validator|classmethod,false,4
+      PDFConfig:
+        doc: PDF rendering configuration.
+        properties[7]: "template: PDFTemplate","company_logo: Optional[Path]","margin_top: int","margin_bottom: int","margin_left: int","margin_right: int","font_family: str"
+        methods[1]{name,sig,decorators,async,lines}:
+          validate_logo_path,(v)->None,field_validator|classmethod,false,6
+      OutputConfig:
+        doc: Output configuration.
+        properties[3]: "output_dir: Path","date_format: str","document_language: str"
+        methods[1]{name,sig,decorators,async,lines}:
+          ensure_output_dir,(v)->None,field_validator|classmethod,false,4
+      LogConfig:
+        doc: Logging configuration.
+        properties[3]: "level: str","format: LogFormat","dir: Path"
+        methods[1]{name,sig,decorators,async,lines}:
+          ensure_log_dir,(v)->None,field_validator|classmethod,false,4
+      CompanyDefaults:
+        doc: Default company information.
+        properties[4]: "company_name: Optional[str]","company_nip: Optional[str]","company_regon: Optional[str]","fiscal_year: int"
+      AppConfig:
+        doc: Main application configuration.
+        properties[6]: "llm: LLMConfig","validation: ValidationConfig","pdf: PDFConfig","output: OutputConfig","log: LogConfig","company: CompanyDefaults"
+        methods[1]{name,sig,decorators,async,lines}:
+          from_env,"(env_file:Optional[str]=None)->\"AppConfig\"",classmethod,false,14
+    functions[2]{name,sig,decorators,async,category,lines}:
+      load_config,"(env_file:Optional[str]=None)->AppConfig",-,false,-,3
+      get_config,()->AppConfig,-,false,-,6
+    function_docs:
+      load_config: retrieves config
+      get_config: retrieves config
+  brgenerator/src/br_doc_generator/cli.py:
+    imports[11]: asyncio,pathlib.Path,typing.Optional,typing.List,typer,rich.console.Console,rich.progress.Progress,rich.progress.SpinnerColumn,rich.progress.TextColumn,rich.table.Table,rich.panel.Panel
+    exports[8]: get_config,generate_form,generate,validate,render,info,web_server,main
+    functions[8]{name,sig,decorators,async,category,lines}:
+      get_config,()->None,-,false,-,4
+      generate_form,"(output:str=typer.Option('project_form.yaml'; '--output'; '-o'; help='Ścieżka do pliku wyjściowego formularza YAML');project_name:Optional[str]=typer.Option(None; '--name'; '-n'; help='Nazwa projektu do wstępnego wypełnienia');fiscal_year:Optional[int]=typer.Option(None; '--year'; '-y'; help='Rok podatkowy'))->None",app.command,false,-,43
+      generate,"(input_file:str=typer.Option(...; '--input'; '-i'; help='Ścieżka do formularza YAML');output_dir:str=typer.Option('./output'; '--output'; '-o'; help='Katalog wyjściowy');format:str=typer.Option('both'; '--format'; '-f'; help='Format wyjściowy: pdf; md; both');validation_levels:Optional[str]=typer.Option(None; '--validation'; '-v'; help='Poziomy walidacji (oddzielone przecinkami): structure;content;legal;financial');max_iterations:int=typer.Option(3; '--max-iter'; help='Maksymalna liczba iteracji poprawek'))->None",app.command,false,-,117
+      validate,"(input_file:str=typer.Option(...; '--input'; '-i'; help='Ścieżka do dokumentacji markdown');report:str=typer.Option('validation_report.yaml'; '--report'; '-r'; help='Ścieżka do raportu walidacji');levels:Optional[str]=typer.Option('structure;content;legal;financial'; '--levels'; '-l'; help='Poziomy walidacji do uruchomienia'))->None",app.command,false,-,187
+      render,"(input_file:str=typer.Option(...; '--input'; '-i'; help='Ścieżka do dokumentacji markdown');output:str=typer.Option('documentation.pdf'; '--output'; '-o'; help='Ścieżka do pliku PDF wyjściowego');template:str=typer.Option('professional'; '--template'; '-t'; help='Szablon PDF: professional; minimal; detailed');logo:Optional[str]=typer.Option(None; '--logo'; help='Ścieżka do logo firmy');company_name:Optional[str]=typer.Option(None; '--company'; help='Nazwa firmy (do nagłówka/stopki)'))->None",app.command,false,-,76
+      info,()->None,app.command,false,-,35
+      web_server,"(host:str=typer.Option('0.0.0.0'; '--host'; '-h'; help='Host do nasłuchiwania');port:int=typer.Option(8000; '--port'; '-p'; help='Port do nasłuchiwania');reload:bool=typer.Option(False; '--reload'; '-r'; help='Automatyczne przeładowanie przy zmianach'))->None",app.command,false,-,42
+      main,()->None,-,false,-,3
+    function_docs:
+      get_config: retrieves config
+      generate_form: creates form
+      generate: creates
+      validate: validates
+      render: formats
+      info: info
+      web_server: web server
+      main: main
+  brgenerator/src/br_doc_generator/__init__.py:
+    imports[20]: config.AppConfig,config.LLMConfig,config.ValidationConfig,config.PDFConfig,config.load_config,models.ProjectInput,models.CompanyInfo,models.ProjectBasicInfo,models.ProjectTimeline,models.Timeline,models.Milestone,models.InnovationInfo,models.Innovation,models.MethodologyInfo,models.Methodology
+    exports[1]: BRDocumentationPipeline
+    classes[1]{name,bases,decorators,props,methods}:
+      BRDocumentationPipeline,-,-,0,6
+    class_details:
+      BRDocumentationPipeline:
+        doc: High-level pipeline for generating B+R documentation.
+        methods[6]{name,sig,decorators,async,lines}:
+          __init__,"(config:AppConfig)->None",-,false,17
+          from_env,"(env_path:str='.env')->\"BRDocumentationPipeline\"",classmethod,false,12
+          generate,"(form_path:str;output_dir:str='./output';validation_levels:list=None;max_iterations:int=3;output_format:str='pdf')->PipelineResult",-,true,85
+          _form_to_project_input,"(form_data:dict)->ProjectInput",-,false,108
+          load_form,"(form_path:str)->dict",-,false,3
+          save_validation_report,"(result:PipelineResult;output_path:str)->None",-,false,34
+  brgenerator/src/br_doc_generator/web.py:
+    imports[20]: asyncio,tempfile,datetime.date,decimal.Decimal,pathlib.Path,typing.Optional,fastapi.FastAPI,fastapi.HTTPException,fastapi.UploadFile,fastapi.File,fastapi.Form,fastapi.BackgroundTasks,fastapi.middleware.cors.CORSMiddleware,fastapi.responses.FileResponse,fastapi.responses.HTMLResponse
+    exports[13]: FormGenerationRequest,ValidationRequest,ValidationResponse,HealthResponse,ConfigResponse,root,health_check,get_config,generate_form,validate_document
+    classes[6]{name,bases,decorators,props,methods}:
+      FormGenerationRequest,BaseModel,-,2,0
+      ValidationRequest,BaseModel,-,2,0
+      ValidationResponse,BaseModel,-,4,0
+      HealthResponse,BaseModel,-,3,0
+      ConfigResponse,BaseModel,-,4,0
+      PDFRenderRequest,BaseModel,-,2,0
+    class_details:
+      FormGenerationRequest:
+        doc: Request to generate a new form.
+        properties[2]: "project_name: str","fiscal_year: Optional[int]"
+      ValidationRequest:
+        doc: Request to validate documentation.
+        properties[2]: "markdown_content: str","validation_levels: list[str]"
+      ValidationResponse:
+        doc: Validation result response.
+        properties[4]: "status: str","quality_score: float","stages: list[dict]","issues_count: int"
+      HealthResponse:
+        doc: Health check response.
+        properties[3]: "status: str","version: str","llm_provider: str"
+      ConfigResponse:
+        doc: Configuration info response.
+        properties[4]: "llm_provider: str","llm_model: str","validation_levels: list[str]","pdf_template: str"
+      PDFRenderRequest:
+        doc: Request to render PDF.
+        properties[2]: "markdown_content: str","template: str"
+    functions[7]{name,sig,decorators,async,category,lines}:
+      root,()->None,app.get,true,-,243
+      health_check,()->None,app.get,true,-,7
+      get_config,()->None,app.get,true,-,8
+      generate_form,"(request:FormGenerationRequest)->None",app.post,true,-,8
+      validate_document,"(request:ValidationRequest)->None",app.post,true,-,65
+      render_pdf,"(request:PDFRenderRequest)->None",app.post,true,-,15
+      run_server,"(host:str='0.0.0.0';port:int=8000;reload:bool=False)->None",-,false,-,9
+    function_docs:
+      root: root
+      health_check: health check
+      get_config: retrieves config
+      generate_form: creates form
+      validate_document: validates document
+      render_pdf: formats pdf
+      run_server: starts server
+  brgenerator/src/br_doc_generator/llm_client.py:
+    imports[11]: asyncio,json,typing.Any,typing.Optional,structlog,litellm.acompletion,litellm.completion,pydantic.BaseModel,config.LLMConfig,config.LLMProvider,config.get_config
+    exports[3]: LLMResponse,LLMClient,get_llm_client
+    classes[2]{name,bases,decorators,props,methods}:
+      LLMResponse,BaseModel,-,5,0
+      LLMClient,-,-,0,9
+    class_details:
+      LLMResponse:
+        doc: Response from LLM.
+        properties[5]: "content: str","model: str","usage: dict[str, int]","finish_reason: Optional[str]","raw_response: Optional[dict]"
+      LLMClient:
+        doc: LiteLLM-based client for multiple LLM providers.
+        methods[9]{name,sig,decorators,async,lines}:
+          __init__,"(config:Optional[LLMConfig]=None)->None",-,false,4
+          _ensure_connection,()->None,-,true,23
+          _get_model_name,()->str,-,false,10
+          _get_api_params,"()->dict[str, Any]",-,false,17
+          _call_llm,"(messages:list[dict[str;str]];max_tokens:Optional[int]=None;temperature:Optional[float]=None)->LLMResponse",-,true,44
+          generate,"(prompt:str;system_prompt:Optional[str]=None;max_tokens:Optional[int]=None;temperature:Optional[float]=None)->str",-,true,33
+          generate_structured,"(prompt:str;system_prompt:Optional[str]=None;output_schema:Optional[dict]=None)->dict[str, Any]",-,true,45
+          validate_content,"(content:str;validation_criteria:list[str];context:Optional[str]=None)->dict[str, Any]",-,true,52
+          improve_content,"(content:str;issues:list[dict[str;str]];instructions:Optional[str]=None)->str",-,true,47
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_llm_client,"(config:Optional[LLMConfig]=None)->LLMClient",-,false,-,6
+    function_docs:
+      get_llm_client: retrieves llm client
+  brgenerator/src/br_doc_generator/models.py:
+    imports[11]: datetime.date,datetime,decimal.Decimal,enum.Enum,pathlib.Path,typing.Any,typing.Optional,pydantic.BaseModel,pydantic.Field,pydantic.field_validator,pydantic.model_validator
+    exports[25]: InnovationType,InnovationScale,CostCategory,ValidationStatus,IssueSeverity,CompanyInfo,ProjectBasicInfo,Milestone,ProjectTimeline,InnovationInfo
+    types[5]{name,kind,values,def}:
+      InnovationType,enum,"PRODUCT=\"product\"|PROCESS=\"process\"|MIXED=\"mixed\"","-"
+      InnovationScale,enum,"COMPANY=\"company\"|INDUSTRY=\"industry\"|GLOBAL=\"global\"","-"
+      CostCategory,enum,"PERSONNEL_EMPLOYMENT=\"personnel_employment\"|PERSONNEL_CIVIL=\"personnel_civil\"|MATERIALS=\"materials\"|EQUIPMENT=\"equipment\"|DEPRECIATION=\"depreciation\"|EXPERTISE=\"expertise\"|EXTERNAL_RESEARCH=\"external_research\"|IP_COSTS=\"ip_costs\"","-"
+      ValidationStatus,enum,"PASSED=\"passed\"|FAILED=\"failed\"|WARNING=\"warning\"","-"
+      IssueSeverity,enum,"CRITICAL=\"critical\"|ERROR=\"error\"|WARNING=\"warning\"|INFO=\"info\"","-"
+    classes[25]{name,bases,decorators,props,methods}:
+      InnovationType,str|Enum,-,0,0
+      InnovationScale,str|Enum,-,0,0
+      CostCategory,str|Enum,-,0,0
+      ValidationStatus,str|Enum,-,0,0
+      IssueSeverity,str|Enum,-,0,0
+      CompanyInfo,BaseModel,-,4,1
+      ProjectBasicInfo,BaseModel,-,4,0
+      Milestone,BaseModel,-,4,0
+      ProjectTimeline,BaseModel,-,3,1
+      InnovationInfo,BaseModel,-,2,0
+      ResearchMethod,BaseModel,-,3,0
+      RiskFactor,BaseModel,-,3,0
+      MethodologyInfo,BaseModel,-,0,1
+      PersonnelEmploymentCost,BaseModel,-,4,2
+      PersonnelCivilCost,BaseModel,-,4,1
+      MaterialCost,BaseModel,-,6,1
+      ExternalServiceCost,BaseModel,-,4,1
+      ProjectCosts,BaseModel,-,4,6
+      ExistingFile,BaseModel,-,2,0
+      DocumentationConfig,BaseModel,-,3,0
+      ProjectInput,BaseModel,-,6,0
+      ValidationIssue,BaseModel,-,5,0
+      CorrectionApplied,BaseModel,-,4,0
+      ValidationResult,BaseModel,-,7,2
+      PipelineResult,BaseModel,-,8,2
+    class_details:
+      InnovationType:
+        doc: Type of innovation in the project.
+      InnovationScale:
+        doc: Scale of innovation.
+      CostCategory:
+        doc: B+R cost categories according to Polish tax law.
+      ValidationStatus:
+        doc: Status of validation result.
+      IssueSeverity:
+        doc: Severity level of validation issue.
+      CompanyInfo:
+        doc: Company information for documentation.
+        properties[4]: "name: str","nip: str","regon: Optional[str]","address: Optional[str]"
+        methods[1]{name,sig,decorators,async,lines}:
+          validate_nip,"(v:str)->str",field_validator|classmethod,false,7
+      ProjectBasicInfo:
+        doc: Basic project information.
+        properties[4]: "name: str","code: Optional[str]","fiscal_year: int","company: CompanyInfo"
+      Milestone:
+        doc: Project milestone.
+        properties[4]: "milestone_date: date","name: str","description: Optional[str]","deliverables: list[str]"
+      ProjectTimeline:
+        doc: Project timeline with milestones.
+        properties[3]: "start_date: date","end_date: date","milestones: list[Milestone]"
+        methods[1]{name,sig,decorators,async,lines}:
+          validate_dates,"()->\"ProjectTimeline\"",model_validator,false,4
+      InnovationInfo:
+        doc: Innovation characteristics for B+R qualification.
+        properties[2]: "type: InnovationType","description: str"
+      ResearchMethod:
+        doc: Research method description.
+        properties[3]: "name: str","description: Optional[str]","tools: list[str]"
+      RiskFactor:
+        doc: Research risk factor.
+        properties[3]: "description: str","probability: Optional[str]","mitigation: Optional[str]"
+      MethodologyInfo:
+        doc: Research methodology for B+R qualification.
+        methods[1]{name,sig,decorators,async,lines}:
+          validate_br_criteria,"()->\"MethodologyInfo\"",model_validator,false,8
+      PersonnelEmploymentCost:
+        doc: Employee cost (umowa o pracę).
+        properties[4]: "name: str","role: str","gross_salary: Decimal","months: int"
+        methods[2]{name,sig,decorators,async,lines}:
+          total_cost,()->Decimal,property,false,3
+          deduction_amount,()->Decimal,property,false,3
+      PersonnelCivilCost:
+        doc: Civil contract cost (umowa zlecenie/dzieło).
+        properties[4]: "name: str","role: str","amount: Decimal","description: Optional[str]"
+        methods[1]{name,sig,decorators,async,lines}:
+          deduction_amount,()->Decimal,property,false,3
+      MaterialCost:
+        doc: Material or equipment cost.
+        properties[6]: "name: str","category: CostCategory","amount: Decimal","description: Optional[str]","invoice_number: Optional[str]","vendor: Optional[str]"
+        methods[1]{name,sig,decorators,async,lines}:
+          deduction_amount,()->Decimal,property,false,3
+      ExternalServiceCost:
+        doc: "External service cost (ekspertyzy, usługi naukowe)."
+        properties[4]: "name: str","provider: str","amount: Decimal","description: Optional[str]"
+        methods[1]{name,sig,decorators,async,lines}:
+          deduction_amount,()->Decimal,property,false,3
+      ProjectCosts:
+        doc: All project costs for B+R calculation.
+        properties[4]: "personnel_employment: list[PersonnelEmploymentCost]","personnel_civil: list[PersonnelCivilCost]","materials: list[MaterialCost]","external_services: list[ExternalServiceCost]"
+        methods[6]{name,sig,decorators,async,lines}:
+          total_personnel_employment,()->Decimal,property,false,2
+          total_personnel_civil,()->Decimal,property,false,2
+          total_materials,()->Decimal,property,false,2
+          total_external_services,()->Decimal,property,false,2
+          total_costs,()->Decimal,property,false,7
+          total_deduction,()->Decimal,property,false,11
+      ExistingFile:
+        doc: Reference to existing documentation file.
+        properties[2]: "path: Path","description: Optional[str]"
+      DocumentationConfig:
+        doc: Documentation generation configuration.
+        properties[3]: "existing_files: list[ExistingFile]","include_appendices: bool","language: str"
+      ProjectInput:
+        doc: Complete project input for documentation generation.
+        properties[6]: "project: ProjectBasicInfo","timeline: ProjectTimeline","innovation: InnovationInfo","methodology: MethodologyInfo","costs: ProjectCosts","documentation: DocumentationConfig"
+      ValidationIssue:
+        doc: Single validation issue.
+        properties[5]: "type: str","severity: IssueSeverity","location: str","message: str","suggestion: Optional[str]"
+      CorrectionApplied:
+        doc: Record of automatic correction.
+        properties[4]: "location: str","original: str","corrected: str","reason: str"
+      ValidationResult:
+        doc: Result of a validation stage.
+        properties[7]: "stage: str","timestamp: datetime","status: ValidationStatus","score: float","issues: list[ValidationIssue]","corrections_applied: list[CorrectionApplied]","metadata: dict[str, Any]"
+        methods[2]{name,sig,decorators,async,lines}:
+          has_critical_issues,()->bool,property,false,2
+          has_errors,()->bool,property,false,5
+      PipelineResult:
+        doc: Complete result of documentation pipeline.
+        properties[8]: "status: ValidationStatus","quality_score: float","validation_stages: list[ValidationResult]","output_path: Optional[Path]","markdown_content: Optional[str]","generation_time_seconds: float","iterations_used: int","errors: list[str]"
+        methods[2]{name,sig,decorators,async,lines}:
+          to_yaml,()->str,-,false,8
+          save_validation_report,"(path:Path)->None",-,false,3
+  brgenerator/src/br_doc_generator/validators/content.py:
+    imports[6]: structlog,models.IssueSeverity,models.ValidationResult,models.ValidationStatus,base.BaseValidator,base.ValidationContext
+    exports[1]: ContentValidator
+    classes[1]{name,bases,decorators,props,methods}:
+      ContentValidator,BaseValidator,-,0,7
+    class_details:
+      ContentValidator:
+        doc: Validates documentation content quality.
+        methods[7]{name,sig,decorators,async,lines}:
+          stage_name,()->str,property,false,2
+          validation_criteria,"()->list[str]",property,false,11
+          validate,"(context:ValidationContext)->ValidationResult",-,true,34
+          _llm_validate,"(context:ValidationContext)->list",-,true,47
+          _build_project_context,(project_input)->str,-,false,11
+          _check_data_consistency,"(context:ValidationContext)->list",-,false,59
+          _get_correction_instructions,()->str,-,false,8
+  brgenerator/src/br_doc_generator/validators/base.py:
+    imports[14]: abc.ABC,abc.abstractmethod,dataclasses.dataclass,dataclasses.field,datetime,typing.Any,typing.Optional,structlog,models.CorrectionApplied,models.IssueSeverity,models.ProjectInput,models.ValidationIssue,models.ValidationResult,models.ValidationStatus
+    exports[2]: ValidationContext,BaseValidator
+    classes[2]{name,bases,decorators,props,methods}:
+      ValidationContext,-,dataclass,0,3
+      BaseValidator,ABC,-,0,11
+    class_details:
+      ValidationContext:
+        doc: Context passed through validation pipeline.
+        fields[6]{n,t,default,factory}:
+          project_input,ProjectInput,"-","-"
+          markdown_content,str,"-","-"
+          current_iteration,int,"0","-"
+          max_iterations,int,"3","-"
+          previous_results,"list[ValidationResult]","-",list
+          metadata,"dict[str, Any]","-",dict
+        methods[3]{name,sig,decorators,async,lines}:
+          add_result,"(result:ValidationResult)->None",-,false,3
+          has_critical_issues,()->bool,property,false,3
+          overall_score,()->float,property,false,5
+      BaseValidator:
+        doc: Abstract base class for validators.
+        methods[11]{name,sig,decorators,async,lines}:
+          __init__,"(use_llm:bool=True)->None",-,false,9
+          stage_name,()->str,property|abstractmethod,false,3
+          validation_criteria,"()->list[str]",property|abstractmethod,false,3
+          get_llm_client,()->None,-,true,6
+          validate,"(context:ValidationContext)->ValidationResult",abstractmethod,true,11
+          auto_correct,"(context:ValidationContext;issues:list[ValidationIssue])->tuple[str, list[CorrectionApplied]]",-,true,55
+          _get_correction_instructions,()->str,-,false,3
+          create_result,"(status:ValidationStatus;score:float;issues:list[ValidationIssue];corrections:Optional[list[CorrectionApplied]]=None;metadata:Optional[dict]=None)->ValidationResult",-,false,18
+          create_issue,"(issue_type:str;severity:IssueSeverity;location:str;message:str;suggestion:Optional[str]=None)->ValidationIssue",-,false,16
+          calculate_score_from_issues,"(issues:list[ValidationIssue])->float",staticmethod,false,15
+          determine_status,"(score:float;issues:list[ValidationIssue])->ValidationStatus",staticmethod,false,10
+  brgenerator/src/br_doc_generator/validators/structure.py:
+    imports[8]: re,typing.Optional,structlog,models.IssueSeverity,models.ValidationResult,models.ValidationStatus,base.BaseValidator,base.ValidationContext
+    exports[2]: REQUIRED_SECTIONS,StructureValidator
+    const[1]{n,t,v,keys}:
+      REQUIRED_SECTIONS,Dict,"{     \"executive_summary\": {         \"patterns\": [r\"#+ *(?:streszczenie|executive summary|podsumowanie)\", r\"## *1\\.? ...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      StructureValidator,BaseValidator,-,0,10
+    class_details:
+      StructureValidator:
+        doc: Validates markdown document structure.
+        methods[10]{name,sig,decorators,async,lines}:
+          stage_name,()->str,property,false,2
+          validation_criteria,"()->list[str]",property,false,9
+          validate,"(context:ValidationContext)->ValidationResult",-,true,54
+          _has_title,"(content:str)->bool",-,false,7
+          _check_required_sections,"(content:str)->list",-,false,25
+          _check_heading_hierarchy,"(content:str)->list",-,false,25
+          _check_section_lengths,"(content:str)->list",-,false,23
+          _check_markdown_syntax,"(content:str)->list",-,false,38
+          _count_sections,"(content:str)->int",-,false,3
+          _get_correction_instructions,()->str,-,false,7
+  brgenerator/src/br_doc_generator/validators/financial.py:
+    imports[8]: re,decimal.Decimal,structlog,models.IssueSeverity,models.ValidationResult,models.ValidationStatus,base.BaseValidator,base.ValidationContext
+    exports[2]: DEDUCTION_RATES,FinancialValidator
+    const[1]{n,t,v,keys}:
+      DEDUCTION_RATES,Dict,"{     \"personnel_employment\": Decimal(\"2.0\"),    # 200% for employees     \"personnel_civil\": Decimal(\"2.0\"),         ...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      FinancialValidator,BaseValidator,-,0,9
+    class_details:
+      FinancialValidator:
+        doc: Validates financial calculations and cost data.
+        methods[9]{name,sig,decorators,async,lines}:
+          stage_name,()->str,property,false,2
+          validation_criteria,"()->list[str]",property,false,9
+          validate,"(context:ValidationContext)->ValidationResult",-,true,46
+          _validate_cost_totals,(costs)->list,-,false,32
+          _validate_deductions,(costs)->list,-,false,29
+          _check_document_amounts,"(content:str;costs)->list",-,false,45
+          _amount_in_document,"(target:float;found_amounts:set;tolerance:float=1.0)->bool",-,false,6
+          _check_personnel_allocations,(costs)->list,-,false,35
+          _get_correction_instructions,()->str,-,false,8
+  brgenerator/src/br_doc_generator/validators/__init__.py:
+    imports[7]: base.BaseValidator,base.ValidationContext,structure.StructureValidator,content.ContentValidator,legal.LegalComplianceValidator,financial.FinancialValidator,pipeline.ValidationPipeline
+  brgenerator/src/br_doc_generator/validators/legal.py:
+    imports[7]: re,structlog,models.IssueSeverity,models.ValidationResult,models.ValidationStatus,base.BaseValidator,base.ValidationContext
+    exports[3]: BR_LEGAL_REQUIREMENTS,NIP_PATTERN,LegalComplianceValidator
+    const[2]{n,t,v,keys}:
+      BR_LEGAL_REQUIREMENTS,Dict,"{     \"systematicity\": {         \"description\": \"Systematyczność - projekt realizowany zgodnie z harmonogramem\",     ...","-"
+      NIP_PATTERN,"-","r'\\b\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2}\\b|\\b\\d{10}\\b'","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      LegalComplianceValidator,BaseValidator,-,0,11
+    class_details:
+      LegalComplianceValidator:
+        doc: Validates documentation against Polish B+R legal requirements.
+        methods[11]{name,sig,decorators,async,lines}:
+          stage_name,()->str,property,false,2
+          validation_criteria,"()->list[str]",property,false,10
+          validate,"(context:ValidationContext)->ValidationResult",-,true,48
+          _check_br_criteria,"(content:str)->list",-,false,20
+          _check_nip,"(context:ValidationContext)->list",-,false,32
+          _check_cost_categories,"(content:str)->list",-,false,28
+          _check_declarations,"(content:str)->list",-,false,21
+          _llm_legal_validation,"(context:ValidationContext)->list",-,true,35
+          _count_met_criteria,"(content:str)->int",-,false,11
+          _get_correction_instructions,()->str,-,false,8
+          _validate_nip_checksum,"(nip:str)->bool",-,false,34
+  brgenerator/src/br_doc_generator/validators/pipeline.py:
+    imports[17]: asyncio,datetime,typing.Optional,structlog,config.ValidationConfig,config.ValidationLevel,config.get_config,models.PipelineResult,models.ProjectInput,models.ValidationResult,models.ValidationStatus,base.BaseValidator,base.ValidationContext,content.ContentValidator,financial.FinancialValidator
+    exports[1]: ValidationPipeline
+    classes[1]{name,bases,decorators,props,methods}:
+      ValidationPipeline,-,-,0,7
+    class_details:
+      ValidationPipeline:
+        doc: Multi-level validation pipeline with iterative refinement.
+        methods[7]{name,sig,decorators,async,lines}:
+          __init__,"(llm_client=None;config:Optional[ValidationConfig]=None;use_llm:bool=True)->None",-,false,30
+          run,"(markdown_content:str;project_input:ProjectInput;levels:Optional[list[str]]=None;max_iterations:Optional[int]=None)->tuple[str, PipelineResult]",-,true,39
+          validate,"(project_input:ProjectInput;markdown_content:str;levels:Optional[list[ValidationLevel]]=None;max_iterations:Optional[int]=None)->PipelineResult",-,true,97
+          _run_validation_level,"(validator:BaseValidator;context:ValidationContext;max_iterations:int)->tuple[list[ValidationResult], int, list[str]]",-,true,79
+          _determine_overall_status,"(results:list[ValidationResult])->ValidationStatus",-,false,25
+          _calculate_overall_score,"(results:list[ValidationResult])->float",-,false,32
+          validate_single_level,"(project_input:ProjectInput;markdown_content:str;level:ValidationLevel)->ValidationResult",-,true,22
+  brgenerator/src/br_doc_generator/generators/document.py:
+    imports[9]: datetime,pathlib.Path,typing.Optional,structlog,config.AppConfig,config.get_config,llm_client.LLMClient,llm_client.get_llm_client,models.ProjectInput
+    exports[2]: BR_DOCUMENTATION_SYSTEM_PROMPT,DocumentGenerator
+    const[1]{n,t,v,keys}:
+      BR_DOCUMENTATION_SYSTEM_PROMPT,str,"\"\"\"Jesteś ekspertem w przygotowywaniu dokumentacji do polskiej ulgi badawczo-rozwojowej (B+R). Generujesz profesjonal...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      DocumentGenerator,-,-,0,21
+    class_details:
+      DocumentGenerator:
+        doc: LLM-powered B+R documentation generator.
+        methods[21]{name,sig,decorators,async,lines}:
+          __init__,"(config:Optional[AppConfig]=None;llm_client:Optional[LLMClient]=None)->None",-,false,14
+          generate,"(project_input:ProjectInput;sections:Optional[list[str]]=None)->str",-,true,46
+          generate_section,"(project_input:ProjectInput;section:str)->str",-,true,22
+          _build_generation_prompt,"(project_input:ProjectInput;sections:list[str])->str",-,false,78
+          _build_section_prompt,"(project_input:ProjectInput;section:str)->str",-,false,18
+          _build_summary_prompt,"(project_input:ProjectInput)->str",-,false,17
+          _build_description_prompt,"(project_input:ProjectInput)->str",-,false,14
+          _build_methodology_prompt,"(project_input:ProjectInput)->str",-,false,16
+          _build_innovation_prompt,"(project_input:ProjectInput)->str",-,false,16
+          _build_costs_prompt,"(project_input:ProjectInput)->str",-,false,25
+          _build_timeline_prompt,"(project_input:ProjectInput)->str",-,false,10
+          _build_risk_prompt,"(project_input:ProjectInput)->str",-,false,13
+          _build_conclusions_prompt,"(project_input:ProjectInput)->str",-,false,13
+          _format_list,"(items:list)->str",-,false,4
+          _format_risks,"(risks:list)->str",-,false,7
+          _format_methods,"(methods:list)->str",-,false,7
+          _format_milestones,"(milestones:list)->str",-,false,7
+          _format_personnel_employment,"(personnel:list)->str",-,false,7
+          _format_personnel_civil,"(personnel:list)->str",-,false,7
+          _format_materials,"(materials:list)->str",-,false,7
+          _format_external_services,"(services:list)->str",-,false,7
+  brgenerator/src/br_doc_generator/generators/__init__.py:
+    imports[4]: document.DocumentGenerator,form.FormGenerator,pdf.PDFRenderer,pdf.render_documentation_to_pdf
+  brgenerator/src/br_doc_generator/generators/form.py:
+    imports[8]: datetime.date,datetime,pathlib.Path,typing.Optional,yaml,structlog,config.get_config,datetime.timedelta
+    exports[2]: FORM_TEMPLATE,FormGenerator
+    const[1]{n,t,v,keys}:
+      FORM_TEMPLATE,str,"\"\"\"# ============================================================================ # BR Documentation Generator - Form...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      FormGenerator,-,-,0,5
+    class_details:
+      FormGenerator:
+        doc: Generator for project input YAML forms.
+        methods[5]{name,sig,decorators,async,lines}:
+          __init__,(config=None)->None,-,false,3
+          generate_empty_form,"(project_name:str='Nazwa projektu';fiscal_year:Optional[int]=None;output_path:Optional[Path]=None)->str",-,false,56
+          generate_prefilled_form,"(project_name:str;company_name:str;company_nip:str;fiscal_year:int;start_date:date;end_date:date)->str",-,false,57
+          load_form,"(path:Path)->dict",staticmethod,false,19
+          validate_form,"(data:dict)->list[str]",staticmethod,false,55
+  brgenerator/src/br_doc_generator/generators/pdf.py:
+    imports[11]: asyncio,datetime,pathlib.Path,typing.Optional,typing.Dict,typing.Any,structlog,markdown,weasyprint.HTML,weasyprint.CSS,weasyprint.text.fonts.FontConfiguration
+    exports[4]: PROFESSIONAL_CSS,MINIMAL_CSS,PDFRenderer,render_documentation_to_pdf
+    const[2]{n,t,v,keys}:
+      PROFESSIONAL_CSS,str,"\"\"\" @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');  @page {     siz...","-"
+      MINIMAL_CSS,str,"\"\"\" body {     font-family: Arial, sans-serif;     font-size: 11pt;     line-height: 1.5;     margin: 2cm; }  h1 { fo...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      PDFRenderer,-,-,0,8
+    class_details:
+      PDFRenderer:
+        doc: Renders markdown documentation to professional PDF.
+        methods[8]{name,sig,decorators,async,lines}:
+          __init__,"(template:str='professional';company_logo:Optional[str]=None;header:Optional[str]=None;footer:Optional[str]=None;custom_css:Optional[str]=None)->None",-,false,30
+          _get_css,()->str,-,false,8
+          _create_cover_page,"(title:str;subtitle:Optional[str]=None;company_name:Optional[str]=None;fiscal_year:Optional[int]=None)->str",-,false,24
+          _convert_markdown_to_html,"(markdown_content:str)->str",-,false,29
+          _enhance_html,"(html:str;title:Optional[str]=None;company_name:Optional[str]=None;fiscal_year:Optional[int]=None)->str",-,false,50
+          render,"(markdown_content:str;output_path:str;metadata:Optional[Dict[str;Any]]=None)->str",-,false,70
+          render_async,"(markdown_content:str;output_path:str;metadata:Optional[Dict[str;Any]]=None)->str",-,true,12
+          render_from_file,"(markdown_path:str;output_path:str;metadata:Optional[Dict[str;Any]]=None)->str",-,false,21
+    functions[1]{name,sig,decorators,async,category,lines}:
+      render_documentation_to_pdf,"(markdown_content:str;output_path:str;company_name:Optional[str]=None;company_logo:Optional[str]=None;fiscal_year:Optional[int]=None;template:str='professional')->str",-,false,-,38
+    function_docs:
+      render_documentation_to_pdf: formats documentation to pdf

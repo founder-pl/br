@@ -1,8 +1,13 @@
 project: br
-generated: "2026-01-13T10:47:44.412302"
-modules[54]{path,lang,items}:
+generated: "2026-01-13T13:07:34.770770"
+modules[84]{path,lang,items}:
   tests/conftest.py,python,20
   tests/__init__.py,python,0
+  tests/test_documentation_validation.py,python,20
+  tests/test_invoice_detection.py,python,9
+  cli/validate_documentation.py,python,6
+  cli/generate_sample_invoices.py,python,4
+  cli/br_cli.py,python,13
   tests/unit/test_extractors.py,python,25
   tests/unit/__init__.py,python,0
   tests/unit/test_validators.py,python,15
@@ -29,19 +34,22 @@ modules[54]{path,lang,items}:
   src/api/config.py,python,0
   src/api/__init__.py,python,0
   src/api/ocr_config.py,python,4
-  src/api/document_classifier.py,python,3
+  src/api/document_classifier.py,python,4
   src/api/database.py,python,4
   src/api/main.py,python,5
+  src/api/services/doc_generator.py,python,18
+  src/api/services/__init__.py,python,0
+  src/api/routers/timesheet.py,python,11
   src/api/routers/config.py,python,11
   src/api/routers/clarifications.py,python,6
-  src/api/routers/projects.py,python,6
+  src/api/routers/projects.py,python,8
   src/api/routers/auth.py,python,7
   src/api/routers/__init__.py,python,0
   src/api/routers/integrations.py,python,14
   src/api/routers/logs.py,python,9
   src/api/routers/reports.py,python,6
-  src/api/routers/documents.py,python,8
-  src/api/routers/expenses.py,python,10
+  src/api/routers/documents.py,python,13
+  src/api/routers/expenses.py,python,22
   src/integrations/accounting/fakturownia.py,python,13
   src/integrations/accounting/base.py,python,11
   src/integrations/accounting/__init__.py,python,0
@@ -54,7 +62,29 @@ modules[54]{path,lang,items}:
   src/integrations/cloud/google_s3.py,python,29
   src/integrations/cloud/__init__.py,python,0
   src/integrations/cloud/nextcloud.py,python,13
-  web/static/js/app.js,javascript,68
+  web/static/js/markdown-renderer.js,javascript,0
+  web/static/js/app.js,javascript,113
+  brgenerator/tests/conftest.py,python,4
+  brgenerator/tests/__init__.py,python,0
+  brgenerator/tests/test_validators.py,python,16
+  brgenerator/tests/test_e2e.py,python,12
+  brgenerator/src/br_doc_generator/config.py,python,8
+  brgenerator/src/br_doc_generator/cli.py,python,8
+  brgenerator/src/br_doc_generator/__init__.py,python,6
+  brgenerator/src/br_doc_generator/web.py,python,7
+  brgenerator/src/br_doc_generator/llm_client.py,python,10
+  brgenerator/src/br_doc_generator/models.py,python,18
+  brgenerator/src/br_doc_generator/validators/content.py,python,7
+  brgenerator/src/br_doc_generator/validators/base.py,python,14
+  brgenerator/src/br_doc_generator/validators/structure.py,python,10
+  brgenerator/src/br_doc_generator/validators/financial.py,python,9
+  brgenerator/src/br_doc_generator/validators/__init__.py,python,0
+  brgenerator/src/br_doc_generator/validators/legal.py,python,11
+  brgenerator/src/br_doc_generator/validators/pipeline.py,python,7
+  brgenerator/src/br_doc_generator/generators/document.py,python,21
+  brgenerator/src/br_doc_generator/generators/__init__.py,python,0
+  brgenerator/src/br_doc_generator/generators/form.py,python,5
+  brgenerator/src/br_doc_generator/generators/pdf.py,python,9
 
 function_details:
   tests/conftest.py:
@@ -79,6 +109,68 @@ function_details:
       all_accounting_providers,function,() -> None,374-406,false,33,1,All supported accounting providers with sample credentials
       all_cloud_providers,function,() -> None,410-463,false,54,1,All supported cloud storage providers with sample credentials
       temp_config_db,function,(tmp_path) -> None,471-480,false,10,1,Create temporary config database for testing
+  tests/test_documentation_validation.py:
+    functions[20]{name,kind,sig,loc,async,lines,cc,does}:
+      ValidationReport.to_dict,method,() -> dict,45-61,false,17,2,converts dict
+      BRDocumentationValidator.__init__,method,"(content:str) -> None",113-116,false,4,1,creates
+      BRDocumentationValidator.validate_all,method,"() -> Dict[str, ValidationReport]",118-125,false,8,1,Run all validation stages.
+      BRDocumentationValidator.validate_structure,method,() -> ValidationReport,127-193,false,67,11,"Stage 2: Structure Validation - check markdown structure and sections."
+      BRDocumentationValidator.validate_content,method,() -> ValidationReport,195-267,false,73,8,"Stage 3: Content Validation - check completeness and consistency."
+      BRDocumentationValidator.validate_legal_compliance,method,() -> ValidationReport,269-339,false,71,9,"Stage 4: Legal Compliance - verify CIT art."
+      BRDocumentationValidator.validate_financial,method,() -> ValidationReport,341-428,false,88,14,"Stage 5: Financial Validation - verify calculations and categories."
+      BRDocumentationValidator.get_overall_score,method,() -> float,430-434,false,5,3,Calculate overall quality score.
+      BRDocumentationValidator.get_full_report,method,() -> dict,436-453,false,18,8,Generate full validation report in YAML-compatible format.
+      TestDocumentationStructure.test_structure_valid,method,() -> None,530-535,false,6,1,Valid document should pass structure validation.
+      TestDocumentationStructure.test_structure_missing_header,method,() -> None,537-542,false,6,2,Document without H1 should fail.
+      TestDocumentationStructure.test_structure_missing_sections,method,() -> None,544-550,false,7,3,Document without required sections should have issues.
+      TestDocumentationContent.test_content_with_expenses,method,() -> None,556-566,false,11,1,Document with expense details should pass.
+      TestDocumentationContent.test_content_missing_justification,method,() -> None,568-573,false,6,2,Document without B+R justification should warn.
+      TestLegalCompliance.test_legal_with_all_requirements,method,() -> None,579-590,false,12,1,Document with all legal requirements should pass.
+      TestLegalCompliance.test_legal_missing_nip,method,() -> None,592-597,false,6,2,Document without NIP should fail.
+      TestFinancialValidation.test_financial_with_amounts,method,() -> None,603-613,false,11,1,Document with amounts should pass.
+      TestFinancialValidation.test_financial_missing_amounts,method,() -> None,615-620,false,6,2,Document without amounts should fail.
+      TestFullValidation.test_full_validation_pipeline,method,() -> None,626-638,false,13,1,Run all validation stages on sample document.
+      TestFullValidation.test_full_report_format,method,() -> None,640-651,false,12,1,Verify report format matches brgenerator spec.
+  tests/test_invoice_detection.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      TestInvoiceTypeDetection.test_cost_invoice_vendor_nip_different,method,() -> None,11-18,false,8,1,Invoice from external vendor should be detected as expense.
+      TestInvoiceTypeDetection.test_revenue_invoice_we_are_seller,method,() -> None,20-27,false,8,1,Invoice where we are seller should be detected as revenue.
+      TestInvoiceTypeDetection.test_cost_invoice_seller_nip_field,method,() -> None,29-36,false,8,1,Test with seller_nip field instead of vendor_nip.
+      TestInvoiceTypeDetection.test_revenue_invoice_nip_sprzedawcy_field,method,() -> None,38-45,false,8,1,Test with Polish field names.
+      TestInvoiceTypeDetection.test_cost_invoice_no_buyer_nip,method,() -> None,47-53,false,7,1,Invoice with no buyer NIP but different seller should be expense.
+      TestInvoiceTypeDetection.test_revenue_invoice_nip_with_dashes,method,() -> None,55-62,false,8,1,NIP with formatting should still match.
+      TestInvoiceTypeDetection.test_cost_invoice_empty_nips,method,() -> None,64-71,false,8,1,Invoice with empty NIPs defaults to expense.
+      TestInvoiceTypeDetection.test_cost_invoice_none_nips,method,() -> None,73-80,false,8,1,Invoice with None NIPs defaults to expense.
+      TestInvoiceTypeDetection.test_revenue_from_ocr_text_hint,method,() -> None,82-88,false,7,1,Test detection from OCR text hints.
+  cli/validate_documentation.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      fetch_documentation,function,"(project_id:str, filename:str=None) -> str",32-55,false,24,4,Fetch documentation from API.
+      validate_and_report,function,"(content:str, output_format:str='text') -> dict",58-64,false,7,1,Run validation and generate report.
+      print_report,function,"(report:dict, output_format:str='text') -> None",67-118,false,52,9,Print validation report.
+      _status_icon,function,"(status:str) -> str",121-122,false,2,1,status icon
+      _severity_icon,function,"(severity:str) -> str",125-126,false,2,1,severity icon
+      main,function,() -> None,129-176,false,48,8,main
+  cli/generate_sample_invoices.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      generate_html_invoice,function,"(invoice_data:dict, output_path:Path) -> None",46-112,false,67,1,Generate invoice as HTML file.
+      generate_pdf_invoice,function,"(invoice_data:dict, output_path:Path) -> None",115-169,false,55,1,Generate invoice as PDF file using reportlab.
+      generate_invoice,function,"(invoice_data:dict, output_path:Path) -> None",172-177,false,6,2,Generate invoice in best available format.
+      main,function,() -> None,180-230,false,51,3,main
+  cli/br_cli.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      api_call,function,"(method:str, endpoint:str, data=None, files=None) -> None",23-45,false,23,8,Make API call and return JSON response.
+      cmd_health,function,(args) -> None,48-54,false,7,1,Check API health.
+      cmd_projects_list,function,(args) -> None,57-63,false,7,2,List all projects.
+      cmd_expenses_list,function,(args) -> None,66-77,false,12,3,List expenses for a project.
+      cmd_revenues_list,function,(args) -> None,80-90,false,11,1,List revenues for a project.
+      cmd_upload,function,(args) -> None,93-108,false,16,2,Upload a document for OCR processing.
+      cmd_docs_list,function,(args) -> None,111-122,false,12,3,List generated documentation files.
+      cmd_docs_generate,function,(args) -> None,125-135,false,11,1,Generate project summary documentation.
+      cmd_docs_view,function,(args) -> None,138-143,false,6,1,View documentation content.
+      cmd_docs_history,function,(args) -> None,146-154,false,9,2,View documentation version history.
+      cmd_expense_qualify,function,(args) -> None,157-169,false,13,1,Mark expense as B+R qualified.
+      cmd_timesheet_list,function,(args) -> None,172-180,false,9,2,List timesheet entries.
+      main,function,() -> None,183-274,false,92,4,main
   tests/unit/test_extractors.py:
     functions[25]{name,kind,sig,loc,async,lines,cc,does}:
       TestInvoiceExtractor.extractor,method,() -> None,13-14,false,2,1,extractor
@@ -293,10 +385,11 @@ function_details:
       get_required_fields,function,"(doc_type:str) -> List[str]",213-219,false,7,2,Get list of required fields for a document type
       evaluate_extraction_completeness,function,"(extracted_data:Dict, doc_type:str) -> float",222-229,false,8,5,Calculate how complete the extraction is (0.0 to 1.0)
   src/api/document_classifier.py:
-    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
-      detect_document_type,function,"(ocr_text:str) -> Tuple[str, float]",152-190,false,39,9,Detect document type from OCR text.
-      extract_document_data,function,"(ocr_text:str, document_type:str) -> Dict[str, Any]",193-213,false,21,6,Extract structured data from OCR text based on document type.
-      classify_and_extract,function,"(ocr_text:str, initial_type:str='auto') -> Dict[str, Any]",216-235,false,20,3,Main function to classify document and extract data.
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      detect_document_type,function,"(ocr_text:str) -> Tuple[str, float]",159-197,false,39,9,Detect document type from OCR text.
+      normalize_currency,function,"(raw_currency:Optional[str]) -> str",200-213,false,14,2,Normalize currency symbol/name to ISO code
+      extract_document_data,function,"(ocr_text:str, document_type:str) -> Dict[str, Any]",216-241,false,26,7,Extract structured data from OCR text based on document type.
+      classify_and_extract,function,"(ocr_text:str, initial_type:str='auto') -> Dict[str, Any]",244-263,false,20,3,Main function to classify document and extract data.
   src/api/database.py:
     functions[4]{name,kind,sig,loc,async,lines,cc,does}:
       init_database,function,() -> None,37-45,true,9,1,Initialize database connection
@@ -307,9 +400,42 @@ function_details:
     functions[5]{name,kind,sig,loc,async,lines,cc,does}:
       lifespan,function,"(app:FastAPI) -> None",31-47,true,17,1,Application lifespan manager
       global_exception_handler,function,"(request:Request, exc:Exception) -> None",87-95,true,9,1,global exception handler
-      health_check,function,() -> None,112-121,true,10,1,Health check endpoint
-      root,function,() -> None,126-136,true,11,1,Root endpoint with API info
-      metrics,function,() -> None,141-146,true,6,1,Basic metrics endpoint
+      health_check,function,() -> None,113-122,true,10,1,Health check endpoint
+      root,function,() -> None,127-137,true,11,1,Root endpoint with API info
+      metrics,function,() -> None,142-147,true,6,1,Basic metrics endpoint
+  src/api/services/doc_generator.py:
+    functions[18]{name,kind,sig,loc,async,lines,cc,does}:
+      get_doc_generator,function,() -> ExpenseDocumentGenerator,944-949,false,6,2,Get singleton instance of document generator.
+      DocumentVersionControl.__init__,method,"(repo_path:Path) -> None",52-55,false,4,1,creates
+      DocumentVersionControl.commit_file,method,"(file_path:Path, message:str) -> Optional[str]",57-88,false,32,2,Save a version of the file and return version hash.
+      DocumentVersionControl.get_file_history,method,"(file_path:Path, limit:int=20) -> List[Dict[str, Any]]",90-116,false,27,5,Get version history for a file.
+      DocumentVersionControl.get_file_at_commit,method,"(file_path:Path, commit:str) -> Optional[str]",118-130,false,13,3,Get file content at specific version.
+      ExpenseDocumentGenerator.__init__,method,"(llm_service_url:Optional[str]=None) -> None",153-157,false,5,2,creates
+      ExpenseDocumentGenerator.generate_expense_documentation,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]=None) -> Dict[str, Any]",159-197,true,39,2,Generate B+R documentation for a single expense.
+      ExpenseDocumentGenerator._build_expense_prompt,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]) -> str",199-258,false,60,5,Build prompt for expense documentation generation.
+      ExpenseDocumentGenerator._generate_with_llm,method,"(prompt:str) -> str",260-280,true,21,2,Generate documentation using LLM service.
+      ExpenseDocumentGenerator._generate_from_template,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]) -> str",282-419,false,138,9,Generate documentation from template (fallback).
+      ExpenseDocumentGenerator._save_documentation,method,"(expense:Dict[str,Any], project:Dict[str,Any], content:str) -> Path",421-450,false,30,2,Save documentation to file with version control.
+      ExpenseDocumentGenerator.get_document_history,method,"(project_id:str, filename:str) -> List[Dict[str, Any]]",452-455,false,4,1,Get version history for a document.
+      ExpenseDocumentGenerator.get_document_at_version,method,"(project_id:str, filename:str, commit:str) -> Optional[str]",457-460,false,4,1,Get document content at specific version.
+      ExpenseDocumentGenerator.refine_with_llm,method,"(content:str, validation_issues:List[Dict[str,Any]], max_iterations:int=3) -> Dict[str, Any]",462-567,true,106,10,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
+      ExpenseDocumentGenerator.generate_project_summary,method,"(project:Dict[str,Any], expenses:list[Dict[str,Any]], timesheet_data:Optional[Dict[str,Any]]=None, contractors:Optional[list[Dict[str,Any]]]=None, revenues:Optional[list[Dict[str,Any]]]=None) -> Dict[str, Any]",569-633,true,65,8,Generate summary documentation for entire project.
+      ExpenseDocumentGenerator._generate_summary_template,method,"(project:Dict[str,Any], expenses:list, by_category:Dict, total_gross:float, total_br:float, total_deduction:float, timesheet_data:Optional[Dict[str,Any]]=None) -> str",635-844,false,210,17,Generate comprehensive B+R project summary template.
+      ExpenseDocumentGenerator._build_expense_details,method,"(expenses:list, company_nip:str='5881918662') -> str",847-925,false,79,9,Build detailed expense descriptions with justifications.
+      ExpenseDocumentGenerator._build_expense_list,method,"(expenses:list) -> str",927-937,false,11,5,Build expense list table for summary.
+  src/api/routers/timesheet.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      ensure_tables,function,"(db:AsyncSession) -> None",74-111,true,38,1,Create timesheet tables if they don't exist
+      list_workers,function,"(db:AsyncSession=Depends(get_db)) -> None",117-137,true,21,3,List all workers
+      create_worker,function,"(worker:WorkerCreate, db:AsyncSession=Depends(get_db)) -> None",141-165,true,25,1,Create a new worker
+      delete_worker,function,"(worker_id:str, db:AsyncSession=Depends(get_db)) -> None",169-175,true,7,1,Deactivate a worker
+      get_timesheet_entries,function,"(year:int=Query(...), month:int=Query(...), project_id:Optional[str]=None, worker_id:Optional[str]=None, db:AsyncSession=Depends(get_db)) -> None",181-228,true,48,4,Get timesheet entries for a month
+      save_timesheet_entry,function,"(entry:TimesheetEntry, db:AsyncSession=Depends(get_db)) -> None",232-255,true,24,1,Save or update a timesheet entry
+      save_timesheet_batch,function,"(entries:List[TimesheetEntry], db:AsyncSession=Depends(get_db)) -> None",259-285,true,27,3,Save multiple timesheet entries at once
+      delete_timesheet_entry,function,"(entry_id:str, db:AsyncSession=Depends(get_db)) -> None",289-295,true,7,1,Delete a timesheet entry
+      get_timesheet_summary,function,"(year:int=Query(...), month:int=Query(...), db:AsyncSession=Depends(get_db)) -> None",301-353,true,53,4,Get summary of hours by project and worker
+      get_contractors,function,"(db:AsyncSession=Depends(get_db)) -> None",359-377,true,19,2,Get list of contractors/vendors from expenses
+      get_time_slots,function,() -> None,381-383,true,3,1,Get available time slots
   src/api/routers/config.py:
     functions[11]{name,kind,sig,loc,async,lines,cc,does}:
       list_ocr_engines,function,() -> None,49-65,true,17,2,List all available OCR engines with their capabilities
@@ -332,13 +458,15 @@ function_details:
       answer_clarification,function,"(clarification_id:str, answer:ClarificationAnswer, db:AsyncSession=Depends(get_db)) -> None",157-206,true,50,4,Answer a clarification question
       delete_clarification,function,"(clarification_id:str, db:AsyncSession=Depends(get_db)) -> None",210-216,true,7,1,Delete a clarification question
   src/api/routers/projects.py:
-    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
       create_project,function,"(project:ProjectCreate, db:AsyncSession=Depends(get_db)) -> None",81-105,true,25,1,Create a new B+R project
       get_project,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",109-138,true,30,5,Get project details
       list_projects,function,"(fiscal_year:Optional[int]=Query(default=None), status:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",142-185,true,44,7,List all projects
       update_project,function,"(project_id:str, project:ProjectUpdate, db:AsyncSession=Depends(get_db)) -> None",189-225,true,37,7,Update project details
       get_project_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",229-295,true,67,16,Get detailed project summary with B+R statistics
       recalculate_project_totals,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",299-335,true,37,4,Recalculate project expense totals
+      delete_project,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",339-368,true,30,4,Delete a project (only if no expenses attached)
+      bulk_assign_expenses,function,"(request:BulkAssignRequest, db:AsyncSession=Depends(get_db)) -> None",378-401,true,24,3,Assign multiple expenses to a project
   src/api/routers/auth.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
       verify_password,function,"(plain_password:str, hashed_password:str) -> bool",53-54,false,2,1,validates password
@@ -384,27 +512,44 @@ function_details:
       get_annual_br_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",233-287,true,55,9,retrieves annual br summary
       get_annual_ip_box_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",291-326,true,36,6,retrieves annual ip box summary
   src/api/routers/documents.py:
-    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
       upload_document,function,"(background_tasks:BackgroundTasks, file:UploadFile=File(...), project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001'), document_type:str=Query(default='invoice'), db:AsyncSession=Depends(get_db)) -> None",53-120,true,68,2,Upload a document for OCR processing.
-      process_document_ocr,function,"(doc_id:str, file_path:str, document_type:str) -> None",123-219,true,97,3,Background task to process document with OCR service
-      get_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",223-247,true,25,2,Get document details
-      list_documents,function,"(project_id:Optional[str]=Query(default=None), status:Optional[str]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",251-293,true,43,4,List documents with optional filtering
-      reprocess_document,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",297-321,true,25,2,Reprocess document with OCR
-      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",325-352,true,28,4,Delete a document
-      update_document,function,"(document_id:str, db:AsyncSession=Depends(get_db), document_type:Optional[str]=None, ocr_status:Optional[str]=None, extracted_data:Optional[dict]=None) -> None",356-389,true,34,5,Update document fields
-      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",407-434,true,28,2,Get full document details including OCR text
+      detect_invoice_type,function,"(extracted_data:dict, our_nip:str='5881918662') -> str",123-170,false,48,13,Detect if invoice is a cost (expense) or revenue invoice.
+      create_expense_from_document,function,"(doc_id:str, extracted_data:dict, doc_type:str) -> None",173-332,true,160,37,Create expense or revenue record from OCR-extracted document data
+      process_document_ocr,function,"(doc_id:str, file_path:str, document_type:str) -> None",335-435,true,101,4,Background task to process document with OCR service
+      get_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",439-463,true,25,2,Get document details
+      list_documents,function,"(project_id:Optional[str]=Query(default=None), status:Optional[str]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",467-509,true,43,4,List documents with optional filtering
+      reprocess_document,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",513-537,true,25,2,Reprocess document with OCR
+      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",541-568,true,28,4,Delete a document
+      update_document,function,"(document_id:str, db:AsyncSession=Depends(get_db), document_type:Optional[str]=None, ocr_status:Optional[str]=None, extracted_data:Optional[dict]=None) -> None",572-605,true,34,5,Update document fields
+      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",623-650,true,28,2,Get full document details including OCR text
+      sync_expenses_from_documents,function,"(background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",654-690,true,37,3,Create expense records for all completed invoice documents that don't have expen...
+      check_document_duplicates,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",694-773,true,80,15,Check if a document might be a duplicate of another document.
+      re_extract_document_data,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",777-836,true,60,4,Re-run data extraction on a document using the current OCR text.
   src/api/routers/expenses.py:
-    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[22]{name,kind,sig,loc,async,lines,cc,does}:
       get_br_categories,function,() -> None,168-170,true,3,1,Get list of B+R expense categories according to art.
       create_expense,function,"(expense:ExpenseCreate, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",174-213,true,40,1,Create a new expense record
       get_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",217-264,true,48,10,Get expense details
       list_expenses,function,"(project_id:Optional[str]=Query(default=None), br_qualified:Optional[bool]=Query(default=None), ip_qualified:Optional[bool]=Query(default=None), status:Optional[str]=Query(default=None), year:Optional[int]=Query(default=None), month:Optional[int]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0)) -> None",268-353,true,86,16,List expenses with filtering
       classify_expense_manually,function,"(expense_id:str, classification:ExpenseClassifyRequest, db:AsyncSession=Depends(get_db)) -> None",357-405,true,49,9,Manually classify expense for B+R or IP Box
       trigger_auto_classification,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",409-425,true,17,2,Trigger automatic LLM classification
-      classify_expense_with_llm,function,"(expense_id:str) -> None",428-514,true,87,4,Background task to classify expense using LLM
-      get_br_classifier_system_prompt,function,() -> str,517-553,false,37,1,System prompt for B+R expense classifier
-      build_classification_prompt,function,(expense_row) -> str,556-576,false,21,8,Build prompt for expense classification
-      parse_llm_classification,function,"(response:str) -> dict",579-597,false,19,4,Parse LLM response to classification dict
+      update_expense_status,function,"(expense_id:str, status_update:ExpenseStatusUpdate, db:AsyncSession=Depends(get_db)) -> None",434-457,true,24,3,Update expense status
+      delete_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",461-476,true,16,2,Delete an expense
+      generate_expense_documentation,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",480-546,true,67,9,Generate B+R documentation for a single expense
+      generate_project_documentation_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",550-713,true,164,20,Generate B+R documentation summary for entire project
+      list_revenues,function,"(project_id:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",717-763,true,47,12,List revenues (sales invoices) with optional project filter.
+      classify_revenue,function,"(revenue_id:str, classification:dict, db:AsyncSession=Depends(get_db)) -> None",767-826,true,60,10,Classify a revenue for IP Box purposes.
+      list_project_documentation,function,"(project_id:str) -> None",830-848,true,19,3,List all generated documentation files for a project
+      get_documentation_content,function,"(project_id:str, filename:str) -> None",852-866,true,15,4,Get content of a specific documentation file
+      get_documentation_history,function,"(project_id:str, filename:str) -> None",870-884,true,15,2,Get version history for a documentation file
+      get_documentation_version,function,"(project_id:str, filename:str, commit:str) -> None",888-906,true,19,4,Get document content at specific version
+      refine_documentation_with_llm,function,"(project_id:str, filename:str) -> None",910-970,true,61,8,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
+      get_documentation_pdf,function,"(project_id:str, filename:str) -> None",974-1080,true,107,23,Generate and return PDF from markdown documentation
+      classify_expense_with_llm,function,"(expense_id:str) -> None",1083-1169,true,87,4,Background task to classify expense using LLM
+      get_br_classifier_system_prompt,function,() -> str,1172-1208,false,37,1,System prompt for B+R expense classifier
+      build_classification_prompt,function,(expense_row) -> str,1211-1231,false,21,8,Build prompt for expense classification
+      parse_llm_classification,function,"(response:str) -> dict",1234-1252,false,19,4,Parse LLM response to classification dict
   src/integrations/accounting/fakturownia.py:
     functions[13]{name,kind,sig,loc,async,lines,cc,does}:
       FakturowniaClient.provider_name,method,() -> str,29-30,false,2,1,provider name
@@ -572,72 +717,335 @@ function_details:
       NextcloudClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",244-278,true,35,4,Get file metadata
       NextcloudClient._parse_propfind_response,method,"(xml_text:str, base_path:str) -> List[CloudFile]",280-349,false,70,14,Parse WebDAV PROPFIND response
   web/static/js/app.js:
-    functions[68]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[113]{name,kind,sig,loc,async,lines,cc,does}:
       getPageFromUrl,function,() -> None,11-14,false,4,1,retrieves page from url
       getUrlParam,function,(key) -> None,16-19,false,4,1,retrieves url param
       setUrlParam,function,"(key, value) -> None",21-34,false,14,1,updates url param
       setPageInUrl,function,(page) -> None,36-38,false,3,1,updates page in url
-      navigateTo,function,(page) -> None,40-65,false,26,1,navigate to
-      apiCall,function,(endpoint) -> None,68-80,true,13,1,api call
-      loadDashboard,function,() -> None,83-98,true,16,1,retrieves dashboard
-      setupUploadListeners,function,() -> None,101-113,false,13,1,initializes upload listeners
-      handleFiles,function,(files) -> None,115-115,false,1,1,handles files
-      uploadFile,function,(file) -> None,117-145,true,29,1,upload file
-      pollDocumentStatus,function,"(docId, itemId) -> None",147-162,true,16,1,poll document status
-      loadRecentDocuments,function,() -> None,164-185,true,22,1,retrieves recent documents
-      getDocTypeName,function,(type) -> None,187-190,false,4,1,retrieves doc type name
-      deleteDocument,function,(docId) -> None,192-201,true,10,1,deletes document
-      retryOcr,function,(docId) -> None,203-209,true,7,1,retry ocr
-      showDocumentDetail,function,(docId) -> None,213-281,true,69,1,show document detail
-      getFieldLabel,function,(field) -> None,283-295,false,13,1,retrieves field label
-      toggleEditMode,function,() -> None,297-305,false,9,1,toggle edit mode
-      saveExtractedData,function,(docId) -> None,307-329,true,23,1,caches extracted data
-      createExpenseFromDoc,function,(docId) -> None,331-370,true,40,1,creates expense from doc
-      closeDocumentModal,function,() -> None,372-378,false,7,1,stops document modal
-      approveDocument,function,(docId) -> None,380-387,true,8,1,approve document
-      loadExpenses,function,() -> None,390-409,true,20,1,retrieves expenses
-      showExpenseDetails,function,(id) -> None,411-430,true,20,1,show expense details
-      classifyExpense,function,(id) -> None,432-442,true,11,1,classify expense
-      reclassifyWithLLM,function,(id) -> None,444-447,true,4,1,reclassify with llm
-      loadReports,function,() -> None,450-471,true,22,1,retrieves reports
-      generateMonthlyReport,function,() -> None,473-479,true,7,1,creates monthly report
-      generateAllReports,function,() -> None,481-487,true,7,1,creates all reports
-      loadClarifications,function,() -> None,490-503,true,14,1,retrieves clarifications
-      answerClarification,function,(id) -> None,505-510,true,6,1,answer clarification
-      saveProjectSettings,function,() -> None,515-520,false,6,1,caches project settings
-      formatCurrency,function,(amount) -> None,523-523,false,1,1,formats currency
-      getStatusLabel,function,(s) -> None,524-524,false,1,1,retrieves status label
-      getCategoryName,function,(c) -> None,525-525,false,1,1,retrieves category name
-      showToast,function,(msg) -> None,526-526,false,1,1,show toast
-      loadIntegrations,function,() -> None,637-669,true,33,1,retrieves integrations
-      renderIntegrationCard,function,(integration) -> None,671-696,false,26,1,formats integration card
-      loadSyncLogs,function,() -> None,698-725,true,28,1,retrieves sync logs
-      showAddIntegrationModal,function,() -> None,727-736,false,10,1,show add integration modal
-      closeIntegrationModal,function,() -> None,738-740,false,3,1,stops integration modal
-      updateProviderOptions,function,() -> None,742-755,false,14,1,updates provider options
-      updateCredentialFields,function,() -> None,757-775,false,19,1,updates credential fields
-      saveIntegration,function,(event) -> None,777-812,true,36,1,caches integration
-      verifyIntegration,function,(id) -> None,814-829,true,16,1,validates integration
-      syncInvoices,function,(integrationId) -> None,831-847,true,17,1,sync invoices
-      syncAllInvoices,function,() -> None,849-865,true,17,1,sync all invoices
-      uploadReport,function,(integrationId) -> None,867-891,true,25,1,upload report
-      uploadAllReports,function,() -> None,893-908,true,16,1,upload all reports
-      deleteIntegration,function,(id) -> None,910-920,true,11,1,deletes integration
-      loadAIConfig,function,() -> None,923-960,true,38,1,retrieves ai config
-      loadOCREngines,function,() -> None,962-983,true,22,1,retrieves ocr engines
-      loadDocumentTypes,function,() -> None,985-1003,true,19,1,retrieves document types
-      saveAIConfig,function,() -> None,1005-1032,true,28,1,caches ai config
-      testConnections,function,() -> None,1034-1059,true,26,1,checks connections
-      updateModelList,function,() -> None,1061-1088,false,28,1,updates model list
-      initLogStreams,function,() -> None,1094-1098,false,5,1,creates log streams
-      startLogStreamForPage,function,(service) -> None,1100-1139,false,40,1,starts log stream for page
-      switchLogTab,function,(service) -> None,1141-1155,false,15,1,switch log tab
-      copyLogs,function,(service) -> None,1157-1169,false,13,1,copy logs
-      clearAllLogs,function,() -> None,1171-1176,false,6,1,deletes all logs
-      reconnectAllLogs,function,() -> None,1178-1187,false,10,1,reconnect all logs
-      stopAllLogStreams,function,() -> None,1189-1196,false,8,1,stops all log streams
-      isGlobalLogsOpen,function,() -> None,1199-1202,false,4,1,is global logs open
-      toggleGlobalLogs,function,() -> None,1204-1219,false,16,1,toggle global logs
-      switchGlobalLogTab,function,(service) -> None,1221-1231,false,11,1,switch global log tab
-      clearGlobalLogs,function,() -> None,1233-1238,false,6,1,deletes global logs
-      startLogStreamFor,function,(service) -> None,1241-1279,false,39,1,starts log stream for
+      navigateTo,function,(page) -> None,40-66,false,27,1,navigate to
+      apiCall,function,(endpoint) -> None,69-81,true,13,1,api call
+      loadDashboard,function,() -> None,84-99,true,16,1,retrieves dashboard
+      setupUploadListeners,function,() -> None,102-114,false,13,1,initializes upload listeners
+      handleFiles,function,(files) -> None,116-116,false,1,1,handles files
+      uploadFile,function,(file) -> None,118-146,true,29,1,upload file
+      pollDocumentStatus,function,"(docId, itemId) -> None",148-163,true,16,1,poll document status
+      loadRecentDocuments,function,() -> None,165-186,true,22,1,retrieves recent documents
+      getDocTypeName,function,(type) -> None,188-191,false,4,1,retrieves doc type name
+      deleteDocument,function,(docId) -> None,193-202,true,10,1,deletes document
+      retryOcr,function,(docId) -> None,204-210,true,7,1,retry ocr
+      showDocumentDetail,function,(docId) -> None,214-285,true,72,1,show document detail
+      getFieldLabel,function,(field) -> None,287-299,false,13,1,retrieves field label
+      toggleEditMode,function,() -> None,301-309,false,9,1,toggle edit mode
+      saveExtractedData,function,(docId) -> None,311-333,true,23,1,caches extracted data
+      createExpenseFromDoc,function,(docId) -> None,335-374,true,40,1,creates expense from doc
+      closeDocumentModal,function,() -> None,376-382,false,7,1,stops document modal
+      approveDocument,function,(docId) -> None,384-391,true,8,1,approve document
+      loadProjects,function,() -> None,396-439,true,44,1,retrieves projects
+      showCreateProjectModal,function,() -> None,441-448,false,8,1,show create project modal
+      createProject,function,"(name, description, fiscalYear) -> None",450-459,true,10,1,creates project
+      editProject,function,(id) -> None,461-477,true,17,1,updates project
+      deleteProject,function,(id) -> None,479-488,true,10,1,deletes project
+      viewProjectExpenses,function,(projectId) -> None,490-496,false,7,1,view project expenses
+      loadProjectsForFilter,function,() -> None,499-517,true,19,1,retrieves projects for filter
+      getProjectName,function,(projectId) -> None,519-522,false,4,1,retrieves project name
+      loadExpenses,function,() -> None,527-611,true,85,1,retrieves expenses
+      classifyRevenue,function,"(revenueId, ipQualified) -> None",613-624,true,12,1,classify revenue
+      showRevenueDetails,function,(revenueId) -> None,626-629,true,4,1,show revenue details
+      deleteRevenue,function,(revenueId) -> None,631-634,true,4,1,deletes revenue
+      toggleExpenseSelection,function,"(id, checked) -> None",637-644,false,8,1,toggle expense selection
+      toggleSelectAll,function,(checkbox) -> None,646-657,false,12,1,toggle select all
+      updateBulkActionsBar,function,() -> None,659-668,false,10,1,updates bulk actions bar
+      clearSelection,function,() -> None,670-675,false,6,1,deletes selection
+      bulkAssignToProject,function,() -> None,677-702,true,26,1,bulk assign to project
+      showExpenseDetails,function,(id) -> None,704-737,true,34,1,show expense details
+      classifyExpense,function,(id) -> None,739-749,true,11,1,classify expense
+      reclassifyWithLLM,function,(id) -> None,751-754,true,4,1,reclassify with llm
+      loadReports,function,() -> None,757-778,true,22,1,retrieves reports
+      generateMonthlyReport,function,() -> None,780-786,true,7,1,creates monthly report
+      generateAllReports,function,() -> None,788-794,true,7,1,creates all reports
+      loadClarifications,function,() -> None,797-810,true,14,1,retrieves clarifications
+      answerClarification,function,(id) -> None,812-817,true,6,1,answer clarification
+      saveProjectSettings,function,() -> None,822-827,false,6,1,caches project settings
+      formatCurrency,function,(amount) -> None,830-830,false,1,1,formats currency
+      formatCurrencyWithCode,function,(amount) -> None,831-838,false,8,1,formats currency with code
+      getStatusLabel,function,(s) -> None,839-839,false,1,1,retrieves status label
+      getCategoryName,function,(c) -> None,840-840,false,1,1,retrieves category name
+      showToast,function,(msg) -> None,841-841,false,1,1,show toast
+      changeExpenseStatus,function,"(id, status) -> None",844-849,true,6,1,updates expense status
+      saveExpenseStatus,function,(id) -> None,851-859,true,9,1,caches expense status
+      deleteExpense,function,(id) -> None,861-869,true,9,1,deletes expense
+      checkDuplicates,function,(docId) -> None,872-902,true,31,1,checks duplicates
+      reExtractData,function,(docId) -> None,904-915,true,12,1,re extract data
+      generateExpenseDoc,function,(expenseId) -> None,918-935,true,18,1,creates expense doc
+      generateProjectSummary,function,(projectId) -> None,937-955,true,19,1,creates project summary
+      viewProjectDocs,function,(projectId) -> None,958-999,true,42,1,view project docs
+      viewDocContent,function,"(projectId, filename) -> None",1001-1025,true,25,1,view doc content
+      renderMarkdown,function,(md) -> None,1028-1030,false,3,1,formats markdown
+      downloadDoc,function,"(projectId, filename) -> None",1032-1035,false,4,1,download doc
+      downloadPdf,function,"(projectId, filename) -> None",1037-1040,false,4,1,download pdf
+      viewDocHistory,function,"(projectId, filename) -> None",1042-1074,true,33,1,view doc history
+      viewDocVersion,function,"(projectId, filename, commit) -> None",1076-1094,true,19,1,view doc version
+      compareDocs,function,"(projectId, filename, oldCommit) -> None",1096-1156,true,61,1,compare docs
+      escapeHtml,function,(text) -> None,1158-1162,false,5,1,escape html
+      printDoc,function,() -> None,1164-1194,false,31,1,logs doc
+      closeDocsModal,function,() -> None,1196-1198,false,3,1,stops docs modal
+      initTimesheet,function,() -> None,1223-1244,true,22,1,creates timesheet
+      loadWorkers,function,() -> None,1246-1255,true,10,1,retrieves workers
+      loadContractors,function,() -> None,1257-1275,true,19,1,retrieves contractors
+      loadTimesheet,function,() -> None,1277-1370,true,94,1,retrieves timesheet
+      toggleTimesheetBlock,function,(checkbox) -> None,1372-1407,true,36,1,toggle timesheet block
+      updateTimesheetCell,function,(input) -> None,1409-1422,false,14,1,updates timesheet cell
+      saveTimesheet,function,() -> None,1424-1460,true,37,1,caches timesheet
+      updateTimesheetSummary,function,"(year, month) -> None",1462-1487,true,26,1,updates timesheet summary
+      showAddWorkerModal,function,() -> None,1489-1498,false,10,1,show add worker modal
+      createWorker,function,"(name, role, hourlyRate) -> None",1500-1511,true,12,1,creates worker
+      loadIntegrations,function,() -> None,1613-1645,true,33,1,retrieves integrations
+      renderIntegrationCard,function,(integration) -> None,1647-1672,false,26,1,formats integration card
+      loadSyncLogs,function,() -> None,1674-1701,true,28,1,retrieves sync logs
+      showAddIntegrationModal,function,() -> None,1703-1712,false,10,1,show add integration modal
+      closeIntegrationModal,function,() -> None,1714-1716,false,3,1,stops integration modal
+      updateProviderOptions,function,() -> None,1718-1731,false,14,1,updates provider options
+      updateCredentialFields,function,() -> None,1733-1751,false,19,1,updates credential fields
+      saveIntegration,function,(event) -> None,1753-1788,true,36,1,caches integration
+      verifyIntegration,function,(id) -> None,1790-1805,true,16,1,validates integration
+      syncInvoices,function,(integrationId) -> None,1807-1823,true,17,1,sync invoices
+      syncAllInvoices,function,() -> None,1825-1841,true,17,1,sync all invoices
+      uploadReport,function,(integrationId) -> None,1843-1867,true,25,1,upload report
+      uploadAllReports,function,() -> None,1869-1884,true,16,1,upload all reports
+      deleteIntegration,function,(id) -> None,1886-1896,true,11,1,deletes integration
+      loadAIConfig,function,() -> None,1899-1936,true,38,1,retrieves ai config
+      loadOCREngines,function,() -> None,1938-1959,true,22,1,retrieves ocr engines
+      loadDocumentTypes,function,() -> None,1961-1979,true,19,1,retrieves document types
+      saveAIConfig,function,() -> None,1981-2008,true,28,1,caches ai config
+      testConnections,function,() -> None,2010-2035,true,26,1,checks connections
+      updateModelList,function,() -> None,2037-2064,false,28,1,updates model list
+      initLogStreams,function,() -> None,2070-2074,false,5,1,creates log streams
+      startLogStreamForPage,function,(service) -> None,2076-2115,false,40,1,starts log stream for page
+      switchLogTab,function,(service) -> None,2117-2131,false,15,1,switch log tab
+      copyLogs,function,(service) -> None,2133-2145,false,13,1,copy logs
+      clearAllLogs,function,() -> None,2147-2152,false,6,1,deletes all logs
+      reconnectAllLogs,function,() -> None,2154-2163,false,10,1,reconnect all logs
+      stopAllLogStreams,function,() -> None,2165-2172,false,8,1,stops all log streams
+      isGlobalLogsOpen,function,() -> None,2175-2178,false,4,1,checks global logs open
+      toggleGlobalLogs,function,() -> None,2180-2195,false,16,1,toggle global logs
+      switchGlobalLogTab,function,(service) -> None,2197-2207,false,11,1,switch global log tab
+      clearGlobalLogs,function,() -> None,2209-2214,false,6,1,deletes global logs
+      startLogStreamFor,function,(service) -> None,2217-2255,false,39,1,starts log stream for
+  brgenerator/tests/conftest.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      env_setup,function,(monkeypatch) -> None,10-15,false,6,1,Set up test environment variables.
+      mock_llm_client,function,() -> None,19-44,false,26,1,Mock LLM client for testing without API calls.
+      temp_output_dir,function,(tmp_path) -> None,48-52,false,5,1,Create temporary output directory.
+      sample_yaml_form,function,() -> None,56-116,false,61,1,Sample YAML form content.
+  brgenerator/tests/test_validators.py:
+    functions[16]{name,kind,sig,loc,async,lines,cc,does}:
+      validation_config,function,() -> None,38-40,false,3,1,Default validation config.
+      sample_project_input,function,() -> None,44-121,false,78,1,Sample project input for testing.
+      valid_document,function,() -> None,125-206,false,82,1,Sample valid markdown document.
+      TestStructureValidator.test_valid_document_passes,method,"(validation_config, valid_document, sample_project_input) -> None",212-225,false,14,1,Valid document should pass structure validation.
+      TestStructureValidator.test_missing_sections_fails,method,"(validation_config, sample_project_input) -> None",227-245,false,19,1,Document missing required sections should fail.
+      TestStructureValidator.test_empty_document_fails,method,"(validation_config, sample_project_input) -> None",247-258,false,12,1,Empty document should fail validation.
+      TestLegalComplianceValidator.test_valid_document_passes,method,"(validation_config, valid_document, sample_project_input) -> None",264-276,false,13,1,Document with all BR criteria should pass.
+      TestLegalComplianceValidator.test_missing_keywords_fails,method,"(validation_config, sample_project_input) -> None",278-301,false,24,3,Document missing BR keywords should fail.
+      TestLegalComplianceValidator.test_nip_validation,method,"(validation_config, sample_project_input) -> None",303-324,false,22,3,Valid NIP should be detected.
+      TestFinancialValidator.test_valid_costs_pass,method,"(validation_config, valid_document, sample_project_input) -> None",330-341,false,12,1,Document with correct cost calculations should pass.
+      TestFinancialValidator.test_missing_costs_fails,method,"(validation_config, sample_project_input) -> None",343-364,false,22,2,Document without cost amounts should trigger warnings.
+      TestNIPValidation.test_valid_nips,method,() -> None,370-382,false,13,2,Valid NIPs should pass checksum.
+      TestNIPValidation.test_invalid_nips,method,() -> None,384-396,false,13,2,Invalid NIPs should fail checksum.
+      TestProjectCostsCalculation.test_personnel_cost_calculation,method,() -> None,402-416,false,15,1,Personnel costs should calculate correctly.
+      TestProjectCostsCalculation.test_material_cost_calculation,method,() -> None,418-428,false,11,1,Material costs should calculate correctly.
+      TestProjectCostsCalculation.test_total_costs_aggregation,method,(sample_project_input) -> None,430-446,false,17,1,Total costs should aggregate correctly.
+  brgenerator/tests/test_e2e.py:
+    functions[12]{name,kind,sig,loc,async,lines,cc,does}:
+      TestFormGeneratorE2E.test_generate_and_load_form,method,() -> None,47-75,false,29,1,"Test generating a form, saving it, and loading it back."
+      TestFormGeneratorE2E.test_form_validation,method,() -> None,77-121,false,45,1,Test form validation catches errors.
+      TestValidationPipelineE2E.sample_project,method,() -> None,128-186,false,59,1,Create sample project for testing.
+      TestValidationPipelineE2E.sample_document,method,() -> None,189-236,false,48,1,Sample markdown document for testing.
+      TestValidationPipelineE2E.test_validation_pipeline_runs,method,"(sample_project, sample_document) -> None",238-261,false,24,1,Test that validation pipeline runs without errors.
+      TestValidationPipelineE2E.test_validation_detects_issues,method,(sample_project) -> None,263-287,false,25,2,Test that validation detects issues in poor document.
+      TestCLICommands.test_generate_form_command,method,() -> None,293-309,false,17,1,Test that generate-form command works.
+      TestCLICommands.test_info_command,method,() -> None,311-324,false,14,1,Test that info command works.
+      TestPDFRendering.test_pdf_renderer_initialization,method,() -> None,330-338,false,9,1,Test that PDF renderer can be initialized.
+      TestPDFRendering.test_render_simple_markdown,method,() -> None,340-368,false,29,1,Test rendering simple markdown to PDF.
+      TestCostCalculations.test_personnel_employment_costs,method,() -> None,374-390,false,17,1,Test personnel employment cost calculations.
+      TestCostCalculations.test_project_costs_aggregation,method,() -> None,392-433,false,42,1,Test aggregation of all project costs.
+  brgenerator/src/br_doc_generator/config.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      load_config,function,"(env_file:Optional[str]=None) -> AppConfig",255-257,false,3,1,Load application configuration.
+      get_config,function,() -> AppConfig,264-269,false,6,2,Get global configuration instance.
+      LLMConfig.get_litellm_params,method,() -> dict,89-111,false,23,3,Get parameters for LiteLLM call.
+      ValidationConfig.parse_levels,method,(v) -> None,136-139,false,4,3,parses levels
+      PDFConfig.validate_logo_path,method,(v) -> None,160-165,false,6,5,validates logo path
+      OutputConfig.ensure_output_dir,method,(v) -> None,182-185,false,4,2,ensure output dir
+      LogConfig.ensure_log_dir,method,(v) -> None,202-205,false,4,2,ensure log dir
+      AppConfig.from_env,method,"(env_file:Optional[str]=None) -> \"AppConfig\"",239-252,false,14,3,Load configuration from environment file.
+  brgenerator/src/br_doc_generator/cli.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      get_config,function,() -> None,31-34,false,4,1,Load configuration from environment.
+      generate_form,function,"(output:str=typer.Option('project_form.yaml', '--output', '-o', help='Ścieżka do pliku wyjściowego formularza YAML'), project_name:Optional[str]=typer.Option(None, '--name', '-n', help='Nazwa projektu do wstępnego wypełnienia'), fiscal_year:Optional[int]=typer.Option(None, '--year', '-y', help='Rok podatkowy')) -> None",38-80,false,43,3,Generuj pusty formularz YAML do wypełnienia.
+      generate,function,"(input_file:str=typer.Option(..., '--input', '-i', help='Ścieżka do formularza YAML'), output_dir:str=typer.Option('./output', '--output', '-o', help='Katalog wyjściowy'), format:str=typer.Option('both', '--format', '-f', help='Format wyjściowy: pdf, md, both'), validation_levels:Optional[str]=typer.Option(None, '--validation', '-v', help='Poziomy walidacji (oddzielone przecinkami): structure,content,legal,financial'), max_iterations:int=typer.Option(3, '--max-iter', help='Maksymalna liczba iteracji poprawek')) -> None",84-200,false,117,14,Generuj dokumentację B+R z formularza YAML.
+      validate,function,"(input_file:str=typer.Option(..., '--input', '-i', help='Ścieżka do dokumentacji markdown'), report:str=typer.Option('validation_report.yaml', '--report', '-r', help='Ścieżka do raportu walidacji'), levels:Optional[str]=typer.Option('structure,content,legal,financial', '--levels', '-l', help='Poziomy walidacji do uruchomienia')) -> None",204-390,false,187,14,Waliduj istniejącą dokumentację B+R.
+      render,function,"(input_file:str=typer.Option(..., '--input', '-i', help='Ścieżka do dokumentacji markdown'), output:str=typer.Option('documentation.pdf', '--output', '-o', help='Ścieżka do pliku PDF wyjściowego'), template:str=typer.Option('professional', '--template', '-t', help='Szablon PDF: professional, minimal, detailed'), logo:Optional[str]=typer.Option(None, '--logo', help='Ścieżka do logo firmy'), company_name:Optional[str]=typer.Option(None, '--company', help='Nazwa firmy (do nagłówka/stopki)')) -> None",394-469,false,76,4,Renderuj dokumentację markdown do PDF.
+      info,function,() -> None,473-507,false,35,4,Pokaż informacje o konfiguracji i stanie systemu.
+      web_server,function,"(host:str=typer.Option('0.0.0.0', '--host', '-h', help='Host do nasłuchiwania'), port:int=typer.Option(8000, '--port', '-p', help='Port do nasłuchiwania'), reload:bool=typer.Option(False, '--reload', '-r', help='Automatyczne przeładowanie przy zmianach')) -> None",511-552,false,42,3,Uruchom serwer web z interfejsem graficznym.
+      main,function,() -> None,555-557,false,3,1,Entry point for CLI.
+  brgenerator/src/br_doc_generator/__init__.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      BRDocumentationPipeline.__init__,method,"(config:AppConfig) -> None",88-104,false,17,1,Initialize pipeline with configuration.
+      BRDocumentationPipeline.from_env,method,"(env_path:str='.env') -> \"BRDocumentationPipeline\"",107-118,false,12,1,Create pipeline from environment configuration.
+      BRDocumentationPipeline.generate,method,"(form_path:str, output_dir:str='./output', validation_levels:list=None, max_iterations:int=3, output_format:str='pdf') -> PipelineResult",120-204,true,85,5,Generate B+R documentation from YAML form.
+      BRDocumentationPipeline._form_to_project_input,method,"(form_data:dict) -> ProjectInput",206-313,false,108,6,Convert form data dictionary to ProjectInput model.
+      BRDocumentationPipeline.load_form,method,"(form_path:str) -> dict",315-317,false,3,1,Load YAML form file.
+      BRDocumentationPipeline.save_validation_report,method,"(result:PipelineResult, output_path:str) -> None",319-352,false,34,3,Save validation report to YAML file.
+  brgenerator/src/br_doc_generator/web.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      root,function,() -> None,102-344,true,243,1,Serve the main web interface.
+      health_check,function,() -> None,348-354,true,7,1,Health check endpoint.
+      get_config,function,() -> None,358-365,true,8,3,Get current configuration.
+      generate_form,function,"(request:FormGenerationRequest) -> None",369-376,true,8,1,Generate a new YAML form.
+      validate_document,function,"(request:ValidationRequest) -> None",380-444,true,65,4,Validate documentation.
+      render_pdf,function,"(request:PDFRenderRequest) -> None",454-468,true,15,1,Render markdown to PDF.
+      run_server,function,"(host:str='0.0.0.0', port:int=8000, reload:bool=False) -> None",475-483,false,9,1,Run the web server.
+  brgenerator/src/br_doc_generator/llm_client.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      get_llm_client,function,"(config:Optional[LLMConfig]=None) -> LLMClient",327-332,false,6,3,Get or create LLM client instance.
+      LLMClient.__init__,method,"(config:Optional[LLMConfig]=None) -> None",38-41,false,4,2,Initialize LLM client with configuration.
+      LLMClient._ensure_connection,method,() -> None,43-65,true,23,3,Verify connection to LLM provider.
+      LLMClient._get_model_name,method,() -> str,67-76,false,10,3,Get model name based on provider.
+      LLMClient._get_api_params,method,"() -> dict[str, Any]",78-94,false,17,3,Get API parameters for LiteLLM.
+      LLMClient._call_llm,method,"(messages:list[dict[str,str]], max_tokens:Optional[int]=None, temperature:Optional[float]=None) -> LLMResponse",96-139,true,44,7,Make async call to LLM.
+      LLMClient.generate,method,"(prompt:str, system_prompt:Optional[str]=None, max_tokens:Optional[int]=None, temperature:Optional[float]=None) -> str",141-173,true,33,2,Generate text from prompt.
+      LLMClient.generate_structured,method,"(prompt:str, system_prompt:Optional[str]=None, output_schema:Optional[dict]=None) -> dict[str, Any]",175-219,true,45,6,Generate structured JSON response.
+      LLMClient.validate_content,method,"(content:str, validation_criteria:list[str], context:Optional[str]=None) -> dict[str, Any]",221-272,true,52,3,Validate content against criteria using LLM.
+      LLMClient.improve_content,method,"(content:str, issues:list[dict[str,str]], instructions:Optional[str]=None) -> str",274-320,true,47,3,Improve content based on identified issues.
+  brgenerator/src/br_doc_generator/models.py:
+    functions[18]{name,kind,sig,loc,async,lines,cc,does}:
+      CompanyInfo.validate_nip,method,"(v:str) -> str",76-82,false,7,3,Validate NIP checksum.
+      ProjectTimeline.validate_dates,method,"() -> \"ProjectTimeline\"",112-115,false,4,2,validates dates
+      MethodologyInfo.validate_br_criteria,method,"() -> \"MethodologyInfo\"",191-198,false,8,2,Validate that B+R criteria are met.
+      PersonnelEmploymentCost.total_cost,method,() -> Decimal,219-221,false,3,1,Calculate total qualified cost.
+      PersonnelEmploymentCost.deduction_amount,method,() -> Decimal,224-226,false,3,1,Calculate deduction amount (200% for employees).
+      PersonnelCivilCost.deduction_amount,method,() -> Decimal,241-243,false,3,1,Calculate deduction amount (200% for civil contracts).
+      MaterialCost.deduction_amount,method,() -> Decimal,256-258,false,3,1,Calculate deduction amount (100% for materials/equipment).
+      ExternalServiceCost.deduction_amount,method,() -> Decimal,273-275,false,3,1,Calculate deduction amount.
+      ProjectCosts.total_personnel_employment,method,() -> Decimal,286-287,false,2,2,total personnel employment
+      ProjectCosts.total_personnel_civil,method,() -> Decimal,290-291,false,2,2,total personnel civil
+      ProjectCosts.total_materials,method,() -> Decimal,294-295,false,2,2,total materials
+      ProjectCosts.total_external_services,method,() -> Decimal,298-299,false,2,2,total external services
+      ProjectCosts.total_costs,method,() -> Decimal,302-308,false,7,1,total costs
+      ProjectCosts.total_deduction,method,() -> Decimal,311-321,false,11,5,Calculate total B+R deduction amount.
+      ValidationResult.has_critical_issues,method,() -> bool,414-415,false,2,2,checks critical issues
+      ValidationResult.has_errors,method,() -> bool,418-422,false,5,2,checks errors
+      PipelineResult.to_yaml,method,() -> str,436-443,false,8,1,Export result as YAML.
+      PipelineResult.save_validation_report,method,"(path:Path) -> None",445-447,false,3,1,Save validation report to file.
+  brgenerator/src/br_doc_generator/validators/content.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      ContentValidator.stage_name,method,() -> str,30-31,false,2,1,stage name
+      ContentValidator.validation_criteria,method,"() -> list[str]",34-44,false,11,1,validation criteria
+      ContentValidator.validate,method,"(context:ValidationContext) -> ValidationResult",46-79,true,34,2,Validate content quality using LLM.
+      ContentValidator._llm_validate,method,"(context:ValidationContext) -> list",81-127,true,47,3,Use LLM to validate content quality.
+      ContentValidator._build_project_context,method,(project_input) -> str,129-139,false,11,1,Build context string from project input.
+      ContentValidator._check_data_consistency,method,"(context:ValidationContext) -> list",141-199,false,59,7,Check consistency between document and project input.
+      ContentValidator._get_correction_instructions,method,() -> str,201-208,false,8,1,retrieves correction instructions
+  brgenerator/src/br_doc_generator/validators/base.py:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+      ValidationContext.add_result,method,"(result:ValidationResult) -> None",39-41,false,3,1,Add validation result to context.
+      ValidationContext.has_critical_issues,method,() -> bool,44-46,false,3,2,Check if any previous result has critical issues.
+      ValidationContext.overall_score,method,() -> float,49-53,false,5,3,Calculate overall quality score.
+      BaseValidator.__init__,method,"(use_llm:bool=True) -> None",64-72,false,9,1,Initialize validator.
+      BaseValidator.stage_name,method,() -> str,76-78,false,3,1,Name of this validation stage.
+      BaseValidator.validation_criteria,method,"() -> list[str]",82-84,false,3,1,List of criteria this validator checks.
+      BaseValidator.get_llm_client,method,() -> None,86-91,true,6,2,Get LLM client for validation.
+      BaseValidator.validate,method,"(context:ValidationContext) -> ValidationResult",94-104,true,11,1,Perform validation on the content.
+      BaseValidator.auto_correct,method,"(context:ValidationContext, issues:list[ValidationIssue]) -> tuple[str, list[CorrectionApplied]]",106-160,true,55,9,Attempt to auto-correct identified issues.
+      BaseValidator._get_correction_instructions,method,() -> str,162-164,false,3,1,Get stage-specific correction instructions.
+      BaseValidator.create_result,method,"(status:ValidationStatus, score:float, issues:list[ValidationIssue], corrections:Optional[list[CorrectionApplied]]=None, metadata:Optional[dict]=None) -> ValidationResult",166-183,false,18,3,Create validation result.
+      BaseValidator.create_issue,method,"(issue_type:str, severity:IssueSeverity, location:str, message:str, suggestion:Optional[str]=None) -> ValidationIssue",185-200,false,16,1,Helper to create validation issue.
+      BaseValidator.calculate_score_from_issues,method,"(issues:list[ValidationIssue]) -> float",203-217,false,15,3,Calculate quality score based on issues.
+      BaseValidator.determine_status,method,"(score:float, issues:list[ValidationIssue]) -> ValidationStatus",220-229,false,10,5,Determine validation status from score and issues.
+  brgenerator/src/br_doc_generator/validators/structure.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      StructureValidator.stage_name,method,() -> str,77-78,false,2,1,stage name
+      StructureValidator.validation_criteria,method,"() -> list[str]",81-89,false,9,1,validation criteria
+      StructureValidator.validate,method,"(context:ValidationContext) -> ValidationResult",91-144,true,54,2,Validate document structure.
+      StructureValidator._has_title,method,"(content:str) -> bool",146-152,false,7,4,Check if document has H1 title.
+      StructureValidator._check_required_sections,method,"(content:str) -> list",154-178,false,25,6,Check for required sections.
+      StructureValidator._check_heading_hierarchy,method,"(content:str) -> list",180-204,false,25,5,Check heading level hierarchy.
+      StructureValidator._check_section_lengths,method,"(content:str) -> list",206-228,false,23,7,Check minimum content length per section.
+      StructureValidator._check_markdown_syntax,method,"(content:str) -> list",230-267,false,38,4,Check for common markdown syntax issues.
+      StructureValidator._count_sections,method,"(content:str) -> int",269-271,false,3,1,Count number of sections (H2 headings).
+      StructureValidator._get_correction_instructions,method,() -> str,273-279,false,7,1,retrieves correction instructions
+  brgenerator/src/br_doc_generator/validators/financial.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      FinancialValidator.stage_name,method,() -> str,45-46,false,2,1,stage name
+      FinancialValidator.validation_criteria,method,"() -> list[str]",49-57,false,9,1,validation criteria
+      FinancialValidator.validate,method,"(context:ValidationContext) -> ValidationResult",59-104,true,46,1,Validate financial calculations.
+      FinancialValidator._validate_cost_totals,method,(costs) -> list,106-137,false,32,3,Validate that cost totals are correct.
+      FinancialValidator._validate_deductions,method,(costs) -> list,139-167,false,29,5,Validate deduction calculations.
+      FinancialValidator._check_document_amounts,method,"(content:str, costs) -> list",169-213,false,45,11,Check if amounts in document match project costs.
+      FinancialValidator._amount_in_document,method,"(target:float, found_amounts:set, tolerance:float=1.0) -> bool",215-220,false,6,3,Check if amount appears in document (with tolerance).
+      FinancialValidator._check_personnel_allocations,method,(costs) -> list,222-256,false,35,5,Check personnel time allocation percentages.
+      FinancialValidator._get_correction_instructions,method,() -> str,258-265,false,8,1,retrieves correction instructions
+  brgenerator/src/br_doc_generator/validators/legal.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      LegalComplianceValidator.stage_name,method,() -> str,64-65,false,2,1,stage name
+      LegalComplianceValidator.validation_criteria,method,"() -> list[str]",68-77,false,10,1,validation criteria
+      LegalComplianceValidator.validate,method,"(context:ValidationContext) -> ValidationResult",79-126,true,48,2,Validate legal compliance.
+      LegalComplianceValidator._check_br_criteria,method,"(content:str) -> list",128-147,false,20,5,Check for B+R criteria keywords.
+      LegalComplianceValidator._check_nip,method,"(context:ValidationContext) -> list",149-180,false,32,4,Check NIP presence and validity.
+      LegalComplianceValidator._check_cost_categories,method,"(content:str) -> list",182-209,false,28,5,Check for proper cost category language.
+      LegalComplianceValidator._check_declarations,method,"(content:str) -> list",211-231,false,21,3,Check for required declarations and phrases.
+      LegalComplianceValidator._llm_legal_validation,method,"(context:ValidationContext) -> list",233-267,true,35,5,Use LLM to validate legal language and compliance.
+      LegalComplianceValidator._count_met_criteria,method,"(content:str) -> int",269-279,false,11,5,Count how many B+R criteria are met.
+      LegalComplianceValidator._get_correction_instructions,method,() -> str,281-288,false,8,1,retrieves correction instructions
+      LegalComplianceValidator._validate_nip_checksum,method,"(nip:str) -> bool",290-323,false,34,6,Validate NIP checksum using Polish algorithm.
+  brgenerator/src/br_doc_generator/validators/pipeline.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      ValidationPipeline.__init__,method,"(llm_client=None, config:Optional[ValidationConfig]=None, use_llm:bool=True) -> None",44-73,false,30,4,Initialize validation pipeline.
+      ValidationPipeline.run,method,"(markdown_content:str, project_input:ProjectInput, levels:Optional[list[str]]=None, max_iterations:Optional[int]=None) -> tuple[str, PipelineResult]",75-113,true,39,5,Run validation pipeline on documentation.
+      ValidationPipeline.validate,method,"(project_input:ProjectInput, markdown_content:str, levels:Optional[list[ValidationLevel]]=None, max_iterations:Optional[int]=None) -> PipelineResult",115-211,true,97,9,Run validation pipeline on documentation.
+      ValidationPipeline._run_validation_level,method,"(validator:BaseValidator, context:ValidationContext, max_iterations:int) -> tuple[list[ValidationResult], int, list[str]]",213-291,true,79,10,Run single validation level with potential iterations.
+      ValidationPipeline._determine_overall_status,method,"(results:list[ValidationResult]) -> ValidationStatus",293-317,false,25,9,Determine overall pipeline status from all results.
+      ValidationPipeline._calculate_overall_score,method,"(results:list[ValidationResult]) -> float",319-350,false,32,6,Calculate weighted overall score.
+      ValidationPipeline.validate_single_level,method,"(project_input:ProjectInput, markdown_content:str, level:ValidationLevel) -> ValidationResult",352-373,true,22,2,Run single validation level without iteration.
+  brgenerator/src/br_doc_generator/generators/document.py:
+    functions[21]{name,kind,sig,loc,async,lines,cc,does}:
+      DocumentGenerator.__init__,method,"(config:Optional[AppConfig]=None, llm_client:Optional[LLMClient]=None) -> None",50-63,false,14,3,Initialize document generator.
+      DocumentGenerator.generate,method,"(project_input:ProjectInput, sections:Optional[list[str]]=None) -> str",65-110,true,46,4,Generate complete B+R documentation.
+      DocumentGenerator.generate_section,method,"(project_input:ProjectInput, section:str) -> str",112-133,true,22,1,Generate single documentation section.
+      DocumentGenerator._build_generation_prompt,method,"(project_input:ProjectInput, sections:list[str]) -> str",135-212,false,78,5,Build prompt for full documentation generation.
+      DocumentGenerator._build_section_prompt,method,"(project_input:ProjectInput, section:str) -> str",214-231,false,18,2,Build prompt for single section generation.
+      DocumentGenerator._build_summary_prompt,method,"(project_input:ProjectInput) -> str",233-249,false,17,1,creates summary prompt
+      DocumentGenerator._build_description_prompt,method,"(project_input:ProjectInput) -> str",251-264,false,14,1,creates description prompt
+      DocumentGenerator._build_methodology_prompt,method,"(project_input:ProjectInput) -> str",266-281,false,16,6,creates methodology prompt
+      DocumentGenerator._build_innovation_prompt,method,"(project_input:ProjectInput) -> str",283-298,false,16,1,creates innovation prompt
+      DocumentGenerator._build_costs_prompt,method,"(project_input:ProjectInput) -> str",300-324,false,25,1,creates costs prompt
+      DocumentGenerator._build_timeline_prompt,method,"(project_input:ProjectInput) -> str",326-335,false,10,1,creates timeline prompt
+      DocumentGenerator._build_risk_prompt,method,"(project_input:ProjectInput) -> str",337-349,false,13,1,creates risk prompt
+      DocumentGenerator._build_conclusions_prompt,method,"(project_input:ProjectInput) -> str",351-363,false,13,1,creates conclusions prompt
+      DocumentGenerator._format_list,method,"(items:list) -> str",366-369,false,4,3,formats list
+      DocumentGenerator._format_risks,method,"(risks:list) -> str",371-377,false,7,5,formats risks
+      DocumentGenerator._format_methods,method,"(methods:list) -> str",379-385,false,7,5,formats methods
+      DocumentGenerator._format_milestones,method,"(milestones:list) -> str",387-393,false,7,3,formats milestones
+      DocumentGenerator._format_personnel_employment,method,"(personnel:list) -> str",395-401,false,7,3,formats personnel employment
+      DocumentGenerator._format_personnel_civil,method,"(personnel:list) -> str",403-409,false,7,3,formats personnel civil
+      DocumentGenerator._format_materials,method,"(materials:list) -> str",411-417,false,7,3,formats materials
+      DocumentGenerator._format_external_services,method,"(services:list) -> str",419-425,false,7,3,formats external services
+  brgenerator/src/br_doc_generator/generators/form.py:
+    functions[5]{name,kind,sig,loc,async,lines,cc,does}:
+      FormGenerator.__init__,method,(config=None) -> None,272-274,false,3,2,Initialize form generator.
+      FormGenerator.generate_empty_form,method,"(project_name:str='Nazwa projektu', fiscal_year:Optional[int]=None, output_path:Optional[Path]=None) -> str",276-331,false,56,6,Generate empty form template.
+      FormGenerator.generate_prefilled_form,method,"(project_name:str, company_name:str, company_nip:str, fiscal_year:int, start_date:date, end_date:date, output_path:Optional[Path]=None) -> str",333-389,false,57,2,Generate form with pre-filled company and project data.
+      FormGenerator.load_form,method,"(path:Path) -> dict",392-410,false,19,2,Load and validate form from YAML file.
+      FormGenerator.validate_form,method,"(data:dict) -> list[str]",413-467,false,55,14,Validate form data for completeness.
+  brgenerator/src/br_doc_generator/generators/pdf.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      render_documentation_to_pdf,function,"(markdown_content:str, output_path:str, company_name:Optional[str]=None, company_logo:Optional[str]=None, fiscal_year:Optional[int]=None, template:str='professional') -> str",576-613,false,38,2,Convenience function to render B+R documentation to PDF.
+      PDFRenderer.__init__,method,"(template:str='professional', company_logo:Optional[str]=None, header:Optional[str]=None, footer:Optional[str]=None, custom_css:Optional[str]=None) -> None",323-352,false,30,1,Initialize PDF renderer.
+      PDFRenderer._get_css,method,() -> str,354-361,false,8,2,Get combined CSS for rendering.
+      PDFRenderer._create_cover_page,method,"(title:str, subtitle:Optional[str]=None, company_name:Optional[str]=None, fiscal_year:Optional[int]=None) -> str",363-386,false,24,6,Generate HTML for cover page.
+      PDFRenderer._convert_markdown_to_html,method,"(markdown_content:str) -> str",388-416,false,29,1,Convert markdown to HTML with extensions.
+      PDFRenderer._enhance_html,method,"(html:str, title:Optional[str]=None, company_name:Optional[str]=None, fiscal_year:Optional[int]=None) -> str",418-467,false,50,6,"Enhance HTML with cover page, headers, and formatting."
+      PDFRenderer.render,method,"(markdown_content:str, output_path:str, metadata:Optional[Dict[str,Any]]=None) -> str",469-538,false,70,3,Render markdown content to PDF.
+      PDFRenderer.render_async,method,"(markdown_content:str, output_path:str, metadata:Optional[Dict[str,Any]]=None) -> str",540-551,true,12,1,Async wrapper for render method.
+      PDFRenderer.render_from_file,method,"(markdown_path:str, output_path:str, metadata:Optional[Dict[str,Any]]=None) -> str",553-573,false,21,1,Render markdown file to PDF.

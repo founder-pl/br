@@ -521,49 +521,116 @@ function getProjectName(projectId) {
     return project ? project.name : '-';
 }
 
-// Expenses
+// Expenses and Revenues
 let selectedExpenses = new Set();
 
 async function loadExpenses() {
     try {
+        const typeFilter = document.getElementById('expense-filter-type')?.value || 'expense';
         const projectFilter = document.getElementById('expense-filter-project')?.value;
         const status = document.getElementById('expense-filter-status').value;
         const brQualified = document.getElementById('expense-filter-br').value;
         
-        let url = `/expenses/?year=${currentFiscalYear}`;
-        if (projectFilter) url += `&project_id=${projectFilter}`;
-        if (status) url += `&status=${status}`;
-        if (brQualified) url += `&br_qualified=${brQualified}`;
+        // Update page title based on type
+        const titleEl = document.getElementById('expenses-page-title');
+        if (titleEl) {
+            titleEl.textContent = typeFilter === 'revenue' ? '📥 Przychody (IP Box)' : 
+                                  typeFilter === 'all' ? '📊 Wszystkie faktury' : '📤 Wydatki B+R';
+        }
         
-        const expenses = await apiCall(url);
+        let items = [];
+        
+        // Load expenses
+        if (typeFilter === 'expense' || typeFilter === 'all') {
+            let expUrl = `/expenses/?year=${currentFiscalYear}`;
+            if (projectFilter) expUrl += `&project_id=${projectFilter}`;
+            if (status) expUrl += `&status=${status}`;
+            if (brQualified) expUrl += `&br_qualified=${brQualified}`;
+            const expenses = await apiCall(expUrl);
+            items = items.concat(expenses.map(e => ({...e, type: 'expense'})));
+        }
+        
+        // Load revenues
+        if (typeFilter === 'revenue' || typeFilter === 'all') {
+            let revUrl = `/expenses/revenues/`;
+            if (projectFilter) revUrl += `?project_id=${projectFilter}`;
+            const revenues = await apiCall(revUrl);
+            items = items.concat(revenues.map(r => ({...r, type: 'revenue'})));
+        }
+        
+        // Sort by date descending
+        items.sort((a, b) => (b.invoice_date || '').localeCompare(a.invoice_date || ''));
+        
         selectedExpenses.clear();
         updateBulkActionsBar();
         
-        document.getElementById('expenses-table-body').innerHTML = expenses.length === 0 ? 
-            '<tr><td colspan="10" class="empty-state">Brak wydatków</td></tr>' :
-            expenses.map(e => `<tr>
-                <td><input type="checkbox" class="expense-checkbox" data-id="${e.id}" onchange="toggleExpenseSelection('${e.id}', this.checked)"></td>
-                <td><span class="project-tag">${getProjectName(e.project_id)}</span></td>
-                <td>${e.invoice_date || '-'}</td>
-                <td>${e.invoice_number || '-'}</td>
-                <td>${e.vendor_name || '-'}</td>
-                <td>${formatCurrencyWithCode(e.gross_amount, e.currency)}</td>
-                <td>${getCategoryName(e.br_category) || '-'}</td>
-                <td>
-                    <select class="status-select status-${e.status}" onchange="changeExpenseStatus('${e.id}', this.value)">
-                        <option value="draft" ${e.status === 'draft' ? 'selected' : ''}>Szkic</option>
-                        <option value="classified" ${e.status === 'classified' ? 'selected' : ''}>Sklasyfikowany</option>
-                        <option value="approved" ${e.status === 'approved' ? 'selected' : ''}>Zatwierdzony</option>
-                        <option value="rejected" ${e.status === 'rejected' ? 'selected' : ''}>Odrzucony</option>
-                    </select>
-                </td>
-                <td>
-                    ${e.document_id ? `<button class="btn btn-small btn-outline" onclick="showDocumentDetail('${e.document_id}')" title="Pokaż dokument">📄</button>` : ''}
-                    <button class="btn btn-small btn-secondary" onclick="showExpenseDetails('${e.id}')">Szczegóły</button>
-                    <button class="btn btn-small btn-danger" onclick="deleteExpense('${e.id}')" title="Usuń">🗑️</button>
-                </td>
-            </tr>`).join('');
+        const isRevenue = typeFilter === 'revenue';
+        const emptyMsg = isRevenue ? 'Brak przychodów' : typeFilter === 'all' ? 'Brak faktur' : 'Brak wydatków';
+        
+        document.getElementById('expenses-table-body').innerHTML = items.length === 0 ? 
+            `<tr><td colspan="10" class="empty-state">${emptyMsg}</td></tr>` :
+            items.map(e => {
+                const isRev = e.type === 'revenue';
+                const typeIcon = isRev ? '📥' : '📤';
+                const partyName = isRev ? (e.client_name || '-') : (e.vendor_name || '-');
+                const categoryDisplay = isRev ? 
+                    (e.ip_qualified ? '✅ IP Box' : '⏳ Do klasyfikacji') :
+                    (getCategoryName(e.br_category) || '-');
+                
+                return `<tr class="${isRev ? 'revenue-row' : 'expense-row'}">
+                    <td><input type="checkbox" class="expense-checkbox" data-id="${e.id}" data-type="${e.type}" onchange="toggleExpenseSelection('${e.id}', this.checked)"></td>
+                    <td><span class="project-tag">${getProjectName(e.project_id)}</span></td>
+                    <td>${typeIcon} ${e.invoice_date || '-'}</td>
+                    <td>${e.invoice_number || '-'}</td>
+                    <td>${partyName}</td>
+                    <td class="${isRev ? 'amount-revenue' : ''}">${formatCurrencyWithCode(e.gross_amount, e.currency)}</td>
+                    <td>${categoryDisplay}</td>
+                    <td>
+                        ${isRev ? `
+                            <button class="btn btn-small ${e.ip_qualified ? 'btn-success' : 'btn-warning'}" 
+                                    onclick="classifyRevenue('${e.id}', ${!e.ip_qualified})">
+                                ${e.ip_qualified ? '✅ IP Box' : '📋 Klasyfikuj'}
+                            </button>
+                        ` : `
+                            <select class="status-select status-${e.status}" onchange="changeExpenseStatus('${e.id}', this.value)">
+                                <option value="draft" ${e.status === 'draft' ? 'selected' : ''}>Szkic</option>
+                                <option value="classified" ${e.status === 'classified' ? 'selected' : ''}>Sklasyfikowany</option>
+                                <option value="approved" ${e.status === 'approved' ? 'selected' : ''}>Zatwierdzony</option>
+                                <option value="rejected" ${e.status === 'rejected' ? 'selected' : ''}>Odrzucony</option>
+                            </select>
+                        `}
+                    </td>
+                    <td>
+                        ${e.document_id ? `<button class="btn btn-small btn-outline" onclick="showDocumentDetail('${e.document_id}')" title="Pokaż dokument">📄</button>` : ''}
+                        <button class="btn btn-small btn-secondary" onclick="${isRev ? 'showRevenueDetails' : 'showExpenseDetails'}('${e.id}')">Szczegóły</button>
+                        <button class="btn btn-small btn-danger" onclick="${isRev ? 'deleteRevenue' : 'deleteExpense'}('${e.id}')" title="Usuń">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join('');
     } catch (e) { console.error('Error:', e); }
+}
+
+async function classifyRevenue(revenueId, ipQualified) {
+    try {
+        await apiCall(`/expenses/revenues/${revenueId}/classify`, {
+            method: 'PUT',
+            body: JSON.stringify({ ip_qualified: ipQualified, ip_category: 'software_license' })
+        });
+        showToast(ipQualified ? 'Przychód oznaczony jako IP Box' : 'Klasyfikacja usunięta', 'success');
+        loadExpenses();
+    } catch (e) {
+        showToast('Błąd klasyfikacji', 'error');
+    }
+}
+
+async function showRevenueDetails(revenueId) {
+    // For now, show basic info - can be expanded later
+    showToast('Szczegóły przychodu - do implementacji', 'info');
+}
+
+async function deleteRevenue(revenueId) {
+    if (!confirm('Czy na pewno chcesz usunąć ten przychód?')) return;
+    showToast('Usuwanie przychodów - do implementacji', 'info');
 }
 
 // Bulk selection functions
@@ -1015,6 +1082,7 @@ async function viewDocVersion(projectId, filename, commit) {
             <div class="doc-content-header">
                 <strong>Wersja: ${commit}</strong>
                 <div class="doc-actions">
+                    <button class="btn btn-sm btn-primary" onclick="compareDocs('${projectId}', '${filename}', '${commit}')">📊 Porównaj z aktualną</button>
                     <button class="btn btn-sm btn-secondary" onclick="viewDocHistory('${projectId}', '${filename}')">📜 Historia</button>
                     <button class="btn btn-sm btn-secondary" onclick="viewDocContent('${projectId}', '${filename}')">← Aktualna</button>
                 </div>
@@ -1023,6 +1091,74 @@ async function viewDocVersion(projectId, filename, commit) {
     } catch (e) {
         showToast('Błąd ładowania wersji', 'error');
     }
+}
+
+async function compareDocs(projectId, filename, oldCommit) {
+    try {
+        // Fetch old and current versions
+        const [oldData, currentData] = await Promise.all([
+            apiCall(`/expenses/project/${projectId}/docs/${filename}/version/${oldCommit}`),
+            apiCall(`/expenses/project/${projectId}/docs/${filename}`)
+        ]);
+        
+        const preview = document.getElementById('doc-preview');
+        
+        // Simple line-by-line diff
+        const oldLines = oldData.content.split('\n');
+        const newLines = currentData.content.split('\n');
+        
+        let diffHtml = '';
+        const maxLines = Math.max(oldLines.length, newLines.length);
+        
+        for (let i = 0; i < maxLines; i++) {
+            const oldLine = oldLines[i] || '';
+            const newLine = newLines[i] || '';
+            
+            if (oldLine === newLine) {
+                diffHtml += `<tr class="diff-same"><td class="diff-old">${escapeHtml(oldLine)}</td><td class="diff-new">${escapeHtml(newLine)}</td></tr>`;
+            } else if (!oldLine && newLine) {
+                diffHtml += `<tr class="diff-added"><td class="diff-old"></td><td class="diff-new diff-highlight-add">+ ${escapeHtml(newLine)}</td></tr>`;
+            } else if (oldLine && !newLine) {
+                diffHtml += `<tr class="diff-removed"><td class="diff-old diff-highlight-del">- ${escapeHtml(oldLine)}</td><td class="diff-new"></td></tr>`;
+            } else {
+                diffHtml += `<tr class="diff-changed"><td class="diff-old diff-highlight-del">${escapeHtml(oldLine)}</td><td class="diff-new diff-highlight-add">${escapeHtml(newLine)}</td></tr>`;
+            }
+        }
+        
+        preview.innerHTML = `
+            <div class="doc-content-header">
+                <strong>📊 Porównanie: ${oldCommit} → Aktualna</strong>
+                <div class="doc-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocHistory('${projectId}', '${filename}')">📜 Historia</button>
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocContent('${projectId}', '${filename}')">← Aktualna</button>
+                </div>
+            </div>
+            <div class="diff-legend">
+                <span class="diff-legend-add">+ Dodane</span>
+                <span class="diff-legend-del">- Usunięte</span>
+                <span class="diff-legend-mod">~ Zmienione</span>
+            </div>
+            <div class="diff-container">
+                <table class="diff-table">
+                    <thead>
+                        <tr>
+                            <th>📁 Poprzednia wersja (${oldCommit})</th>
+                            <th>📄 Aktualna wersja</th>
+                        </tr>
+                    </thead>
+                    <tbody>${diffHtml}</tbody>
+                </table>
+            </div>`;
+    } catch (e) {
+        showToast('Błąd porównywania wersji', 'error');
+        console.error(e);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function printDoc() {
@@ -1185,11 +1321,20 @@ async function loadTimesheet() {
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
             const dayNames = ['Nd', 'Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So'];
             
+            // Calculate daily total (sum of all slots for this day)
+            let dayTotal = 0;
+            for (const slot of TIME_SLOTS) {
+                for (const p of projects) {
+                    const key = `${p.id}_${dateStr}_${slot.id}`;
+                    dayTotal += timesheetData[key] || 0;
+                }
+            }
+            
             for (let slotIdx = 0; slotIdx < TIME_SLOTS.length; slotIdx++) {
                 const slot = TIME_SLOTS[slotIdx];
                 const rowClass = isWeekend ? 'weekend' : '';
                 
-                html += `<tr class="${rowClass}">`;
+                html += `<tr class="${rowClass}" data-date="${dateStr}">`;
                 
                 // Day column (only on first slot)
                 if (slotIdx === 0) {
@@ -1200,12 +1345,10 @@ async function loadTimesheet() {
                 html += `<td class="slot-cell">${slot.label}</td>`;
                 
                 // Project columns - CHECKBOXES
-                let daySlotTotal = 0;
                 for (const p of projects) {
                     const key = `${p.id}_${dateStr}_${slot.id}`;
                     const hours = timesheetData[key] || 0;
                     const checked = hours > 0;
-                    daySlotTotal += hours;
                     
                     html += `<td class="check-cell">
                         <input type="checkbox" ${checked ? 'checked' : ''} 
@@ -1214,8 +1357,10 @@ async function loadTimesheet() {
                     </td>`;
                 }
                 
-                // Row total
-                html += `<td class="total-cell">${daySlotTotal > 0 ? daySlotTotal : ''}</td>`;
+                // Daily total (only on first slot, spans all rows)
+                if (slotIdx === 0) {
+                    html += `<td rowspan="${TIME_SLOTS.length}" class="total-cell day-total" data-date="${dateStr}">${dayTotal > 0 ? dayTotal : ''}</td>`;
+                }
                 html += '</tr>';
             }
         }
@@ -1235,8 +1380,16 @@ async function loadTimesheet() {
 
 async function toggleTimesheetBlock(checkbox) {
     const workerId = document.getElementById('timesheet-worker').value;
+    
+    if (!workerId) {
+        showToast('Wybierz pracownika', 'error');
+        checkbox.checked = !checkbox.checked;
+        return;
+    }
+    
     const hours = checkbox.checked ? 4 : 0;
-    const key = `${checkbox.dataset.project}_${checkbox.dataset.date}_${checkbox.dataset.slot}`;
+    const dateStr = checkbox.dataset.date;
+    const key = `${checkbox.dataset.project}_${dateStr}_${checkbox.dataset.slot}`;
     timesheetData[key] = hours;
     
     // Save immediately to database
@@ -1252,12 +1405,14 @@ async function toggleTimesheetBlock(checkbox) {
             })
         });
         
-        // Update row total
-        const row = checkbox.closest('tr');
-        const checkboxes = row.querySelectorAll('.ts-checkbox');
-        let total = 0;
-        checkboxes.forEach(cb => { if (cb.checked) total += 4; });
-        row.querySelector('.total-cell').textContent = total > 0 ? total : '';
+        // Update daily total (sum all checkboxes for this date)
+        const allCheckboxes = document.querySelectorAll(`.ts-checkbox[data-date="${dateStr}"]`);
+        let dayTotal = 0;
+        allCheckboxes.forEach(cb => { if (cb.checked) dayTotal += 4; });
+        const dayTotalCell = document.querySelector(`.day-total[data-date="${dateStr}"]`);
+        if (dayTotalCell) {
+            dayTotalCell.textContent = dayTotal > 0 ? dayTotal : '';
+        }
         
         // Update summary
         const year = document.getElementById('timesheet-year').value;
@@ -2170,3 +2325,342 @@ document.addEventListener('DOMContentLoaded', () => {
         closeDocumentModal({ updateUrl: false });
     }
 });
+
+// =============================================================================
+// Git Timesheet
+// =============================================================================
+
+let gitScanResults = null;
+let gitSelectedAuthors = [];
+let gitSelectedRepos = [];
+let gitCommitsData = [];
+let gitProjectMappings = {};
+
+async function scanGitRepos() {
+    const folderPath = document.getElementById('git-folder-path').value;
+    const depth = parseInt(document.getElementById('git-scan-depth').value);
+    
+    if (!folderPath) {
+        showToast('Wprowadź ścieżkę do folderu', 'error');
+        return;
+    }
+    
+    const resultsDiv = document.getElementById('git-scan-results');
+    resultsDiv.innerHTML = '<p class="loading">🔍 Skanowanie repozytoriów...</p>';
+    
+    try {
+        const result = await apiCall('/git-timesheet/scan', {
+            method: 'POST',
+            body: JSON.stringify({
+                folder_path: folderPath,
+                max_depth: depth
+            })
+        });
+        
+        gitScanResults = result;
+        
+        if (result.total_repos === 0) {
+            resultsDiv.innerHTML = '<p class="empty-state">Nie znaleziono repozytoriów Git w podanej lokalizacji</p>';
+            return;
+        }
+        
+        resultsDiv.innerHTML = `
+            <div class="git-scan-summary">
+                <strong>Znaleziono ${result.total_repos} repozytoriów</strong>
+                <span class="text-muted">w ${result.base_path}</span>
+            </div>
+            <div class="git-repos-list">
+                ${result.repositories.map(repo => `
+                    <div class="git-repo-item">
+                        <span class="repo-name">📁 ${repo.name}</span>
+                        <span class="repo-path text-muted">${repo.path}</span>
+                        <span class="repo-stats">${repo.commit_count} commitów</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        displayGitAuthors(result.all_authors);
+        document.getElementById('git-authors-section').style.display = 'block';
+        
+    } catch (e) {
+        console.error('Error scanning git repos:', e);
+        resultsDiv.innerHTML = `<p class="error">Błąd skanowania: ${e.message}</p>`;
+    }
+}
+
+function displayGitAuthors(authors) {
+    const container = document.getElementById('git-authors-list');
+    
+    if (!authors || authors.length === 0) {
+        container.innerHTML = '<p class="empty-state">Brak autorów</p>';
+        return;
+    }
+    
+    authors.sort((a, b) => b.commit_count - a.commit_count);
+    
+    container.innerHTML = `
+        <div class="git-authors-grid">
+            ${authors.map(author => `
+                <label class="git-author-item">
+                    <input type="checkbox" value="${author.name}" 
+                           onchange="toggleGitAuthor('${author.name}')" checked>
+                    <div class="author-info">
+                        <strong>${author.name}</strong>
+                        <span class="text-muted">${author.email}</span>
+                        <span class="commit-count">${author.commit_count} commitów</span>
+                    </div>
+                </label>
+            `).join('')}
+        </div>
+        <div class="author-actions">
+            <button class="btn btn-sm btn-outline" onclick="selectAllGitAuthors(true)">Zaznacz wszystkich</button>
+            <button class="btn btn-sm btn-outline" onclick="selectAllGitAuthors(false)">Odznacz wszystkich</button>
+        </div>
+    `;
+    
+    gitSelectedAuthors = authors.map(a => a.name);
+    displayGitRepoMapping();
+    document.getElementById('git-repos-section').style.display = 'block';
+}
+
+function toggleGitAuthor(authorName) {
+    const idx = gitSelectedAuthors.indexOf(authorName);
+    if (idx >= 0) {
+        gitSelectedAuthors.splice(idx, 1);
+    } else {
+        gitSelectedAuthors.push(authorName);
+    }
+}
+
+function selectAllGitAuthors(select) {
+    const checkboxes = document.querySelectorAll('#git-authors-list input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = select);
+    
+    if (select && gitScanResults) {
+        gitSelectedAuthors = gitScanResults.all_authors.map(a => a.name);
+    } else {
+        gitSelectedAuthors = [];
+    }
+}
+
+async function displayGitRepoMapping() {
+    const container = document.getElementById('git-repo-mapping');
+    
+    if (!gitScanResults || !gitScanResults.repositories) {
+        container.innerHTML = '<p class="empty-state">Najpierw wykonaj skanowanie</p>';
+        return;
+    }
+    
+    let projects = [];
+    try {
+        projects = await apiCall('/projects/');
+    } catch (e) {
+        console.error('Error loading projects:', e);
+    }
+    
+    if (projects.length === 0) {
+        container.innerHTML = '<p class="empty-state">Brak projektów B+R. Utwórz projekt, aby mapować repozytoria.</p>';
+        return;
+    }
+    
+    let html = `
+        <table class="git-mapping-table">
+            <thead>
+                <tr>
+                    <th>Repozytorium Git</th>
+                    <th>Ścieżka</th>
+                    ${projects.map(p => `<th class="project-col" title="${p.name}">${p.name.substring(0, 15)}${p.name.length > 15 ? '..' : ''}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    for (const repo of gitScanResults.repositories) {
+        const safeRepoId = repo.path.replace(/[^a-zA-Z0-9]/g, '_');
+        html += `
+            <tr data-repo="${repo.path}">
+                <td><strong>${repo.name}</strong></td>
+                <td class="text-muted path-cell">${repo.path}</td>
+                ${projects.map(p => `
+                    <td class="check-cell">
+                        <input type="radio" name="repo-${safeRepoId}" 
+                               value="${p.id}" data-repo="${repo.path}"
+                               onchange="updateGitProjectMapping(this.dataset.repo, '${p.id}')">
+                    </td>
+                `).join('')}
+            </tr>
+        `;
+    }
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+    
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    document.getElementById('git-date-since').value = lastMonth.toISOString().split('T')[0];
+    document.getElementById('git-date-until').value = now.toISOString().split('T')[0];
+}
+
+function updateGitProjectMapping(repoPath, projectId) {
+    gitProjectMappings[repoPath] = projectId;
+    checkGitTimesheetReady();
+}
+
+function checkGitTimesheetReady() {
+    const btn = document.getElementById('btn-generate-git-ts');
+    const hasAuthors = gitSelectedAuthors.length > 0;
+    const hasMappings = Object.keys(gitProjectMappings).length > 0;
+    const hasCommits = gitCommitsData.length > 0;
+    btn.disabled = !(hasAuthors && hasMappings && hasCommits);
+}
+
+async function loadGitCommits() {
+    if (!gitScanResults || gitSelectedAuthors.length === 0) {
+        showToast('Najpierw wybierz autorów', 'error');
+        return;
+    }
+    
+    const since = document.getElementById('git-date-since').value;
+    const until = document.getElementById('git-date-until').value;
+    
+    const preview = document.getElementById('git-commits-preview');
+    preview.innerHTML = '<p class="loading">📥 Pobieranie commitów...</p>';
+    document.getElementById('git-commits-section').style.display = 'block';
+    
+    try {
+        const result = await apiCall('/git-timesheet/commits', {
+            method: 'POST',
+            body: JSON.stringify({
+                repo_paths: gitScanResults.repositories.map(r => r.path),
+                authors: gitSelectedAuthors,
+                since: since || null,
+                until: until || null
+            })
+        });
+        
+        gitCommitsData = result.commits;
+        
+        document.getElementById('git-commits-count').textContent = `${result.total_commits} commitów`;
+        document.getElementById('git-commits-days').textContent = `${result.date_count} dni`;
+        
+        if (result.commits.length === 0) {
+            preview.innerHTML = '<p class="empty-state">Brak commitów w wybranym zakresie</p>';
+            return;
+        }
+        
+        let html = '<div class="git-commits-list">';
+        const byDate = result.by_date;
+        const dates = Object.keys(byDate).sort().reverse();
+        
+        for (const dateStr of dates.slice(0, 30)) {
+            const commits = byDate[dateStr];
+            html += `
+                <div class="git-commits-day">
+                    <div class="commit-date-header">
+                        <strong>${dateStr}</strong>
+                        <span class="commit-count">${commits.length} commitów</span>
+                    </div>
+                    <div class="commit-list">
+                        ${commits.slice(0, 10).map(c => `
+                            <div class="commit-item">
+                                <span class="commit-time">${c.date.substring(11, 16)}</span>
+                                <span class="commit-repo">${c.repo_name}</span>
+                                <span class="commit-hash">${c.hash}</span>
+                                <span class="commit-msg">${escapeHtml(c.message.substring(0, 60))}${c.message.length > 60 ? '...' : ''}</span>
+                                <span class="commit-author">${c.author_name}</span>
+                            </div>
+                        `).join('')}
+                        ${commits.length > 10 ? `<div class="more-commits">... i ${commits.length - 10} więcej</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (dates.length > 30) {
+            html += `<div class="more-days">... i ${dates.length - 30} więcej dni</div>`;
+        }
+        
+        html += '</div>';
+        preview.innerHTML = html;
+        
+        document.getElementById('git-timesheet-result').style.display = 'block';
+        checkGitTimesheetReady();
+        
+    } catch (e) {
+        console.error('Error loading git commits:', e);
+        preview.innerHTML = `<p class="error">Błąd: ${e.message}</p>`;
+    }
+}
+
+async function generateGitTimesheet() {
+    if (gitCommitsData.length === 0) {
+        showToast('Najpierw pobierz commity', 'error');
+        return;
+    }
+    
+    if (Object.keys(gitProjectMappings).length === 0) {
+        showToast('Przypisz repozytoria do projektów B+R', 'error');
+        return;
+    }
+    
+    const workerSelect = document.getElementById('timesheet-worker');
+    const workerId = workerSelect ? workerSelect.value : null;
+    if (!workerId) {
+        showToast('Najpierw wybierz pracownika w zakładce Harmonogram prac', 'error');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('git-timesheet-grid');
+    resultDiv.innerHTML = '<p class="loading">📊 Generowanie harmonogramu...</p>';
+    
+    try {
+        const result = await apiCall('/git-timesheet/generate-timesheet', {
+            method: 'POST',
+            body: JSON.stringify({
+                commits: gitCommitsData,
+                worker_id: workerId,
+                project_mappings: gitProjectMappings
+            })
+        });
+        
+        if (result.entries_created === 0) {
+            resultDiv.innerHTML = '<p class="empty-state">Nie utworzono żadnych wpisów. Sprawdź mapowanie repozytoriów.</p>';
+            return;
+        }
+        
+        resultDiv.innerHTML = `
+            <div class="git-timesheet-summary">
+                <div class="summary-stat">
+                    <strong>${result.entries_created}</strong>
+                    <span>wpisów utworzonych</span>
+                </div>
+                <div class="summary-stat">
+                    <strong>${result.total_slots}</strong>
+                    <span>bloków czasowych</span>
+                </div>
+            </div>
+            <div class="git-entries-list">
+                ${result.entries.slice(0, 20).map(e => `
+                    <div class="git-entry-item">
+                        <span class="entry-date">${e.work_date}</span>
+                        <span class="entry-slot">${e.time_slot}</span>
+                        <span class="entry-hours">${e.hours}h</span>
+                        <span class="entry-commits">${e.commits.length} commitów</span>
+                    </div>
+                `).join('')}
+                ${result.entries.length > 20 ? `<div class="more-entries">... i ${result.entries.length - 20} więcej</div>` : ''}
+            </div>
+            <div class="git-success-message">
+                ✅ Harmonogram został wygenerowany. Przejdź do zakładki "Harmonogram prac" aby zobaczyć wynik.
+            </div>
+        `;
+        
+        showToast(`Utworzono ${result.entries_created} wpisów w harmonogramie`, 'success');
+        
+    } catch (e) {
+        console.error('Error generating git timesheet:', e);
+        resultDiv.innerHTML = `<p class="error">Błąd: ${e.message}</p>`;
+        showToast('Błąd generowania harmonogramu', 'error');
+    }
+}

@@ -3,6 +3,12 @@ B+R Documentation Generator Service
 
 Generates B+R documentation for expenses based on project data.
 Each expense can generate a separate documentation file for tax deduction purposes.
+
+Implements brgenerator pipeline:
+- Stage 1: Initial Generation (template-based)
+- Stage 2-5: Validation (structure, content, legal, financial)
+- Stage 6: Iterative Refinement (LLM-based corrections)
+- Stage 7: Final Validation & PDF
 """
 
 import os
@@ -15,6 +21,29 @@ import httpx
 import structlog
 
 logger = structlog.get_logger(__name__)
+
+# LLM refinement prompt
+LLM_REFINEMENT_PROMPT = """Jesteś ekspertem w dokumentacji B+R (ulga badawczo-rozwojowa w Polsce).
+
+Poniższy dokument B+R zawiera błędy/ostrzeżenia wykryte podczas walidacji:
+
+PROBLEMY DO NAPRAWY:
+{issues}
+
+AKTUALNY DOKUMENT:
+{document}
+
+Twoim zadaniem jest poprawić TYLKO wskazane problemy, zachowując resztę dokumentu bez zmian.
+Zwróć poprawiony dokument w formacie Markdown.
+
+ZASADY:
+1. Zachowaj strukturę sekcji (nagłówki ##)
+2. Popraw brakujące dane gdzie to możliwe
+3. Uzupełnij uzasadnienia B+R dla wydatków
+4. Nie zmieniaj danych liczbowych (kwot, NIP-ów)
+5. Zachowaj tabele w poprawnym formacie Markdown
+
+Odpowiedz TYLKO poprawionym dokumentem, bez dodatkowych komentarzy."""
 
 
 class DocumentVersionControl:
@@ -430,6 +459,113 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
         file_path = self.output_dir / project_id / filename
         return self.version_control.get_file_at_commit(file_path, commit)
     
+    async def refine_with_llm(
+        self,
+        content: str,
+        validation_issues: List[Dict[str, Any]],
+        max_iterations: int = 3
+    ) -> Dict[str, Any]:
+        """
+        Stage 6: Iterative Refinement - Use LLM to fix validation issues.
+        
+        Args:
+            content: Original document content
+            validation_issues: List of issues from validation
+            max_iterations: Maximum refinement attempts
+            
+        Returns:
+            Dict with refined content and refinement log
+        """
+        if not validation_issues:
+            return {"status": "no_changes", "content": content, "iterations": 0}
+        
+        # Format issues for LLM
+        issues_text = "\n".join([
+            f"- [{i.get('severity', 'warning').upper()}] {i.get('message', '')}"
+            f"\n  Lokalizacja: {i.get('location', 'unknown')}"
+            f"\n  Sugestia: {i.get('suggestion', '')}"
+            for i in validation_issues
+        ])
+        
+        refined_content = content
+        refinement_log = []
+        
+        for iteration in range(max_iterations):
+            try:
+                # Call LLM for refinement
+                prompt = LLM_REFINEMENT_PROMPT.format(
+                    issues=issues_text,
+                    document=refined_content
+                )
+                
+                async with httpx.AsyncClient(timeout=60.0) as client:
+                    # Try OpenRouter first
+                    api_key = os.environ.get('OPENROUTER_API_KEY')
+                    if api_key:
+                        response = await client.post(
+                            "https://openrouter.ai/api/v1/chat/completions",
+                            headers={
+                                "Authorization": f"Bearer {api_key}",
+                                "HTTP-Referer": "https://br-system.local",
+                                "X-Title": "BR Documentation Refiner"
+                            },
+                            json={
+                                "model": os.environ.get('OPENROUTER_MODEL', 'google/gemma-2-9b-it:free'),
+                                "messages": [{"role": "user", "content": prompt}],
+                                "temperature": 0.3,
+                                "max_tokens": 8000
+                            }
+                        )
+                        
+                        if response.status_code == 200:
+                            result = response.json()
+                            new_content = result['choices'][0]['message']['content']
+                            
+                            # Validate that we got markdown back
+                            if new_content and '#' in new_content:
+                                refined_content = new_content
+                                refinement_log.append({
+                                    "iteration": iteration + 1,
+                                    "status": "success",
+                                    "changes": "LLM refinement applied"
+                                })
+                                logger.info("LLM refinement applied", iteration=iteration+1)
+                            else:
+                                refinement_log.append({
+                                    "iteration": iteration + 1,
+                                    "status": "skipped",
+                                    "reason": "Invalid LLM response"
+                                })
+                        else:
+                            refinement_log.append({
+                                "iteration": iteration + 1,
+                                "status": "failed",
+                                "reason": f"API error: {response.status_code}"
+                            })
+                    else:
+                        # No API key, skip LLM refinement
+                        refinement_log.append({
+                            "iteration": iteration + 1,
+                            "status": "skipped",
+                            "reason": "No OPENROUTER_API_KEY configured"
+                        })
+                        break
+                        
+            except Exception as e:
+                logger.warning("LLM refinement failed", iteration=iteration+1, error=str(e))
+                refinement_log.append({
+                    "iteration": iteration + 1,
+                    "status": "error",
+                    "reason": str(e)
+                })
+        
+        return {
+            "status": "refined" if refinement_log else "no_changes",
+            "content": refined_content,
+            "iterations": len(refinement_log),
+            "log": refinement_log
+        }
+    
     async def generate_project_summary(
         self,
         project: Dict[str, Any],
@@ -708,10 +844,23 @@ Oświadczam, że:
 """
 
 
-    def _build_expense_details(self, expenses: list) -> str:
-        """Build detailed expense descriptions with justifications."""
-        if not expenses:
-            return "Brak wydatków do udokumentowania.\n"
+    def _build_expense_details(self, expenses: list, company_nip: str = "5881918662") -> str:
+        """Build detailed expense descriptions with justifications.
+        
+        Filters out revenue invoices (where vendor_nip matches company_nip).
+        """
+        # Filter out revenue invoices (where we are the seller)
+        def clean_nip(nip):
+            if not nip: return ''
+            return ''.join(c for c in str(nip) if c.isdigit())
+        
+        cost_expenses = [
+            e for e in expenses 
+            if clean_nip(e.get('vendor_nip')) != clean_nip(company_nip)
+        ]
+        
+        if not cost_expenses:
+            return "Brak wydatków kosztowych do udokumentowania.\n"
         
         category_names = {
             'personnel_employment': 'Wynagrodzenia pracowników',
@@ -725,7 +874,7 @@ Oświadczam, że:
         }
         
         details = ""
-        for i, e in enumerate(expenses, 1):
+        for i, e in enumerate(cost_expenses, 1):
             iteration = hash(e.get('id', '')) % 1000 + 1
             inv_date = e.get('invoice_date', 'N/A')
             inv_num = e.get('invoice_number', 'N/A')

@@ -42,6 +42,10 @@
                     <span class="nav-icon">⏱️</span>
                     <span>Harmonogram prac</span>
                 </li>
+                <li class="nav-item" data-page="git-timesheet">
+                    <span class="nav-icon">📂</span>
+                    <span>Harmonogram Git</span>
+                </li>
                 <li class="nav-item" data-page="clarifications">
                     <span class="nav-icon">❓</span>
                     <span>Wyjaśnienia</span>
@@ -196,8 +200,13 @@
             <!-- Expenses Page -->
             <section id="page-expenses" class="page">
                 <header class="page-header">
-                    <h2>Wydatki B+R</h2>
+                    <h2 id="expenses-page-title">Wydatki B+R</h2>
                     <div class="header-actions">
+                        <select id="expense-filter-type" onchange="loadExpenses()">
+                            <option value="expense">📤 Wydatki (kosztowe)</option>
+                            <option value="revenue">📥 Przychody (sprzedaż)</option>
+                            <option value="all">📊 Wszystkie faktury</option>
+                        </select>
                         <select id="expense-filter-project" onchange="loadExpenses()">
                             <option value="">Wszystkie projekty</option>
                         </select>
@@ -288,6 +297,99 @@
                         <h3>Kooperanci (z faktur)</h3>
                         <div id="contractors-list">
                             <p class="empty-state">Ładowanie...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Git Timesheet Page -->
+            <section id="page-git-timesheet" class="page">
+                <header class="page-header">
+                    <h2>Harmonogram z historii Git</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="generateGitTimesheet()" id="btn-generate-git-ts" disabled>
+                            📊 Generuj harmonogram
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="git-timesheet-container">
+                    <!-- Step 1: Scan Configuration -->
+                    <div class="card">
+                        <h3>1️⃣ Skanowanie repozytoriów Git</h3>
+                        <div class="git-scan-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Ścieżka do folderu:</label>
+                                    <input type="text" id="git-folder-path" placeholder="/repos/user/projects" value="/repos">
+                                </div>
+                                <div class="form-group">
+                                    <label>Głębokość skanowania:</label>
+                                    <select id="git-scan-depth">
+                                        <option value="1">1 poziom</option>
+                                        <option value="2">2 poziomy</option>
+                                        <option value="3" selected>3 poziomy</option>
+                                        <option value="4">4 poziomy</option>
+                                    </select>
+                                </div>
+                                <div class="form-group form-actions">
+                                    <button class="btn btn-primary" onclick="scanGitRepos()">🔍 Skanuj</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="git-scan-results" class="git-scan-results">
+                            <p class="empty-state">Wprowadź ścieżkę i kliknij "Skanuj"</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Author Selection -->
+                    <div class="card" id="git-authors-section" style="display:none;">
+                        <h3>2️⃣ Wybór autorów</h3>
+                        <p class="card-description">Zaznacz autorów, których commity mają być uwzględnione w harmonogramie</p>
+                        <div id="git-authors-list" class="git-authors-list">
+                            <p class="empty-state">Najpierw wykonaj skanowanie</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Repository Selection -->
+                    <div class="card" id="git-repos-section" style="display:none;">
+                        <h3>3️⃣ Mapowanie repozytoriów na projekty B+R</h3>
+                        <p class="card-description">Przypisz repozytoria Git do projektów B+R (kolumny = projekty B+R, wiersze = repozytoria Git)</p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Zakres dat:</label>
+                                <input type="date" id="git-date-since" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Do:</label>
+                                <input type="date" id="git-date-until" value="">
+                            </div>
+                            <div class="form-group form-actions">
+                                <button class="btn btn-secondary" onclick="loadGitCommits()">📥 Pobierz commity</button>
+                            </div>
+                        </div>
+                        <div id="git-repo-mapping" class="git-repo-mapping">
+                            <p class="empty-state">Najpierw wykonaj skanowanie i wybierz autorów</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Commits Preview -->
+                    <div class="card" id="git-commits-section" style="display:none;">
+                        <h3>4️⃣ Podgląd commitów</h3>
+                        <div class="git-commits-stats">
+                            <span id="git-commits-count">0 commitów</span>
+                            <span id="git-commits-days">0 dni</span>
+                        </div>
+                        <div id="git-commits-preview" class="git-commits-preview">
+                            <p class="empty-state">Pobierz commity aby zobaczyć podgląd</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5: Generated Timesheet -->
+                    <div class="card" id="git-timesheet-result" style="display:none;">
+                        <h3>5️⃣ Wygenerowany harmonogram</h3>
+                        <div id="git-timesheet-grid" class="timesheet-grid">
+                            <p class="empty-state">Kliknij "Generuj harmonogram" aby utworzyć wpisy</p>
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,4 @@
+![img.png](img.png)
 # System B+R - Prototypowy System Modularny
 
 System automatyzacji dokumentacji B+R i IP Box dla **Tomasz Sapletta** (NIP: 5881918662, PKD: 72.10.Z)
@@ -13,6 +14,8 @@ System automatyzacji dokumentacji B+R i IP Box dla **Tomasz Sapletta** (NIP: 588
 - **Integracje księgowe** - automatyczny import z iFirma, Fakturownia, wFirma, InFakt
 - **Integracje cloud** - automatyczny upload raportów do Nextcloud, Google Drive, Dropbox, OneDrive, S3
 - **CQRS + Event Sourcing** - pełny audit trail dla kontroli KAS
+
+![img_1.png](img_1.png)
 
 ## 🏗️ Architektura
 
@@ -41,6 +44,8 @@ System automatyzacji dokumentacji B+R i IP Box dla **Tomasz Sapletta** (NIP: 588
                               │ (Cache)  │   │ (SQLite/PG)  │
                               └──────────┘   └──────────────┘
 ```
+
+![img_2.png](img_2.png)
 
 ## 🚀 Szybki start
 

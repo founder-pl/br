@@ -435,6 +435,89 @@ select {
 .status-select.status-approved { background: #dcfce7; border-color: #22c55e; }
 .status-select.status-rejected { background: #fecaca; border-color: #ef4444; }
 
+/* Revenue rows styling */
+.revenue-row {
+    background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%);
+}
+.revenue-row:hover {
+    background: #ecfdf5 !important;
+}
+.amount-revenue {
+    color: #16a34a;
+    font-weight: 600;
+}
+.btn-success {
+    background: #22c55e;
+    color: white;
+    border: none;
+}
+.btn-success:hover {
+    background: #16a34a;
+}
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+    border: none;
+}
+.btn-warning:hover {
+    background: #d97706;
+}
+
+/* Diff viewer styles */
+.diff-container {
+    max-height: 600px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+.diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+.diff-table th {
+    background: #1e293b;
+    color: white;
+    padding: 0.75rem;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.diff-table td {
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+    width: 50%;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.diff-old { background: #fefefe; }
+.diff-new { background: #fefefe; border-left: 2px solid #e2e8f0; }
+.diff-same td { color: #64748b; }
+.diff-highlight-add {
+    background: #dcfce7 !important;
+    color: #166534;
+}
+.diff-highlight-del {
+    background: #fee2e2 !important;
+    color: #991b1b;
+    text-decoration: line-through;
+}
+.diff-legend {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: #f8fafc;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+.diff-legend-add { color: #166534; }
+.diff-legend-del { color: #991b1b; }
+.diff-legend-mod { color: #9333ea; }
+
 /* Duplicate warning badge */
 .duplicate-badge {
     display: inline-block;
@@ -1139,70 +1222,118 @@ select {
 }
 
 .timesheet-table .day-cell {
-    background: #f1f5f9;
-    font-weight: 600;
-    min-width: 60px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    font-weight: 700;
+    min-width: 70px;
     vertical-align: middle;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    border-right: 3px solid #1d4ed8 !important;
 }
 
 .timesheet-table .day-cell.weekend {
-    background: #fef3c7;
-    color: #92400e;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-right: 3px solid #b45309 !important;
 }
 
-.timesheet-table tr.weekend td {
-    background: #fffbeb;
+/* Alternating row colors for better distinction */
+.timesheet-table tbody tr:nth-child(odd) td:not(.day-cell) {
+    background: #ffffff;
+}
+
+.timesheet-table tbody tr:nth-child(even) td:not(.day-cell) {
+    background: #f8fafc;
+}
+
+.timesheet-table tr.weekend td:not(.day-cell) {
+    background: #fef9e7 !important;
+}
+
+.timesheet-table tr.weekend:nth-child(even) td:not(.day-cell) {
+    background: #fef3c7 !important;
+}
+
+/* Visual separator between days */
+.timesheet-table tbody tr:first-child td,
+.timesheet-table tbody tr.day-start td {
+    border-top: 2px solid #cbd5e1 !important;
 }
 
 .timesheet-table .slot-cell {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    min-width: 50px;
+    font-size: 0.8rem;
+    color: #64748b;
+    min-width: 55px;
+    font-weight: 500;
+    background: #f1f5f9 !important;
+    border-left: 1px solid #e2e8f0;
 }
 
 .timesheet-table .hours-cell {
     padding: 0;
+    position: relative;
 }
 
 .timesheet-table .hours-input {
     width: 100%;
     border: none;
-    padding: 0.4rem;
+    padding: 0.5rem;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     background: transparent;
+    transition: all 0.2s;
 }
 
 .timesheet-table .hours-input:focus {
-    outline: 2px solid var(--primary);
-    background: white;
+    outline: none;
+    background: #e0f2fe;
+    box-shadow: inset 0 0 0 2px var(--primary);
 }
 
 .timesheet-table .hours-input.has-value {
     background: #dcfce7;
-    font-weight: 600;
+    font-weight: 700;
+    color: #166534;
 }
 
 .timesheet-table.timesheet-checkbox .check-cell {
-    padding: 0.2rem;
+    padding: 0.3rem;
     text-align: center;
 }
 
 .timesheet-table .ts-checkbox {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
-    accent-color: var(--primary);
+    accent-color: #22c55e;
+    border-radius: 4px;
 }
 
 .timesheet-table .ts-checkbox:checked {
-    background: var(--primary);
+    background: #22c55e;
+    box-shadow: 0 0 0 2px #bbf7d0;
+}
+
+.timesheet-table .ts-checkbox:hover {
+    transform: scale(1.1);
 }
 
 .timesheet-table .total-cell {
-    background: #f1f5f9;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+    color: white;
+    font-weight: 700;
+    min-width: 55px;
+    font-size: 0.9rem;
+}
+
+/* Day header row styling */
+.timesheet-table thead th {
+    background: #1e293b;
+    color: white;
     font-weight: 600;
-    min-width: 50px;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 2px solid #0f172a;
 }
 
 /* Contractors list */
@@ -1870,4 +2001,325 @@ select {
 
 .global-log-output.active {
     display: block;
+}
+
+/* =============================================================================
+   Git Timesheet Styles
+   ============================================================================= */
+
+.git-timesheet-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.git-scan-form .form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.git-scan-form .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.git-scan-form .form-actions {
+    flex: 0;
+    min-width: auto;
+}
+
+.git-scan-results {
+    margin-top: 1rem;
+}
+
+.git-scan-summary {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.git-repos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.git-repo-item {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.git-repo-item .repo-name {
+    font-weight: 500;
+    min-width: 150px;
+}
+
+.git-repo-item .repo-path {
+    flex: 1;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.git-repo-item .repo-stats {
+    font-size: 0.8rem;
+    color: var(--primary);
+}
+
+/* Authors */
+.git-authors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.git-author-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.git-author-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.git-author-item input[type="checkbox"] {
+    margin-top: 0.25rem;
+}
+
+.git-author-item .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.git-author-item .commit-count {
+    font-size: 0.8rem;
+    color: var(--primary);
+}
+
+.author-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Mapping Table */
+.git-mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.git-mapping-table th,
+.git-mapping-table td {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.git-mapping-table th {
+    background: var(--bg-tertiary);
+    font-weight: 500;
+}
+
+.git-mapping-table .path-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+}
+
+.git-mapping-table .check-cell {
+    text-align: center;
+    width: 80px;
+}
+
+/* Commits Preview */
+.git-commits-stats {
+    display: flex;
+    gap: 2rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.git-commits-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.git-commits-day {
+    margin-bottom: 1rem;
+}
+
+.commit-date-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.commit-date-header .commit-count {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.commit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 1rem;
+}
+
+.commit-item {
+    display: grid;
+    grid-template-columns: 50px 100px 60px 1fr 120px;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.commit-item .commit-time {
+    color: var(--text-secondary);
+    font-family: monospace;
+}
+
+.commit-item .commit-repo {
+    color: var(--primary);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.commit-item .commit-hash {
+    font-family: monospace;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.commit-item .commit-msg {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.commit-item .commit-author {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+.more-commits, .more-days, .more-entries {
+    padding: 0.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* Generated Timesheet */
+.git-timesheet-summary {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.summary-stat {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.5rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+}
+
+.summary-stat strong {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.summary-stat span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.git-entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.git-entry-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.git-entry-item .entry-date {
+    font-weight: 500;
+    min-width: 100px;
+}
+
+.git-entry-item .entry-slot {
+    min-width: 80px;
+    color: var(--text-secondary);
+}
+
+.git-entry-item .entry-hours {
+    min-width: 40px;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.git-success-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.loading {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-secondary);
 }
