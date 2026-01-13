@@ -3603,6 +3603,7 @@ async function generateGitTimesheet() {
 
 // ==================== DOCUMENT GENERATOR ====================
 let docTemplatesCache = [];
+let docProjectsCache = [];
 let currentDocCategory = '';
 
 async function loadDocTemplates() {
@@ -3613,13 +3614,14 @@ async function loadDocTemplates() {
         
         // Load filter options
         const filterResult = await apiCall('/doc-generator/filter-options');
+        docProjectsCache = filterResult.projects || [];
         
         const projectSelect = document.getElementById('docgen-project-filter');
         if (projectSelect && filterResult.projects) {
             const currentVal = projectSelect.value;
             projectSelect.innerHTML = '<option value="">-- Wszystkie projekty --</option>';
             filterResult.projects.forEach(p => {
-                projectSelect.innerHTML += `<option value="${p.id}">${p.name || p.code}</option>`;
+                projectSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
             });
             projectSelect.value = currentVal || PROJECT_ID;
         }
@@ -3782,6 +3784,17 @@ async function openDocGenerateModal(templateId) {
     const year = document.getElementById('docgen-year-filter')?.value || new Date().getFullYear();
     const month = document.getElementById('docgen-month-filter')?.value || '';
     
+    // Build project options from cache
+    let projectOptions = '';
+    if (docProjectsCache.length > 0) {
+        docProjectsCache.forEach(p => {
+            const selected = p.id === projectId ? 'selected' : '';
+            projectOptions += `<option value="${p.id}" ${selected}>${p.name}</option>`;
+        });
+    } else {
+        projectOptions = `<option value="${projectId}" selected>Projekt</option>`;
+    }
+    
     // Create or show generate modal
     let modal = document.getElementById('doc-generate-modal');
     if (!modal) {
@@ -3804,7 +3817,7 @@ async function openDocGenerateModal(templateId) {
             <div class="form-group">
                 <label>Projekt:</label>
                 <select id="docgen-form-project" required>
-                    <option value="${projectId}" selected>Wybrany projekt</option>
+                    ${projectOptions}
                 </select>
             </div>
             <div class="form-group">
