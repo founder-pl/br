@@ -603,6 +603,8 @@ async function loadExpenses() {
                     <td>
                         ${e.document_id ? `<button class="btn btn-small btn-outline" onclick="showDocumentDetail('${e.document_id}')" title="Pokaż dokument">📄</button>` : ''}
                         <button class="btn btn-small btn-secondary" onclick="${isRev ? 'showRevenueDetails' : 'showExpenseDetails'}('${e.id}')">Szczegóły</button>
+                        ${!isRev ? `<button class="btn btn-small btn-primary" onclick="convertToRevenue('${e.id}')" title="Oznacz jako przychód">📥</button>` : 
+                                   `<button class="btn btn-small btn-warning" onclick="convertToExpense('${e.id}')" title="Oznacz jako wydatek">📤</button>`}
                         <button class="btn btn-small btn-danger" onclick="${isRev ? 'deleteRevenue' : 'deleteExpense'}('${e.id}')" title="Usuń">🗑️</button>
                     </td>
                 </tr>`;
@@ -631,6 +633,46 @@ async function showRevenueDetails(revenueId) {
 async function deleteRevenue(revenueId) {
     if (!confirm('Czy na pewno chcesz usunąć ten przychód?')) return;
     showToast('Usuwanie przychodów - do implementacji', 'info');
+}
+
+async function convertToRevenue(expenseId) {
+    if (!confirm('Czy na pewno chcesz przekształcić ten wydatek w przychód?')) return;
+    
+    try {
+        const result = await apiCall(`/expenses/invoices/${expenseId}/reclassify?from_type=expense&to_type=revenue&reason=manual_conversion`, {
+            method: 'POST'
+        });
+        
+        if (result.success) {
+            showToast(`Przekształcono w przychód (ID: ${result.new_id})`, 'success');
+            loadExpenses();
+        } else {
+            showToast(result.error || 'Błąd konwersji', 'error');
+        }
+    } catch (e) {
+        console.error('Error converting to revenue:', e);
+        showToast('Błąd przekształcania w przychód', 'error');
+    }
+}
+
+async function convertToExpense(revenueId) {
+    if (!confirm('Czy na pewno chcesz przekształcić ten przychód w wydatek?')) return;
+    
+    try {
+        const result = await apiCall(`/expenses/invoices/${revenueId}/reclassify?from_type=revenue&to_type=expense&reason=manual_conversion`, {
+            method: 'POST'
+        });
+        
+        if (result.success) {
+            showToast(`Przekształcono w wydatek (ID: ${result.new_id})`, 'success');
+            loadExpenses();
+        } else {
+            showToast(result.error || 'Błąd konwersji', 'error');
+        }
+    } catch (e) {
+        console.error('Error converting to expense:', e);
+        showToast('Błąd przekształcania w wydatek', 'error');
+    }
 }
 
 // Bulk selection functions

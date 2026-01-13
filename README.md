@@ -1,7 +1,7 @@
 ![img.png](img.png)
 # System B+R - Prototypowy System Modularny
 
-System automatyzacji dokumentacji B+R i IP Box dla **Tomasz Sapletta** (NIP: 5881918662, PKD: 72.10.Z)
+System automatyzacji dokumentacji B+R i IP Box dla Polskich firm
 
 ## 🎯 Funkcjonalności
 
