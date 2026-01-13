@@ -58,7 +58,8 @@ function navigateTo(page, options = {}) {
     const loaders = { dashboard: loadDashboard, upload: () => { setupUploadListeners(); loadRecentDocuments(); }, 
                       projects: loadProjects, expenses: () => { loadProjectsForFilter(); loadExpenses(); },
                       reports: loadReports, clarifications: loadClarifications, timesheet: initTimesheet,
-                      integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig };
+                      integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig,
+                      'git-timesheet': initGitTimesheet };
     if (loaders[page]) loaders[page]();
     
     // Stop log streams when leaving logs page
@@ -187,7 +188,8 @@ async function loadDashboardModules() {
     try {
         const summary = await apiCall(`/projects/${PROJECT_ID}/summary`);
         dashboardData = summary;
-        document.getElementById('clarification-badge').textContent = summary.needs_clarification || 0;
+        const badge = document.getElementById('clarification-badge');
+        if (badge) badge.textContent = summary.needs_clarification || 0;
         
         // Update stat modules
         dashboardLayout.forEach(moduleId => {
@@ -725,21 +727,46 @@ async function loadExpenses() {
     try {
         const typeFilter = document.getElementById('expense-filter-type')?.value || 'expense';
         const projectFilter = document.getElementById('expense-filter-project')?.value;
-        const status = document.getElementById('expense-filter-status').value;
-        const brQualified = document.getElementById('expense-filter-br').value;
+        const status = document.getElementById('expense-filter-status')?.value;
+        const brQualified = document.getElementById('expense-filter-br')?.value;
+        const yearFilter = document.getElementById('expense-filter-year')?.value;
+        const monthFilter = document.getElementById('expense-filter-month')?.value;
         
-        // Update page title based on type
+        // Restore from URL params on first load
+        const urlYear = getUrlParam('year');
+        const urlMonth = getUrlParam('month');
+        if (urlYear && document.getElementById('expense-filter-year')) {
+            document.getElementById('expense-filter-year').value = urlYear;
+        }
+        if (urlMonth && document.getElementById('expense-filter-month')) {
+            document.getElementById('expense-filter-month').value = urlMonth;
+        }
+        
+        const year = urlYear || yearFilter;
+        const month = urlMonth || monthFilter;
+        
+        // Update page title based on type and filters
         const titleEl = document.getElementById('expenses-page-title');
         if (titleEl) {
-            titleEl.textContent = typeFilter === 'revenue' ? '📥 Przychody (IP Box)' : 
-                                  typeFilter === 'all' ? '📊 Wszystkie faktury' : '📤 Wydatki B+R';
+            let title = typeFilter === 'revenue' ? '📥 Przychody (IP Box)' : 
+                        typeFilter === 'all' ? '📊 Wszystkie faktury' : '📤 Wydatki B+R';
+            if (year && month) {
+                const monthNames = ['', 'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 
+                                   'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+                title += ` - ${monthNames[parseInt(month)]} ${year}`;
+            } else if (year) {
+                title += ` - ${year}`;
+            }
+            titleEl.textContent = title;
         }
         
         let items = [];
         
         // Load expenses
         if (typeFilter === 'expense' || typeFilter === 'all') {
-            let expUrl = `/expenses/?year=${currentFiscalYear}`;
+            let expUrl = `/expenses/?limit=500`;
+            if (year) expUrl += `&year=${year}`;
+            if (month) expUrl += `&month=${month}`;
             if (projectFilter) expUrl += `&project_id=${projectFilter}`;
             if (status) expUrl += `&status=${status}`;
             if (brQualified) expUrl += `&br_qualified=${brQualified}`;
@@ -1039,6 +1066,7 @@ async function loadReports() {
                     <td class="ip-qualified">${formatCurrency(m.ip_qualified || 0)}</td>
                     <td>${m.nexus_ratio ? (m.nexus_ratio * 100).toFixed(1) + '%' : '-'}</td>
                     <td>
+                        <button class="btn btn-small btn-primary" onclick="viewMonthExpenses(${year}, ${m.month})" title="Wydatki miesiąca">💰</button>
                         <button class="btn btn-small btn-outline" onclick="showMonthDetails(${year}, ${m.month})" title="Szczegóły">📋</button>
                         <button class="btn btn-small btn-secondary" onclick="regenerateMonthReport(${year}, ${m.month})" title="Regeneruj">🔄</button>
                     </td>
@@ -1107,6 +1135,25 @@ async function loadMonthlyDetails(year) {
         console.error('Error loading monthly details:', e);
         return [];
     }
+}
+
+function viewMonthExpenses(year, month) {
+    // Navigate to expenses page with year/month filter
+    navigateTo('expenses');
+    // Set URL params and update filters after navigation
+    setTimeout(() => {
+        const yearSelect = document.getElementById('expense-filter-year');
+        const monthSelect = document.getElementById('expense-filter-month');
+        if (yearSelect) yearSelect.value = year.toString();
+        if (monthSelect) monthSelect.value = month.toString();
+        // Update URL
+        const url = new URL(window.location);
+        url.searchParams.set('page', 'expenses');
+        url.searchParams.set('year', year);
+        url.searchParams.set('month', month);
+        history.pushState({}, '', url);
+        loadExpenses();
+    }, 100);
 }
 
 async function showMonthDetails(year, month) {
@@ -2838,6 +2885,22 @@ let gitSelectedRepos = [];
 let gitCommitsData = [];
 let gitProjectMappings = {};
 
+async function initGitTimesheet() {
+    console.log('[Git Timesheet] initGitTimesheet called');
+    // Load workers for the git-timesheet worker select
+    try {
+        const workers = await apiCall('/timesheet/workers');
+        const select = document.getElementById('git-timesheet-worker');
+        if (select) {
+            select.innerHTML = '<option value="">-- Wybierz pracownika --</option>' +
+                workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            console.log('[Git Timesheet] Loaded workers:', workers.length);
+        }
+    } catch (e) {
+        console.error('[Git Timesheet] Error loading workers:', e);
+    }
+}
+
 async function scanGitRepos() {
     const folderPath = document.getElementById('git-folder-path').value;
     const depth = parseInt(document.getElementById('git-scan-depth').value);
@@ -2948,6 +3011,7 @@ function selectAllGitAuthors(select) {
 
 async function displayGitRepoMapping() {
     const container = document.getElementById('git-repo-mapping');
+    console.log('[Git Timesheet] displayGitRepoMapping called, gitScanResults:', gitScanResults?.repositories?.length || 0);
     
     if (!gitScanResults || !gitScanResults.repositories) {
         container.innerHTML = '<p class="empty-state">Najpierw wykonaj skanowanie</p>';
@@ -2957,8 +3021,9 @@ async function displayGitRepoMapping() {
     let projects = [];
     try {
         projects = await apiCall('/projects/');
+        console.log('[Git Timesheet] Loaded projects:', projects.length);
     } catch (e) {
-        console.error('Error loading projects:', e);
+        console.error('[Git Timesheet] Error loading projects:', e);
     }
     
     if (projects.length === 0) {
@@ -2966,13 +3031,26 @@ async function displayGitRepoMapping() {
         return;
     }
     
+    // Store projects for select all functionality
+    window.gitProjects = projects;
+    
     let html = `
         <table class="git-mapping-table">
             <thead>
                 <tr>
                     <th>Repozytorium Git</th>
                     <th>Ścieżka</th>
-                    ${projects.map(p => `<th class="project-col" title="${p.name}">${p.name.substring(0, 15)}${p.name.length > 15 ? '..' : ''}</th>`).join('')}
+                    ${projects.map(p => `
+                        <th class="project-col" title="${p.name}">
+                            <div class="project-header">
+                                <input type="checkbox" 
+                                       id="select-all-${p.id}" 
+                                       onchange="selectAllReposForProject('${p.id}')"
+                                       title="Zaznacz wszystkie">
+                                <span>${p.name.substring(0, 12)}${p.name.length > 12 ? '..' : ''}</span>
+                            </div>
+                        </th>
+                    `).join('')}
                 </tr>
             </thead>
             <tbody>
@@ -2988,6 +3066,7 @@ async function displayGitRepoMapping() {
                     <td class="check-cell">
                         <input type="radio" name="repo-${safeRepoId}" 
                                value="${p.id}" data-repo="${repo.path}"
+                               class="repo-radio-${p.id}"
                                onchange="updateGitProjectMapping(this.dataset.repo, '${p.id}')">
                     </td>
                 `).join('')}
@@ -3002,6 +3081,38 @@ async function displayGitRepoMapping() {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     document.getElementById('git-date-since').value = lastMonth.toISOString().split('T')[0];
     document.getElementById('git-date-until').value = now.toISOString().split('T')[0];
+}
+
+function selectAllReposForProject(projectId) {
+    const checkbox = document.getElementById(`select-all-${projectId}`);
+    const radios = document.querySelectorAll(`.repo-radio-${projectId}`);
+    console.log(`[Git Timesheet] selectAllReposForProject: ${projectId}, checked: ${checkbox.checked}, radios: ${radios.length}`);
+    
+    if (checkbox.checked) {
+        // Uncheck other project checkboxes
+        window.gitProjects?.forEach(p => {
+            if (p.id !== projectId) {
+                const otherCheckbox = document.getElementById(`select-all-${p.id}`);
+                if (otherCheckbox) otherCheckbox.checked = false;
+            }
+        });
+        
+        // Select all radios for this project
+        radios.forEach(radio => {
+            radio.checked = true;
+            updateGitProjectMapping(radio.dataset.repo, projectId);
+        });
+    } else {
+        // Deselect all radios for this project
+        radios.forEach(radio => {
+            if (radio.checked) {
+                radio.checked = false;
+                delete gitProjectMappings[radio.dataset.repo];
+            }
+        });
+    }
+    checkGitTimesheetReady();
+    console.log(`[Git Timesheet] Project mappings count: ${Object.keys(gitProjectMappings).length}`);
 }
 
 function updateGitProjectMapping(repoPath, projectId) {
@@ -3096,6 +3207,9 @@ async function loadGitCommits() {
 }
 
 async function generateGitTimesheet() {
+    console.log('[Git Timesheet] generateGitTimesheet called');
+    console.log('[Git Timesheet] commits:', gitCommitsData.length, 'mappings:', Object.keys(gitProjectMappings).length);
+    
     if (gitCommitsData.length === 0) {
         showToast('Najpierw pobierz commity', 'error');
         return;
@@ -3106,10 +3220,17 @@ async function generateGitTimesheet() {
         return;
     }
     
-    const workerSelect = document.getElementById('timesheet-worker');
-    const workerId = workerSelect ? workerSelect.value : null;
+    // Try git-timesheet worker first, then fallback to timesheet-worker
+    let workerSelect = document.getElementById('git-timesheet-worker');
+    let workerId = workerSelect?.value;
     if (!workerId) {
-        showToast('Najpierw wybierz pracownika w zakładce Harmonogram prac', 'error');
+        workerSelect = document.getElementById('timesheet-worker');
+        workerId = workerSelect?.value;
+    }
+    console.log('[Git Timesheet] workerId:', workerId);
+    
+    if (!workerId) {
+        showToast('Wybierz pracownika z listy w nagłówku strony', 'error');
         return;
     }
     

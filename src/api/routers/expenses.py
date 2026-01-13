@@ -490,6 +490,7 @@ async def delete_expense(expense_id: str, db: AsyncSession = Depends(get_db)):
         text("DELETE FROM read_models.expenses WHERE id = :id"),
         {"id": expense_id}
     )
+    await db.commit()
     
     logger.info("Expense deleted", expense_id=expense_id)
     return {"status": "deleted", "expense_id": expense_id}

@@ -182,23 +182,41 @@
                             <option value="revenue">📥 Przychody (sprzedaż)</option>
                             <option value="all">📊 Wszystkie faktury</option>
                         </select>
+                        <select id="expense-filter-year" onchange="loadExpenses()">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="">Wszystkie lata</option>
+                        </select>
+                        <select id="expense-filter-month" onchange="loadExpenses()">
+                            <option value="">Wszystkie miesiące</option>
+                            <option value="1">Styczeń</option>
+                            <option value="2">Luty</option>
+                            <option value="3">Marzec</option>
+                            <option value="4">Kwiecień</option>
+                            <option value="5">Maj</option>
+                            <option value="6">Czerwiec</option>
+                            <option value="7">Lipiec</option>
+                            <option value="8">Sierpień</option>
+                            <option value="9">Wrzesień</option>
+                            <option value="10">Październik</option>
+                            <option value="11">Listopad</option>
+                            <option value="12">Grudzień</option>
+                        </select>
                         <select id="expense-filter-project" onchange="loadExpenses()">
                             <option value="">Wszystkie projekty</option>
                         </select>
-                        <select id="expense-filter-status">
+                        <select id="expense-filter-status" onchange="loadExpenses()">
                             <option value="">Wszystkie statusy</option>
                             <option value="draft">Szkic</option>
                             <option value="classified">Sklasyfikowane</option>
                             <option value="approved">Zatwierdzone</option>
                         </select>
-                        <select id="expense-filter-br">
+                        <select id="expense-filter-br" onchange="loadExpenses()">
                             <option value="">B+R: Wszystkie</option>
                             <option value="true">Kwalifikowane</option>
                             <option value="false">Niekwalifikowane</option>
                         </select>
-                        <button class="btn btn-secondary" onclick="loadExpenses()">
-                            Odśwież
-                        </button>
                     </div>
                 </header>
                 
@@ -282,6 +300,9 @@
                 <header class="page-header">
                     <h2>Harmonogram z historii Git</h2>
                     <div class="header-actions">
+                        <select id="git-timesheet-worker" class="worker-select">
+                            <option value="">-- Wybierz pracownika --</option>
+                        </select>
                         <button class="btn btn-primary" onclick="generateGitTimesheet()" id="btn-generate-git-ts" disabled>
                             📊 Generuj harmonogram
                         </button>
@@ -919,6 +940,6 @@
     <!-- Toast notifications -->
     <div id="toast-container"></div>
 
-    <script src="static/js/app.js?v=20260113c"></script>
+    <script src="static/js/app.js?v=20260113f"></script>
 </body>
 </html>

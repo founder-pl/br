@@ -2593,3 +2593,24 @@ select {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* Git Timesheet enhancements */
+.project-header {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.project-header input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.worker-select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    min-width: 180px;
+}
