@@ -5,9 +5,23 @@ Contains validators for invoices, currency conversion, and expense justification
 
 from .invoice_validator import InvoiceValidator, InvoiceValidationResult
 from .currency_converter import CurrencyConverter
+from .expense_pipeline import (
+    ExpenseValidationPipeline,
+    ValidationResult,
+    ValidationIssue,
+    ValidationSeverity,
+    ValidationCategory,
+    get_validation_pipeline,
+)
 
 __all__ = [
     "InvoiceValidator",
     "InvoiceValidationResult", 
     "CurrencyConverter",
+    "ExpenseValidationPipeline",
+    "ValidationResult",
+    "ValidationIssue",
+    "ValidationSeverity",
+    "ValidationCategory",
+    "get_validation_pipeline",
 ]

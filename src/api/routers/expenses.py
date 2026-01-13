@@ -222,6 +222,51 @@ async def create_expense(
 # Validation Endpoints (P0 - Critical) - MUST be before /{expense_id} routes
 # =============================================================================
 
+@router.post("/validate-pipeline")
+async def validate_expense_pipeline(expense_data: dict):
+    """
+    P2: Run comprehensive validation pipeline on expense data.
+    Returns quality score and all validation issues.
+    """
+    from ..validators.expense_pipeline import get_validation_pipeline
+    
+    pipeline = get_validation_pipeline()
+    result = pipeline.validate(expense_data)
+    
+    logger.info("Pipeline validation", score=result.score, errors=len(result.errors))
+    
+    return result.to_dict()
+
+
+@router.post("/categorize")
+async def categorize_expense(
+    description: str = Query(...),
+    vendor_name: Optional[str] = Query(default=None),
+    amount: Optional[float] = Query(default=None)
+):
+    """
+    P2: Automatically categorize expense for B+R qualification.
+    Uses keyword matching and optional LLM fallback.
+    """
+    from ..services.expense_categorizer import get_expense_categorizer
+    
+    categorizer = get_expense_categorizer()
+    result = categorizer.categorize(description, vendor_name, amount)
+    
+    logger.info("Expense categorized", 
+                category=result.category.value, 
+                confidence=result.confidence)
+    
+    return {
+        "category": result.category.value,
+        "confidence": result.confidence,
+        "keywords_matched": result.keywords_matched,
+        "reason": result.reason,
+        "is_br_qualified": result.is_br_qualified,
+        "deduction_rate": result.deduction_rate
+    }
+
+
 @router.post("/validate-invoice")
 async def validate_invoice_number(invoice_number: str = Query(...)):
     """

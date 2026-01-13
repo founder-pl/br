@@ -47,29 +47,73 @@ async def lifespan(app: FastAPI):
     await close_database()
 
 
+# OpenAPI Tags
+openapi_tags = [
+    {"name": "Autoryzacja", "description": "Autentykacja i zarządzanie użytkownikami"},
+    {"name": "Dokumenty", "description": "Upload, OCR i przetwarzanie dokumentów finansowych"},
+    {"name": "Wydatki B+R", "description": "Ewidencja i klasyfikacja kosztów B+R oraz IP Box"},
+    {"name": "Projekty", "description": "Zarządzanie projektami badawczo-rozwojowymi"},
+    {"name": "Raporty", "description": "Generowanie raportów miesięcznych i rocznych dla US"},
+    {"name": "Wyjaśnienia", "description": "System pytań i odpowiedzi dla niejasnych wydatków"},
+    {"name": "Integracje", "description": "KSeF, JPK_V7M, systemy księgowe i cloud storage"},
+    {"name": "Logi", "description": "Streaming logów z kontenerów Docker"},
+    {"name": "Konfiguracja", "description": "Ustawienia systemowe i parametry"},
+    {"name": "Harmonogram", "description": "Rejestr czasu pracy pracowników B+R"},
+    {"name": "Harmonogram Git", "description": "Generowanie ewidencji z commitów Git"},
+]
+
 # Create FastAPI app
 app = FastAPI(
     title="System B+R - API",
     description=f"""
-    System zarządzania dokumentacją B+R dla **{settings.COMPANY_NAME}** (NIP: {settings.COMPANY_NIP})
-    
-    ## Funkcjonalności
-    
-    * **Dokumenty** - Upload i OCR dokumentów finansowych
-    * **Wydatki** - Klasyfikacja kosztów B+R i IP Box
-    * **Przychody** - Ewidencja przychodów z kwalifikowanych IP
-    * **Raporty** - Generowanie raportów miesięcznych dla US
-    * **Wyjaśnienia** - System pytań i odpowiedzi dla niejasności
-    
-    ## Projekt B+R
-    
-    Aktywny projekt: **{settings.PROJECT_NAME}**
-    Rok podatkowy: {settings.FISCAL_YEAR}
+## System zarządzania dokumentacją B+R
+
+**Firma:** {settings.COMPANY_NAME} (NIP: {settings.COMPANY_NIP})  
+**Projekt:** {settings.PROJECT_NAME}  
+**Rok podatkowy:** {settings.FISCAL_YEAR}
+
+### Główne funkcjonalności
+
+| Moduł | Opis |
+|-------|------|
+| **Dokumenty** | Upload i OCR dokumentów finansowych (faktury, rachunki) |
+| **Wydatki** | Klasyfikacja kosztów B+R i IP Box z walidacją |
+| **Przychody** | Ewidencja przychodów z kwalifikowanych praw IP |
+| **Raporty** | Generowanie raportów miesięcznych/rocznych dla US |
+| **Harmonogram** | Dzienny rejestr czasu pracy z integracją Git |
+| **Integracje** | KSeF, JPK_V7M, systemy księgowe |
+
+### Endpoints walidacji (P0-P2)
+
+- `POST /expenses/validate-pipeline` - Kompleksowa walidacja wydatku
+- `POST /expenses/categorize` - Automatyczna kategoryzacja B+R
+- `POST /expenses/validate-invoice` - Walidacja numeru faktury
+- `POST /expenses/convert-currency` - Konwersja walut (NBP)
+
+### Endpoints integracji (P3)
+
+- `POST /integrations/ksef/import` - Import faktur z KSeF
+- `POST /integrations/jpk/generate` - Generowanie JPK_V7M
+- `GET /integrations/jpk/download` - Pobieranie pliku JPK
+
+### Architektura
+
+System wykorzystuje **CQRS** (Command Query Responsibility Segregation) 
+z **Event Sourcing** dla pełnego audit trail.
     """,
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    openapi_tags=openapi_tags,
+    contact={
+        "name": "System B+R Support",
+        "email": "support@example.com"
+    },
+    license_info={
+        "name": "Proprietary",
+        "url": "https://example.com/license"
+    }
 )
 
 # CORS middleware

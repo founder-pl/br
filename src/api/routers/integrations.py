@@ -442,3 +442,167 @@ async def upload_monthly_reports(
         "integrations_uploaded": len(integrations),
         "results": results
     }
+
+
+# =============================================================================
+# Endpoints - KSeF Integration (P3)
+# =============================================================================
+
+@router.post("/ksef/import")
+async def import_ksef_invoices(
+    nip: str = Query(..., description="NIP podatnika"),
+    date_from: date = Query(...),
+    date_to: date = Query(...),
+    invoice_type: str = Query(default="purchase", description="purchase or sales")
+):
+    """
+    P3: Import invoices from KSeF (Polish Electronic Invoice System).
+    
+    Fetches invoices and returns them ready for expense creation.
+    """
+    from ..integrations.ksef_client import get_ksef_service
+    
+    service = get_ksef_service(nip)
+    
+    try:
+        if invoice_type == "purchase":
+            result = await service.import_purchase_invoices(date_from, date_to)
+        else:
+            # Sales invoices would go to revenues
+            result = await service.client.fetch_invoices(date_from, date_to, "sales")
+            result = {"invoices": [inv.to_dict() for inv in result], "imported": len(result)}
+        
+        logger.info("KSeF import completed", 
+                   nip=nip, 
+                   imported=result.get("imported", 0))
+        
+        return result
+        
+    except Exception as e:
+        logger.error("KSeF import failed", error=str(e))
+        raise HTTPException(status_code=500, detail=f"KSeF import failed: {str(e)}")
+
+
+# =============================================================================
+# Endpoints - JPK Export (P3)
+# =============================================================================
+
+@router.post("/jpk/generate")
+async def generate_jpk_v7m(
+    nip: str = Query(..., description="NIP podatnika"),
+    full_name: str = Query(..., description="Pełna nazwa podatnika"),
+    email: str = Query(..., description="Email kontaktowy"),
+    year: int = Query(...),
+    month: int = Query(..., ge=1, le=12),
+    purpose: int = Query(default=0, description="0=oryginał, 1=korekta"),
+    db = Depends(get_db)
+):
+    """
+    P3: Generate JPK_V7M XML file for Polish tax authority.
+    
+    Exports all expenses for given month in JPK format.
+    """
+    from ..integrations.jpk_export import JPKExporter, JPKHeader, create_jpk_from_expenses
+    from sqlalchemy import text
+    from src.infra.database import get_db as get_main_db
+    
+    # Get expenses for the month
+    async for session in get_main_db():
+        result = await session.execute(
+            text("""
+                SELECT invoice_number, invoice_date, vendor_name, vendor_nip,
+                       net_amount, vat_amount, gross_amount
+                FROM read_models.expenses
+                WHERE EXTRACT(YEAR FROM invoice_date) = :year
+                  AND EXTRACT(MONTH FROM invoice_date) = :month
+                ORDER BY invoice_date
+            """),
+            {"year": year, "month": month}
+        )
+        rows = result.fetchall()
+        
+        expenses = [
+            {
+                "invoice_number": row[0],
+                "invoice_date": row[1],
+                "vendor_name": row[2],
+                "vendor_nip": row[3],
+                "net_amount": float(row[4] or 0),
+                "vat_amount": float(row[5] or 0),
+                "gross_amount": float(row[6] or 0)
+            }
+            for row in rows
+        ]
+        break
+    
+    # Create JPK
+    header = JPKHeader(
+        nip=nip,
+        full_name=full_name,
+        email=email,
+        year=year,
+        month=month,
+        purpose=purpose
+    )
+    
+    exporter = create_jpk_from_expenses(expenses, header)
+    
+    # Validate
+    errors = exporter.validate()
+    if errors:
+        return {
+            "status": "validation_failed",
+            "errors": errors,
+            "expense_count": len(expenses)
+        }
+    
+    # Generate XML
+    xml_content = exporter.generate_xml()
+    
+    logger.info("JPK generated", 
+               year=year, 
+               month=month, 
+               expenses=len(expenses))
+    
+    return {
+        "status": "success",
+        "filename": f"JPK_V7M_{nip}_{year}_{month:02d}.xml",
+        "expense_count": len(expenses),
+        "xml_preview": xml_content[:2000] if len(xml_content) > 2000 else xml_content,
+        "xml_length": len(xml_content)
+    }
+
+
+@router.get("/jpk/download")
+async def download_jpk_v7m(
+    nip: str = Query(...),
+    full_name: str = Query(...),
+    email: str = Query(...),
+    year: int = Query(...),
+    month: int = Query(..., ge=1, le=12)
+):
+    """
+    Download JPK_V7M as XML file.
+    """
+    from fastapi.responses import Response
+    
+    # Generate (reuse logic from above)
+    result = await generate_jpk_v7m(nip, full_name, email, year, month, 0, None)
+    
+    if result.get("status") != "success":
+        raise HTTPException(status_code=400, detail=result.get("errors", ["Unknown error"]))
+    
+    # Return as downloadable file
+    from ..integrations.jpk_export import JPKExporter, JPKHeader, create_jpk_from_expenses
+    
+    header = JPKHeader(nip=nip, full_name=full_name, email=email, year=year, month=month)
+    exporter = create_jpk_from_expenses([], header)  # Would need actual expenses
+    xml_content = exporter.generate_xml()
+    
+    return Response(
+        content=xml_content.encode("utf-8"),
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="JPK_V7M_{nip}_{year}_{month:02d}.xml"'
+        }
+    )

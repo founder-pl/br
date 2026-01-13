@@ -188,10 +188,10 @@ litellm_settings:
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
   
-  # Database for spend tracking
-  database_url: os.environ/DATABASE_URL
+  # Database for spend tracking (disabled - causes issues)
+  # database_url: os.environ/DATABASE_URL
   
-  # Alerting
-  alerting:
-    - slack
-  alerting_threshold: 50  # Alert when budget reaches 50%
+  # Alerting disabled (no SLACK_WEBHOOK_URL configured)
+  # alerting:
+  #   - slack
+  # alerting_threshold: 50

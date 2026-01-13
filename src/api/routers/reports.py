@@ -324,3 +324,189 @@ async def get_annual_ip_box_summary(
         nexus_ratio=nexus_ratio, qualified_income=qualified_income,
         tax_5_percent=qualified_income * 0.05
     )
+
+
+# =============================================================================
+# Excel Export Endpoints (P3)
+# =============================================================================
+
+@router.get("/export/expenses")
+async def export_expenses_excel(
+    year: int = Query(...),
+    month: Optional[int] = Query(default=None),
+    project_id: str = Query(default="00000000-0000-0000-0000-000000000001"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    P3: Export expenses to Excel file.
+    
+    Returns downloadable .xlsx file with all expenses.
+    """
+    from fastapi.responses import Response
+    from ..services.excel_exporter import get_excel_exporter
+    
+    # Build query
+    conditions = ["EXTRACT(YEAR FROM invoice_date) = :year"]
+    params = {"year": year}
+    
+    if month:
+        conditions.append("EXTRACT(MONTH FROM invoice_date) = :month")
+        params["month"] = month
+    
+    if project_id:
+        conditions.append("project_id = :project_id")
+        params["project_id"] = project_id
+    
+    where_clause = " AND ".join(conditions)
+    
+    result = await db.execute(
+        text(f"""
+            SELECT id, project_id, document_id, invoice_number, invoice_date,
+                   vendor_name, vendor_nip, net_amount, vat_amount, gross_amount,
+                   currency, expense_category, br_category, br_qualified,
+                   br_qualification_reason, br_deduction_rate, ip_qualified,
+                   ip_category, nexus_category, status
+            FROM read_models.expenses
+            WHERE {where_clause}
+            ORDER BY invoice_date
+        """),
+        params
+    )
+    
+    expenses = []
+    for row in result.fetchall():
+        expenses.append({
+            "id": str(row[0]),
+            "project_id": str(row[1]) if row[1] else None,
+            "document_id": str(row[2]) if row[2] else None,
+            "invoice_number": row[3],
+            "invoice_date": row[4].isoformat() if row[4] else None,
+            "vendor_name": row[5],
+            "vendor_nip": row[6],
+            "net_amount": float(row[7]) if row[7] else 0,
+            "vat_amount": float(row[8]) if row[8] else 0,
+            "gross_amount": float(row[9]) if row[9] else 0,
+            "currency": row[10],
+            "expense_category": row[11],
+            "br_category": row[12],
+            "br_qualified": row[13],
+            "br_qualification_reason": row[14],
+            "br_deduction_rate": float(row[15]) if row[15] else None,
+            "ip_qualified": row[16],
+            "ip_category": row[17],
+            "nexus_category": row[18],
+            "status": row[19]
+        })
+    
+    exporter = get_excel_exporter()
+    
+    period = f"{year}-{month:02d}" if month else str(year)
+    excel_bytes = exporter.export_expenses(expenses, f"Wydatki B+R {period}", year, month)
+    
+    filename = f"wydatki_br_{period}.xlsx"
+    
+    logger.info("Excel export", expenses=len(expenses), filename=filename)
+    
+    return Response(
+        content=excel_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.get("/export/monthly")
+async def export_monthly_report_excel(
+    year: int = Query(...),
+    month: int = Query(..., ge=1, le=12),
+    project_id: str = Query(default="00000000-0000-0000-0000-000000000001"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    P3: Export monthly B+R report to Excel.
+    
+    Creates multi-sheet workbook with summary, expenses, and revenues.
+    """
+    from fastapi.responses import Response
+    from ..services.excel_exporter import get_excel_exporter
+    
+    # Get expenses
+    exp_result = await db.execute(
+        text("""
+            SELECT id, project_id, document_id, invoice_number, invoice_date,
+                   vendor_name, vendor_nip, net_amount, vat_amount, gross_amount,
+                   currency, expense_category, br_category, br_qualified,
+                   br_qualification_reason, br_deduction_rate, ip_qualified,
+                   ip_category, nexus_category, status
+            FROM read_models.expenses
+            WHERE project_id = :project_id
+              AND EXTRACT(YEAR FROM invoice_date) = :year
+              AND EXTRACT(MONTH FROM invoice_date) = :month
+            ORDER BY invoice_date
+        """),
+        {"project_id": project_id, "year": year, "month": month}
+    )
+    
+    expenses = []
+    for row in exp_result.fetchall():
+        expenses.append({
+            "invoice_number": row[3],
+            "invoice_date": row[4].isoformat() if row[4] else None,
+            "vendor_name": row[5],
+            "vendor_nip": row[6],
+            "net_amount": float(row[7]) if row[7] else 0,
+            "vat_amount": float(row[8]) if row[8] else 0,
+            "gross_amount": float(row[9]) if row[9] else 0,
+            "currency": row[10],
+            "expense_category": row[11],
+            "br_category": row[12],
+            "br_qualified": row[13],
+            "br_qualification_reason": row[14],
+            "ip_qualified": row[16],
+            "nexus_category": row[18],
+            "status": row[19]
+        })
+    
+    # Get revenues
+    rev_result = await db.execute(
+        text("""
+            SELECT id, invoice_number, invoice_date, client_name, client_nip,
+                   net_amount, vat_amount, gross_amount, ip_qualified, ip_type
+            FROM read_models.revenues
+            WHERE project_id = :project_id
+              AND EXTRACT(YEAR FROM invoice_date) = :year
+              AND EXTRACT(MONTH FROM invoice_date) = :month
+            ORDER BY invoice_date
+        """),
+        {"project_id": project_id, "year": year, "month": month}
+    )
+    
+    revenues = []
+    for row in rev_result.fetchall():
+        revenues.append({
+            "invoice_number": row[1],
+            "invoice_date": row[2].isoformat() if row[2] else None,
+            "client_name": row[3],
+            "client_nip": row[4],
+            "net_amount": float(row[5]) if row[5] else 0,
+            "vat_amount": float(row[6]) if row[6] else 0,
+            "gross_amount": float(row[7]) if row[7] else 0,
+            "ip_qualified": row[8],
+            "ip_type": row[9]
+        })
+    
+    exporter = get_excel_exporter()
+    excel_bytes = exporter.export_monthly_report(
+        expenses, revenues, year, month,
+        settings.COMPANY_NAME, settings.PROJECT_NAME
+    )
+    
+    filename = f"raport_br_{year}_{month:02d}.xlsx"
+    
+    logger.info("Monthly Excel export", year=year, month=month, 
+               expenses=len(expenses), revenues=len(revenues))
+    
+    return Response(
+        content=excel_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )

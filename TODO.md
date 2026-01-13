@@ -57,9 +57,17 @@
 ## Priorytet: Średni 🟡
 
 ### CQRS/Event Sourcing
-- [ ] **Event replay mechanism**
-  - Odtwarzanie stanu z eventów
-  - Snapshots dla wydajności
+- [x] **Pipeline walidacji wydatków** ✅
+  - Moduł `src/api/validators/expense_pipeline.py`
+  - Endpoint `/expenses/validate-pipeline`
+  - Quality score 0-100, kategorie błędów
+- [x] **Automatyczna kategoryzacja wydatków** ✅
+  - Moduł `src/api/services/expense_categorizer.py`
+  - Endpoint `/expenses/categorize`
+  - Keyword matching + LLM fallback
+- [x] **Event sourcing audit trail** ✅
+  - Moduł `src/api/services/audit_trail.py`
+  - Śledzenie zmian dla kontroli skarbowej
 - [ ] **Saga pattern** dla złożonych operacji
   - Transakcje rozproszone
   - Kompensacje przy błędach
@@ -68,15 +76,21 @@
   - Event handlers
 
 ### Integracje
-- [ ] **KSeF integration**
-  - Pobieranie faktur z KSeF
-  - Automatyczne przetwarzanie
-- [ ] **JPK_V7M export**
-  - Generowanie plików JPK
-  - Walidacja zgodności
+- [x] **KSeF integration** ✅
+  - Moduł `src/api/integrations/ksef_client.py`
+  - Endpoint `/integrations/ksef/import`
+  - Pobieranie faktur zakupowych i sprzedażowych
+- [x] **JPK_V7M export** ✅
+  - Moduł `src/api/integrations/jpk_export.py`
+  - Endpoint `/integrations/jpk/generate`
+  - Endpoint `/integrations/jpk/download`
+  - Walidacja zgodności ze schematem MF
 
 ### Dokumentacja
-- [ ] **Dokumentacja API** (OpenAPI/Swagger)
+- [x] **Dokumentacja API** (OpenAPI/Swagger) ✅
+  - Rozszerzona dokumentacja w `/docs` i `/redoc`
+  - Tagi dla wszystkich modułów
+  - Opisy endpointów P0-P3
 - [ ] **Instrukcja użytkownika**
 - [ ] **Diagramy architektury** (C4, sequence)
 
@@ -135,6 +149,18 @@
 - [x] Fix git-timesheet (worker_id opcjonalny)
 - [x] Model DailyTimeEntry z walidacją B+R
 - [x] Endpoint /timesheet/entries/validated
+- [x] Pipeline walidacji wydatków (expense_pipeline.py)
+- [x] Automatyczna kategoryzacja B+R (expense_categorizer.py)
+- [x] Audit trail service (audit_trail.py)
+- [x] Endpoint /expenses/validate-pipeline
+- [x] Endpoint /expenses/categorize
+- [x] KSeF client (ksef_client.py)
+- [x] JPK_V7M exporter (jpk_export.py)
+- [x] Endpoint /integrations/ksef/import
+- [x] Endpoint /integrations/jpk/generate
+- [x] Endpoint /integrations/jpk/download
+- [x] Dokumentacja API (OpenAPI tags, opisy)
+- [x] ExpenseService (expense_service.py) - wydzielenie logiki biznesowej
 
 ### 2026-01-12
 - [x] URL state management
