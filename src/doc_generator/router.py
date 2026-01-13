@@ -214,25 +214,34 @@ async def get_filter_options(
     """
     from sqlalchemy import text
     
-    years_query = """
-        SELECT DISTINCT EXTRACT(YEAR FROM invoice_date)::int as year
-        FROM read_models.expenses
-        WHERE (:project_id IS NULL OR project_id = :project_id)
-        AND invoice_date IS NOT NULL
-        ORDER BY year DESC
-    """
+    # Build years query dynamically to avoid asyncpg parameter type issues
+    if project_id:
+        years_query = """
+            SELECT DISTINCT EXTRACT(YEAR FROM invoice_date)::int as year
+            FROM read_models.expenses
+            WHERE project_id = :project_id AND invoice_date IS NOT NULL
+            ORDER BY year DESC
+        """
+        result = await db.execute(text(years_query), {"project_id": project_id})
+    else:
+        years_query = """
+            SELECT DISTINCT EXTRACT(YEAR FROM invoice_date)::int as year
+            FROM read_models.expenses
+            WHERE invoice_date IS NOT NULL
+            ORDER BY year DESC
+        """
+        result = await db.execute(text(years_query))
     
-    result = await db.execute(text(years_query), {"project_id": project_id})
     years = [row[0] for row in result.fetchall()]
     
     projects_query = """
-        SELECT id, name, code
+        SELECT id, name, fiscal_year
         FROM read_models.projects
         ORDER BY created_at DESC
         LIMIT 50
     """
     result = await db.execute(text(projects_query))
-    projects = [{"id": str(row[0]), "name": row[1], "code": row[2]} for row in result.fetchall()]
+    projects = [{"id": str(row[0]), "name": row[1], "fiscal_year": row[2]} for row in result.fetchall()]
     
     return {
         "years": years if years else [datetime.now().year],

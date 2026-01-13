@@ -508,6 +508,26 @@ class DocumentEngine:
             n = context["nexus"]
             lines.append(f"\n### Wskaźnik Nexus: {n.get('nexus', 1)}")
         
+        # Include document annotations for richer context
+        if "document_annotations" in context:
+            annotations = context["document_annotations"]
+            if annotations:
+                lines.append("\n### Adnotacje dokumentów (kontekst B+R):")
+                for ann in annotations[:10]:  # Limit to 10 annotations
+                    filename = ann.get('filename', 'Dokument')
+                    note = ann.get('annotation', '')[:300]
+                    if note:
+                        lines.append(f"- **{filename}**: {note}")
+        
+        # Include expenses with annotations
+        if "expenses_with_docs" in context:
+            expenses = context["expenses_with_docs"]
+            annotated = [e for e in expenses if e.get('document_annotation')]
+            if annotated:
+                lines.append("\n### Wydatki z adnotacjami kontekstowymi:")
+                for exp in annotated[:5]:
+                    lines.append(f"- {exp.get('description', 'N/A')}: {exp.get('document_annotation', '')[:200]}")
+        
         return "\n".join(lines)
 
 

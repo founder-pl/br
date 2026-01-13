@@ -457,6 +457,62 @@ async def process_document_ocr(doc_id: str, file_path: str, document_type: str):
             )
 
 
+@router.get("/notes")
+async def list_document_notes(
+    project_id: Optional[str] = Query(default=None),
+    limit: int = Query(default=200, le=500),
+    offset: int = Query(default=0),
+    db: AsyncSession = Depends(get_db)
+):
+    """List all documents with their annotations"""
+    await ensure_document_notes_table(db)
+    
+    query = """
+        SELECT d.id, d.filename, d.document_type, d.ocr_status, d.ocr_confidence,
+               d.extracted_data, substring(d.ocr_text for 240) as ocr_excerpt,
+               d.mime_type, d.created_at,
+               n.notes, n.updated_at
+        FROM read_models.documents d
+        LEFT JOIN read_models.document_notes n ON n.document_id = d.id
+        WHERE 1=1
+    """
+    params = {"limit": limit, "offset": offset}
+    if project_id:
+        query += " AND d.project_id = :project_id"
+        params["project_id"] = project_id
+    query += " ORDER BY d.created_at DESC LIMIT :limit OFFSET :offset"
+
+    result = await db.execute(text(query), params)
+    rows = result.fetchall()
+
+    items = []
+    for r in rows:
+        doc_id = str(r[0])
+        extracted = r[5] or {}
+        if isinstance(extracted, dict) and isinstance(extracted.get('extracted_data'), dict):
+            nested = extracted.get('extracted_data') or {}
+            extracted = {k: v for k, v in extracted.items() if k != 'extracted_data'}
+            extracted.update(nested)
+
+        items.append({
+            "id": doc_id,
+            "filename": r[1],
+            "document_type": r[2],
+            "ocr_status": r[3],
+            "ocr_confidence": float(r[4]) if r[4] is not None else None,
+            "extracted_data": extracted,
+            "ocr_excerpt": r[6],
+            "mime_type": r[7],
+            "created_at": r[8].isoformat() if r[8] else None,
+            "notes": r[9],
+            "notes_updated_at": r[10].isoformat() if r[10] else None,
+            "file_url": f"/api/documents/{doc_id}/file",
+            "open_url": f"/?page=expenses&doc={doc_id}",
+        })
+
+    return {"items": items, "total": len(items)}
+
+
 @router.get("/{document_id}", response_model=DocumentResponse)
 async def get_document(document_id: str, db: AsyncSession = Depends(get_db)):
     """Get document details"""
@@ -563,61 +619,6 @@ async def download_document_file(document_id: str, db: AsyncSession = Depends(ge
         media_type=row[1] or "application/octet-stream",
         filename=row[2] or resolved.name
     )
-
-
-@router.get("/notes")
-async def list_document_notes(
-    project_id: Optional[str] = Query(default=None),
-    limit: int = Query(default=200, le=500),
-    offset: int = Query(default=0),
-    db: AsyncSession = Depends(get_db)
-):
-    await ensure_document_notes_table(db)
-    
-    query = """
-        SELECT d.id, d.filename, d.document_type, d.ocr_status, d.ocr_confidence,
-               d.extracted_data, substring(d.ocr_text for 240) as ocr_excerpt,
-               d.mime_type, d.created_at,
-               n.notes, n.updated_at
-        FROM read_models.documents d
-        LEFT JOIN read_models.document_notes n ON n.document_id = d.id
-        WHERE 1=1
-    """
-    params = {"limit": limit, "offset": offset}
-    if project_id:
-        query += " AND d.project_id = :project_id"
-        params["project_id"] = project_id
-    query += " ORDER BY d.created_at DESC LIMIT :limit OFFSET :offset"
-
-    result = await db.execute(text(query), params)
-    rows = result.fetchall()
-
-    items = []
-    for r in rows:
-        doc_id = str(r[0])
-        extracted = r[5] or {}
-        if isinstance(extracted, dict) and isinstance(extracted.get('extracted_data'), dict):
-            nested = extracted.get('extracted_data') or {}
-            extracted = {k: v for k, v in extracted.items() if k != 'extracted_data'}
-            extracted.update(nested)
-
-        items.append({
-            "id": doc_id,
-            "filename": r[1],
-            "document_type": r[2],
-            "ocr_status": r[3],
-            "ocr_confidence": float(r[4]) if r[4] is not None else None,
-            "extracted_data": extracted,
-            "ocr_excerpt": r[6],
-            "mime_type": r[7],
-            "created_at": r[8].isoformat() if r[8] else None,
-            "notes": r[9],
-            "notes_updated_at": r[10].isoformat() if r[10] else None,
-            "file_url": f"/api/documents/{doc_id}/file",
-            "open_url": f"/?page=expenses&doc={doc_id}",
-        })
-
-    return {"items": items, "total": len(items)}
 
 
 @router.put("/{document_id}/notes")
