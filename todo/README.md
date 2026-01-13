@@ -11,24 +11,51 @@ Repozytorium artykułów WordPress dokumentujących status projektów w organiza
 | 03 | [BR Documentation Best Practices](03-br-documentation-best-practices.md) | Rekomendacje jakościowe dla dokumentacji B+R | ✅ Gotowy |
 | 04 | [BR Technical Architecture](04-br-technical-architecture.md) | Przegląd architektury technicznej projektu | ✅ Gotowy |
 | 05 | [BR Priority Roadmap](05-br-priority-roadmap.md) | Priorytety i roadmap rozwoju Q1 2026 | ✅ Gotowy |
+| 06 | [BR Progress Update](06-br-progress-update.md) | **NOWY** Status po refaktoryzacji – moduły vs dane | ✅ Gotowy |
+| 07 | [BR Future Improvements](07-br-future-improvements.md) | **NOWY** Propozycje dalszych ulepszeń | ✅ Gotowy |
 
 ## Projekt BR – Podsumowanie
 
-**Problem główny:** Generowane raporty B+R mają niską jakość i mogą nie przejść kontroli skarbowej.
+**Stan aktualny:** Moduły zaimplementowane ✅, dane wymagają przetworzenia ❌
 
-### Kluczowe ustalenia:
+### Postęp od ostatniej analizy
 
-1. **Generyczne uzasadnienia** – wszystkie wydatki mają identyczny tekst
-2. **Niespójność danych** – brakujące dostawcy, numery faktur, waluty w USD
-3. **Brak wymaganych sekcji** – niepewność technologiczna, metodologia
-4. **Ewidencja czasu** – tylko suma godzin, brak dziennego rejestru
+| Kategoria | Poprzednio | Obecnie |
+|-----------|------------|---------|
+| Moduły | 90 | 106 (+16) |
+| Linie kodu | 28,176 | 33,355 (+5,179) |
+| Testy | 148 | 166 (+18) |
+| Zadania P0 | 0% | 100% ✅ |
+| Zadania P1 | 0% | 100% ✅ |
 
-### Rekomendowane działania:
+### Kluczowe nowe moduły
 
-1. Wdrożyć LLM-based indywidualizację uzasadnień (P0)
-2. Dodać walidację i konwersję walut (P0)
-3. Rozbudować strukturę dokumentacji o wymagane sekcje (P1)
-4. Implementować dzienną ewidencję czasu z integracją Git (P1)
+- ✅ `expense_pipeline.py` – walidacja wydatków
+- ✅ `justification_generator.py` – LLM-based uzasadnienia
+- ✅ `expense_categorizer.py` – auto-kategoryzacja B+R
+- ✅ `currency_converter.py` – konwersja walut NBP
+- ✅ `invoice_validator.py` – walidacja faktur
+- ✅ `uncertainty_generator.py` – sekcja niepewności
+- ✅ `ksef_client.py` – integracja KSeF
+- ✅ `jpk_export.py` – eksport JPK_V7M
+
+### 🔴 Krytyczny problem
+
+**Moduły istnieją, ale dane w raporcie nie zostały przez nie przetworzone!**
+
+Raport nadal pokazuje:
+- 78% wydatków "oczekuje na klasyfikację"
+- Generyczne uzasadnienia (identyczny tekst)
+- Brakujące dane dostawców (None)
+- Kwoty w USD bez przeliczenia
+
+### Rekomendowane działanie
+
+```bash
+# Uruchom batch processing
+curl -X POST http://localhost:8000/expenses/validate-all
+curl -X POST http://localhost:8000/expenses/categorize
+```
 
 ## Struktura Artykułów
 

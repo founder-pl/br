@@ -909,6 +909,18 @@
         </div>
     </div>
 
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content modal-lg">
+            <span class="modal-close" onclick="closeConfirmModal()">&times;</span>
+            <h3 id="confirm-modal-title">Potwierdzenie</h3>
+            <div id="confirm-modal-message"></div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" id="confirm-modal-cancel-btn" onclick="confirmModalCancel()">Anuluj</button>
+                <button type="button" class="btn btn-danger" id="confirm-modal-confirm-btn">Usuń</button>
+            </div>
+        </div>
+    </div>
+
     <button id="global-logs-toggle" class="global-logs-toggle" onclick="toggleGlobalLogs()">
         📋 Logi
     </button>

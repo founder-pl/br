@@ -37,6 +37,59 @@ function setPageInUrl(page, pushState = true) {
     setUrlParam('page', page, pushState);
 }
 
+let _confirmModalResolve = null;
+
+function closeConfirmModal() {
+    const modal = document.getElementById('confirm-modal');
+    if (modal) modal.classList.remove('active');
+}
+
+function confirmModalCancel() {
+    if (_confirmModalResolve) {
+        const resolve = _confirmModalResolve;
+        _confirmModalResolve = null;
+        closeConfirmModal();
+        resolve(false);
+    } else {
+        closeConfirmModal();
+    }
+}
+
+function openConfirmModal({ title, message, confirmText = 'OK' }) {
+    const modal = document.getElementById('confirm-modal');
+    const titleEl = document.getElementById('confirm-modal-title');
+    const msgEl = document.getElementById('confirm-modal-message');
+    const confirmBtn = document.getElementById('confirm-modal-confirm-btn');
+
+    if (!modal || !titleEl || !msgEl || !confirmBtn) {
+        return Promise.resolve(true);
+    }
+
+    if (_confirmModalResolve) {
+        const resolve = _confirmModalResolve;
+        _confirmModalResolve = null;
+        resolve(false);
+    }
+
+    titleEl.textContent = title || 'Potwierdzenie';
+    msgEl.textContent = message || '';
+    confirmBtn.textContent = confirmText;
+
+    return new Promise((resolve) => {
+        _confirmModalResolve = resolve;
+        confirmBtn.onclick = () => {
+            if (_confirmModalResolve) {
+                const r = _confirmModalResolve;
+                _confirmModalResolve = null;
+                closeConfirmModal();
+                r(true);
+            }
+        };
+
+        modal.classList.add('active');
+    });
+}
+
 function navigateTo(page, options = {}) {
     const { updateUrl = true } = options;
 
@@ -391,15 +444,30 @@ function getDocTypeName(type) {
     return types[type] || type;
 }
 
-async function deleteDocument(docId) {
-    if (!confirm('Czy na pewno chcesz usunąć ten dokument?')) return;
+window.deleteDocument = async function(docId) {
+    const confirmed = await openConfirmModal({
+        title: 'Usuń dokument',
+        message: 'Czy na pewno chcesz usunąć ten dokument?',
+        confirmText: 'Usuń'
+    });
+    if (!confirmed) return false;
     try {
         await apiCall(`/documents/${docId}`, { method: 'DELETE' });
-        // Optimistic UI update
         document.querySelectorAll(`.document-item[data-id="${docId}"]`).forEach(el => el.remove());
         showToast('Dokument usunięty', 'success');
         loadRecentDocuments();
-    } catch (e) { showToast('Błąd usuwania dokumentu', 'error'); }
+        return true;
+    } catch (e) {
+        showToast('Błąd usuwania dokumentu', 'error');
+        return false;
+    }
+};
+
+async function deleteDocumentFromModal(docId) {
+    const deleted = await window.deleteDocument(docId);
+    if (deleted) {
+        closeDocumentModal();
+    }
 }
 
 async function retryOcr(docId) {
@@ -490,7 +558,7 @@ async function showDocumentDetail(docId, options = {}) {
                 <button class="btn btn-warning" onclick="checkDuplicates('${docId}')">🔎 Sprawdź duplikaty</button>
                 <button class="btn btn-success" onclick="createExpenseFromDoc('${docId}')">📤 Utwórz wydatek</button>
                 <button class="btn btn-info" onclick="createRevenueFromDoc('${docId}')">📥 Utwórz przychód</button>
-                <button class="btn btn-danger" onclick="deleteDocument('${docId}'); closeDocumentModal();">🗑️ Usuń</button>
+                <button class="btn btn-danger" onclick="deleteDocumentFromModal('${docId}')">🗑️ Usuń</button>
             </div>
         `;
         modal.classList.add('active');
@@ -1428,15 +1496,25 @@ async function saveExpenseStatus(id) {
     } catch (e) { showToast('Błąd zapisu statusu', 'error'); }
 }
 
-async function deleteExpense(id) {
-    if (!confirm('Czy na pewno chcesz usunąć ten wydatek?')) return;
+window.deleteExpense = async function(id) {
+    const confirmed = await openConfirmModal({
+        title: 'Usuń wydatek',
+        message: 'Czy na pewno chcesz usunąć ten wydatek?',
+        confirmText: 'Usuń'
+    });
+    if (!confirmed) return;
+    
     try {
         await apiCall(`/expenses/${id}`, { method: 'DELETE' });
         showToast('Wydatek usunięty', 'success');
-        document.getElementById('expense-modal').classList.remove('active');
-        loadExpenses(); loadDashboard();
-    } catch (e) { showToast('Błąd usuwania', 'error'); }
-}
+        const modal = document.getElementById('expense-modal');
+        if (modal) modal.classList.remove('active');
+        loadExpenses();
+        loadDashboard();
+    } catch (e) {
+        showToast('Błąd usuwania', 'error');
+    }
+};
 
 // Document duplicate check and re-extract
 async function checkDuplicates(docId) {

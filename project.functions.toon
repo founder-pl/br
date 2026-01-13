@@ -1,6 +1,6 @@
 project: br
-generated: "2026-01-13T15:45:15.557859"
-modules[90]{path,lang,items}:
+generated: "2026-01-13T19:07:46.041880"
+modules[106]{path,lang,items}:
   tests/conftest.py,python,20
   tests/__init__.py,python,0
   tests/test_documentation_validation.py,python,20
@@ -10,7 +10,7 @@ modules[90]{path,lang,items}:
   cli/br_cli.py,python,13
   tests/unit/test_extractors.py,python,25
   tests/unit/__init__.py,python,0
-  tests/unit/test_validators.py,python,15
+  tests/unit/test_validators.py,python,26
   tests/unit/test_integrations.py,python,15
   tests/e2e/test_web_gui_smoke.py,python,3
   tests/e2e/test_scenarios.py,python,6
@@ -38,24 +38,40 @@ modules[90]{path,lang,items}:
   src/api/document_classifier.py,python,4
   src/api/database.py,python,4
   src/api/main.py,python,5
+  src/api/validators/expense_pipeline.py,python,14
+  src/api/validators/__init__.py,python,0
+  src/api/validators/currency_converter.py,python,4
+  src/api/validators/invoice_validator.py,python,2
+  src/api/services/uncertainty_generator.py,python,6
   src/api/services/doc_generator.py,python,18
+  src/api/services/justification_generator.py,python,8
+  src/api/services/excel_exporter.py,python,7
   src/api/services/__init__.py,python,0
-  src/api/routers/timesheet.py,python,11
+  src/api/services/expense_categorizer.py,python,6
+  src/api/services/audit_trail.py,python,10
+  src/api/services/expense_service.py,python,11
+  src/api/models/project_extended.py,python,1
+  src/api/models/__init__.py,python,0
+  src/api/models/daily_time_entry.py,python,4
+  src/api/routers/timesheet.py,python,12
   src/api/routers/config.py,python,11
   src/api/routers/clarifications.py,python,6
-  src/api/routers/projects.py,python,8
+  src/api/routers/projects.py,python,9
   src/api/routers/auth.py,python,7
   src/api/routers/__init__.py,python,0
-  src/api/routers/integrations.py,python,14
+  src/api/routers/integrations.py,python,17
   src/api/routers/logs.py,python,9
-  src/api/routers/git_timesheet.py,python,11
-  src/api/routers/reports.py,python,6
-  src/api/routers/documents.py,python,13
-  src/api/routers/expenses.py,python,24
+  src/api/routers/git_timesheet.py,python,13
+  src/api/routers/reports.py,python,8
+  src/api/routers/documents.py,python,14
+  src/api/routers/expenses.py,python,32
   src/api/cqrs/commands.py,python,7
   src/api/cqrs/events.py,python,11
   src/api/cqrs/__init__.py,python,0
   src/api/cqrs/queries.py,python,7
+  src/api/integrations/__init__.py,python,0
+  src/api/integrations/ksef_client.py,python,11
+  src/api/integrations/jpk_export.py,python,14
   src/integrations/accounting/fakturownia.py,python,13
   src/integrations/accounting/base.py,python,11
   src/integrations/accounting/__init__.py,python,0
@@ -69,7 +85,7 @@ modules[90]{path,lang,items}:
   src/integrations/cloud/__init__.py,python,0
   src/integrations/cloud/nextcloud.py,python,13
   web/static/js/markdown-renderer.js,javascript,0
-  web/static/js/app.js,javascript,150
+  web/static/js/app.js,javascript,154
   brgenerator/tests/conftest.py,python,4
   brgenerator/tests/__init__.py,python,0
   brgenerator/tests/test_validators.py,python,16
@@ -205,22 +221,33 @@ function_details:
       TestExtractorFactory.test_get_default_extractor,method,() -> None,184-187,false,4,1,Test getting default extractor
       TestExtractorFactory.test_get_unknown_extractor,method,() -> None,190-193,false,4,1,Test getting unknown extractor type falls back to invoice
   tests/unit/test_validators.py:
-    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
-      TestNIPValidation.test_valid_nip_tomasz_sapletta,method,() -> None,12-14,false,3,1,Test valid NIP - Tomasz Sapletta
-      TestNIPValidation.test_valid_nip_with_dashes,method,() -> None,17-19,false,3,1,Test valid NIP with dashes
-      TestNIPValidation.test_valid_nip_with_spaces,method,() -> None,22-24,false,3,1,Test valid NIP with spaces
-      TestNIPValidation.test_invalid_nip_wrong_checksum,method,() -> None,27-29,false,3,1,Test invalid NIP - wrong checksum
-      TestNIPValidation.test_invalid_nip_too_short,method,() -> None,32-34,false,3,1,Test invalid NIP - too short
-      TestNIPValidation.test_invalid_nip_too_long,method,() -> None,37-39,false,3,1,Test invalid NIP - too long
-      TestNIPValidation.test_invalid_nip_all_zeros,method,() -> None,42-44,false,3,1,Test invalid NIP - all zeros
-      TestNIPValidation.test_invalid_nip_letters,method,() -> None,47-49,false,3,1,Test invalid NIP - contains letters
-      TestNIPValidation.test_empty_nip,method,() -> None,52-54,false,3,1,Test empty NIP
-      TestNIPValidation.test_various_nips,method,"(nip, expected) -> None",64-66,false,3,1,Parametrized test for various NIPs
-      TestREGONValidation.test_valid_regon_9_digit,method,() -> None,73-76,false,4,1,Test valid 9-digit REGON
-      TestREGONValidation.test_invalid_regon_wrong_checksum,method,() -> None,79-81,false,3,1,Test invalid REGON - wrong checksum
-      TestREGONValidation.test_invalid_regon_too_short,method,() -> None,84-86,false,3,1,Test invalid REGON - too short
-      TestREGONValidation.test_invalid_regon_wrong_length,method,() -> None,89-91,false,3,1,Test invalid REGON - wrong length (not 9 or 14)
-      TestREGONValidation.test_empty_regon,method,() -> None,94-96,false,3,1,Test empty REGON
+    functions[26]{name,kind,sig,loc,async,lines,cc,does}:
+      TestNIPValidation.test_valid_nip_tomasz_sapletta,method,() -> None,13-15,false,3,1,Test valid NIP - Tomasz Sapletta
+      TestNIPValidation.test_valid_nip_with_dashes,method,() -> None,18-20,false,3,1,Test valid NIP with dashes
+      TestNIPValidation.test_valid_nip_with_spaces,method,() -> None,23-25,false,3,1,Test valid NIP with spaces
+      TestNIPValidation.test_invalid_nip_wrong_checksum,method,() -> None,28-30,false,3,1,Test invalid NIP - wrong checksum
+      TestNIPValidation.test_invalid_nip_too_short,method,() -> None,33-35,false,3,1,Test invalid NIP - too short
+      TestNIPValidation.test_invalid_nip_too_long,method,() -> None,38-40,false,3,1,Test invalid NIP - too long
+      TestNIPValidation.test_invalid_nip_all_zeros,method,() -> None,43-45,false,3,1,Test invalid NIP - all zeros
+      TestNIPValidation.test_invalid_nip_letters,method,() -> None,48-50,false,3,1,Test invalid NIP - contains letters
+      TestNIPValidation.test_empty_nip,method,() -> None,53-55,false,3,1,Test empty NIP
+      TestNIPValidation.test_various_nips,method,"(nip, expected) -> None",65-67,false,3,1,Parametrized test for various NIPs
+      TestREGONValidation.test_valid_regon_9_digit,method,() -> None,74-77,false,4,1,Test valid 9-digit REGON
+      TestREGONValidation.test_invalid_regon_wrong_checksum,method,() -> None,80-82,false,3,1,Test invalid REGON - wrong checksum
+      TestREGONValidation.test_invalid_regon_too_short,method,() -> None,85-87,false,3,1,Test invalid REGON - too short
+      TestREGONValidation.test_invalid_regon_wrong_length,method,() -> None,90-92,false,3,1,Test invalid REGON - wrong length (not 9 or 14)
+      TestREGONValidation.test_empty_regon,method,() -> None,95-97,false,3,1,Test empty REGON
+      TestInvoiceValidator.validator,method,() -> None,104-105,false,2,1,validator
+      TestInvoiceValidator.test_valid_invoice_fv_format,method,(validator) -> None,108-112,false,5,1,Test valid invoice number in FV format
+      TestInvoiceValidator.test_valid_invoice_numeric_format,method,(validator) -> None,115-118,false,4,1,Test valid invoice number in numeric format
+      TestInvoiceValidator.test_valid_invoice_alphanumeric,method,(validator) -> None,121-124,false,4,1,Test valid alphanumeric invoice number
+      TestInvoiceValidator.test_generic_invoice_faktury,method,(validator) -> None,127-132,false,6,1,Test generic 'faktury' is rejected
+      TestInvoiceValidator.test_generic_invoice_sprzedazy,method,(validator) -> None,135-138,false,4,1,Test generic 'sprzedazy' is rejected
+      TestInvoiceValidator.test_generic_invoice_short_number,method,(validator) -> None,141-144,false,4,1,Test short numbers (1-3 digits) are rejected
+      TestInvoiceValidator.test_empty_invoice,method,(validator) -> None,147-151,false,5,1,Test empty invoice number
+      TestInvoiceValidator.test_none_invoice,method,(validator) -> None,154-157,false,4,1,Test None invoice number
+      TestInvoiceValidator.test_is_generic_helper,method,(validator) -> None,160-164,false,5,1,Test is_generic helper method
+      TestInvoiceValidator.test_various_invoice_numbers,method,"(validator, invoice, expected_valid) -> None",178-181,false,4,1,Parametrized test for various invoice numbers
   tests/unit/test_integrations.py:
     functions[15]{name,kind,sig,loc,async,lines,cc,does}:
       TestConfigDatabase.config_db,method,(tmp_path) -> None,19-26,false,8,1,Create temporary config database
@@ -320,11 +347,11 @@ function_details:
       TestGitTimesheetAPI.test_scan_repos_valid_path,method,() -> None,14-34,true,21,2,Test scanning for git repositories with valid path
       TestGitTimesheetAPI.test_scan_repos_invalid_path,method,() -> None,37-50,true,14,1,Test scanning with invalid path returns 400
       TestGitTimesheetAPI.test_scan_repos_max_depth_validation,method,() -> None,53-74,true,22,1,Test that max_depth is validated (1-4)
-      TestGitTimesheetAPI.test_scan_repos_missing_folder_path,method,() -> None,77-87,true,11,1,Test that folder_path is required
-      TestGitTimesheetAPI.test_commits_endpoint_empty_repos,method,() -> None,90-104,true,15,1,Test commits endpoint with empty repo list
-      TestGitTimesheetAPI.test_commits_endpoint_with_filters,method,() -> None,107-124,true,18,1,Test commits endpoint with date filters
-      TestGitTimesheetAPI.test_generate_timesheet_validation,method,() -> None,127-142,true,16,1,Test timesheet generation requires valid data
-      TestGitTimesheetPathMapping.test_host_path_mapping,method,() -> None,149-166,true,18,3,Test that host paths are correctly mapped to container paths
+      TestGitTimesheetAPI.test_scan_repos_missing_folder_path,method,() -> None,77-88,true,12,1,Test that folder_path is required
+      TestGitTimesheetAPI.test_commits_endpoint_empty_repos,method,() -> None,91-105,true,15,1,Test commits endpoint with empty repo list
+      TestGitTimesheetAPI.test_commits_endpoint_with_filters,method,() -> None,108-125,true,18,1,Test commits endpoint with date filters
+      TestGitTimesheetAPI.test_generate_timesheet_validation,method,() -> None,128-143,true,16,1,Test timesheet generation requires valid data
+      TestGitTimesheetPathMapping.test_host_path_mapping,method,() -> None,150-167,true,18,3,Test that host paths are correctly mapped to container paths
   src/ocr/extractors.py:
     functions[10]{name,kind,sig,loc,async,lines,cc,does}:
       validate_nip,function,"(nip:str) -> bool",13-33,false,21,6,Validate Polish NIP (tax identification number).
@@ -415,10 +442,44 @@ function_details:
   src/api/main.py:
     functions[5]{name,kind,sig,loc,async,lines,cc,does}:
       lifespan,function,"(app:FastAPI) -> None",31-47,true,17,1,Application lifespan manager
-      global_exception_handler,function,"(request:Request, exc:Exception) -> None",87-95,true,9,1,global exception handler
-      health_check,function,() -> None,114-123,true,10,1,Health check endpoint
-      root,function,() -> None,128-138,true,11,1,Root endpoint with API info
-      metrics,function,() -> None,143-148,true,6,1,Basic metrics endpoint
+      global_exception_handler,function,"(request:Request, exc:Exception) -> None",131-139,true,9,1,global exception handler
+      health_check,function,() -> None,158-167,true,10,1,Health check endpoint
+      root,function,() -> None,172-182,true,11,1,Root endpoint with API info
+      metrics,function,() -> None,187-192,true,6,1,Basic metrics endpoint
+  src/api/validators/expense_pipeline.py:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+      get_validation_pipeline,function,() -> ExpenseValidationPipeline,439-444,false,6,2,Get or create validation pipeline instance.
+      ValidationResult.errors,method,"() -> List[ValidationIssue]",63-64,false,2,3,errors
+      ValidationResult.warnings,method,"() -> List[ValidationIssue]",67-68,false,2,3,warnings
+      ValidationResult.to_dict,method,"() -> Dict[str, Any]",70-87,false,18,2,converts dict
+      ExpenseValidationPipeline.__init__,method,() -> None,97-98,false,2,1,creates
+      ExpenseValidationPipeline.validate,method,"(expense:Dict[str,Any]) -> ValidationResult",100-130,false,31,2,Run all validation rules on an expense.
+      ExpenseValidationPipeline._validate_invoice,method,"(expense:Dict[str,Any]) -> List[ValidationIssue]",132-198,false,67,8,Validate invoice data.
+      ExpenseValidationPipeline._validate_vendor,method,"(expense:Dict[str,Any]) -> List[ValidationIssue]",200-245,false,46,6,Validate vendor information.
+      ExpenseValidationPipeline._validate_amounts,method,"(expense:Dict[str,Any]) -> List[ValidationIssue]",247-289,false,43,8,Validate amount fields.
+      ExpenseValidationPipeline._validate_br_qualification,method,"(expense:Dict[str,Any]) -> List[ValidationIssue]",291-361,false,71,11,Validate B+R qualification criteria.
+      ExpenseValidationPipeline._validate_documentation,method,"(expense:Dict[str,Any]) -> List[ValidationIssue]",363-379,false,17,2,Validate documentation completeness.
+      ExpenseValidationPipeline._validate_compliance,method,"(expense:Dict[str,Any]) -> List[ValidationIssue]",381-408,false,28,3,Validate tax compliance requirements.
+      ExpenseValidationPipeline._validate_nip,method,"(nip:str) -> bool",410-418,false,9,4,Validate Polish NIP number.
+      ExpenseValidationPipeline._calculate_score,method,"(issues:List[ValidationIssue]) -> float",420-432,false,13,5,Calculate quality score based on issues found.
+  src/api/validators/currency_converter.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      CurrencyConverter.convert_to_pln,method,"(amount:Decimal, currency:str, expense_date:date) -> Decimal",33-69,true,37,4,Przelicza kwotę na PLN według kursu NBP z dnia wydatku.
+      CurrencyConverter._get_nbp_rate,method,"(currency:str, target_date:date) -> Decimal",71-125,true,55,7,Pobiera kurs z API NBP (z fallback na poprzedni dzień roboczy).
+      CurrencyConverter.get_supported_currencies,method,() -> list,127-129,false,3,1,Returns list of supported currency codes.
+      CurrencyConverter.clear_cache,method,() -> None,132-134,false,3,1,Clears the rate cache.
+  src/api/validators/invoice_validator.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      InvoiceValidator.validate,method,"(invoice_number:Optional[str]) -> InvoiceValidationResult",45-103,false,59,8,Validate invoice number against Polish standards.
+      InvoiceValidator.is_generic,method,"(invoice_number:Optional[str]) -> bool",105-114,false,10,3,Quick check if invoice number is generic/placeholder.
+  src/api/services/uncertainty_generator.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      get_uncertainty_generator,function,() -> UncertaintyGenerator,209-214,false,6,2,Get or create uncertainty generator instance.
+      UncertaintyGenerator.__init__,method,"(llm_base_url:str=None) -> None",57-59,false,3,2,creates
+      UncertaintyGenerator.generate,method,"(project:ProjectInputExtended) -> UncertaintySection",61-89,true,29,5,Generate uncertainty section for project documentation.
+      UncertaintyGenerator._generate_with_llm,method,"(project:ProjectInputExtended) -> Optional[str]",91-118,true,28,12,Generate using LLM.
+      UncertaintyGenerator._generate_from_template,method,"(project:ProjectInputExtended) -> UncertaintySection",120-197,false,78,7,Generate from template (fallback).
+      UncertaintyGenerator._find_keywords,method,"(text:str) -> List[str]",199-202,false,4,3,Find B+R keywords in text.
   src/api/services/doc_generator.py:
     functions[18]{name,kind,sig,loc,async,lines,cc,does}:
       get_doc_generator,function,() -> ExpenseDocumentGenerator,946-951,false,6,2,Get singleton instance of document generator.
@@ -439,8 +500,69 @@ function_details:
       ExpenseDocumentGenerator._generate_summary_template,method,"(project:Dict[str,Any], expenses:list, by_category:Dict, total_gross:float, total_br:float, total_deduction:float, timesheet_data:Optional[Dict[str,Any]]=None) -> str",635-846,false,212,20,Generate comprehensive B+R project summary template.
       ExpenseDocumentGenerator._build_expense_details,method,"(expenses:list, company_nip:str='5881918662') -> str",849-927,false,79,9,Build detailed expense descriptions with justifications.
       ExpenseDocumentGenerator._build_expense_list,method,"(expenses:list) -> str",929-939,false,11,5,Build expense list table for summary.
-  src/api/routers/timesheet.py:
+  src/api/services/justification_generator.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      get_justification_generator,function,() -> ExpenseJustificationGenerator,292-297,false,6,2,Get or create justification generator instance.
+      ExpenseJustificationGenerator.__init__,method,"(llm_base_url:str=None) -> None",115-117,false,3,2,creates
+      ExpenseJustificationGenerator.generate_justification,method,"(expense:ExpenseContext, project:ProjectContext) -> JustificationResult",119-144,true,26,4,Generuje unikalne uzasadnienie dla wydatku.
+      ExpenseJustificationGenerator._generate_with_llm,method,"(expense:ExpenseContext, project:ProjectContext) -> Optional[str]",146-183,true,38,10,Generate justification using LLM.
+      ExpenseJustificationGenerator._generate_from_template,method,"(expense:ExpenseContext, project:ProjectContext) -> JustificationResult",185-232,false,48,7,Generate justification from template (fallback).
+      ExpenseJustificationGenerator._detect_category,method,"(expense:ExpenseContext) -> str",234-251,false,18,8,Detect B+R category based on expense details.
+      ExpenseJustificationGenerator._extract_keywords,method,"(text:str) -> List[str]",253-268,false,16,3,Extract B+R keywords from generated text.
+      ExpenseJustificationGenerator._extract_key_phrase,method,"(ocr_text:str) -> Optional[str]",270-285,false,16,8,Extract key phrase from OCR text for justification.
+  src/api/services/excel_exporter.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      get_excel_exporter,function,() -> ExcelExporter,329-331,false,3,1,Get Excel exporter instance.
+      ExcelExporter.__init__,method,() -> None,63-65,false,3,2,creates
+      ExcelExporter.export_expenses,method,"(expenses:List[Dict[str,Any]], title:str='Wydatki B+R', year:Optional[int]=None, month:Optional[int]=None) -> bytes",67-156,false,90,20,Export expenses to Excel file.
+      ExcelExporter.export_monthly_report,method,"(expenses:List[Dict[str,Any]], revenues:List[Dict[str,Any]], year:int, month:int, company_name:str, project_name:str) -> bytes",158-198,false,41,3,Export monthly B+R report to Excel.
+      ExcelExporter._create_summary_sheet,method,"(ws, expenses:List[Dict[str,Any]], revenues:List[Dict[str,Any]], year:int, month:int, company_name:str, project_name:str) -> None",200-272,false,73,19,Create summary sheet.
+      ExcelExporter._create_expenses_sheet,method,"(ws, expenses:List[Dict[str,Any]]) -> None",274-293,false,20,8,Create expenses sheet.
+      ExcelExporter._create_revenues_sheet,method,"(ws, revenues:List[Dict[str,Any]]) -> None",295-326,false,32,8,Create revenues sheet.
+  src/api/services/expense_categorizer.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      get_expense_categorizer,function,() -> ExpenseCategorizer,302-307,false,6,2,Get or create expense categorizer instance.
+      ExpenseCategorizer.__init__,method,"(llm_url:str=None) -> None",95-97,false,3,2,creates
+      ExpenseCategorizer.categorize,method,"(description:str, vendor_name:Optional[str]=None, amount:Optional[float]=None) -> CategorizationResult",99-164,false,66,11,Categorize an expense for B+R qualification.
+      ExpenseCategorizer.categorize_with_llm,method,"(description:str, vendor_name:Optional[str]=None, ocr_text:Optional[str]=None) -> CategorizationResult",166-223,true,58,6,Categorize expense using LLM for complex cases.
+      ExpenseCategorizer._generate_reason,method,"(category:BRCategory, keywords:List[str], vendor_name:Optional[str]) -> str",225-250,false,26,3,Generate categorization reason.
+      ExpenseCategorizer._parse_llm_response,method,"(response:str, fallback:CategorizationResult) -> CategorizationResult",252-295,false,44,8,Parse LLM response into CategorizationResult.
+  src/api/services/audit_trail.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      audit_expense_created,function,"(service:AuditTrailService, expense_id:str, expense_data:Dict[str,Any], actor:str='system') -> AuditEvent",227-239,true,13,1,Record expense creation.
+      audit_expense_classified,function,"(service:AuditTrailService, expense_id:str, category:str, reason:str, confidence:float, actor:str='system') -> AuditEvent",242-260,true,19,1,Record expense classification.
+      audit_br_qualification,function,"(service:AuditTrailService, expense_id:str, qualified:bool, category:str, reason:str, deduction_rate:float, actor:str='system') -> AuditEvent",263-284,true,22,2,Record B+R qualification decision.
+      get_audit_service,function,(db_session=None) -> AuditTrailService,291-296,false,6,3,Get or create audit trail service.
+      AuditEvent.to_dict,method,"() -> Dict[str, Any]",47-57,false,11,1,converts dict
+      AuditTrailService.__init__,method,(db_session=None) -> None,67-69,false,3,1,creates
+      AuditTrailService.record,method,"(event_type:AuditEventType, aggregate_id:str, data:Dict[str,Any], actor:str='system', metadata:Optional[Dict[str,Any]]=None) -> AuditEvent",71-118,true,48,3,Record an audit event.
+      AuditTrailService._persist_event,method,"(event:AuditEvent) -> None",120-142,true,23,2,Persist event to database.
+      AuditTrailService.get_history,method,"(aggregate_id:str, event_types:Optional[List[AuditEventType]]=None) -> List[AuditEvent]",144-198,true,55,10,Get audit history for an entity.
+      AuditTrailService.get_changes_report,method,"(aggregate_id:str) -> Dict[str, Any]",200-222,true,23,4,Generate a changes report for audit purposes.
+  src/api/services/expense_service.py:
     functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      get_expense_service,function,"(db:AsyncSession) -> ExpenseService",409-411,false,3,1,Get expense service instance.
+      ExpenseService.__init__,method,"(db:AsyncSession) -> None",33-36,false,4,1,creates
+      ExpenseService.get_expense,method,"(expense_id:str) -> Optional[Dict[str, Any]]",38-58,true,21,2,Get expense by ID.
+      ExpenseService.list_expenses,method,"(project_id:Optional[str]=None, year:Optional[int]=None, month:Optional[int]=None, br_qualified:Optional[bool]=None, status:Optional[str]=None, limit:int=100, offset:int=0) -> Tuple[List[Dict[str, Any]], int]",60-127,true,68,8,List expenses with filters.
+      ExpenseService.create_expense,method,"(data:Dict[str,Any]) -> Dict[str, Any]",129-182,true,54,1,Create new expense.
+      ExpenseService.update_expense,method,"(expense_id:str, data:Dict[str,Any]) -> Optional[Dict[str, Any]]",184-235,true,52,5,Update expense fields.
+      ExpenseService.delete_expense,method,"(expense_id:str) -> bool",237-260,true,24,2,Delete expense.
+      ExpenseService.validate_expense,method,"(expense_id:str) -> Dict[str, Any]",262-279,true,18,2,Run validation pipeline on expense.
+      ExpenseService.categorize_expense,method,"(expense_id:str, apply:bool=False) -> Dict[str, Any]",281-324,true,44,5,Auto-categorize expense for B+R.
+      ExpenseService.get_summary,method,"(project_id:Optional[str]=None, year:Optional[int]=None) -> Dict[str, Any]",326-375,true,50,5,Get expense summary statistics.
+      ExpenseService._row_to_dict,method,"(row) -> Dict[str, Any]",377-406,false,30,10,Convert database row to dictionary.
+  src/api/models/project_extended.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      UncertaintySection.is_sufficient,method,() -> bool,141-145,false,5,3,Check if section meets minimum requirements.
+  src/api/models/daily_time_entry.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      validate_time_entry,function,"(entry:DailyTimeEntry) -> TimeEntryValidationResult",165-212,false,48,8,Validate a time entry for B+R compliance.
+      DailyTimeEntry.validate_description,method,"(v:str) -> str",76-107,false,32,6,"Validate description is meaningful, not generic."
+      DailyTimeEntry.has_evidence,method,() -> bool,110-112,false,3,1,Check if entry has git commit evidence.
+      DailyTimeEntry.to_db_dict,method,() -> dict,114-126,false,13,2,Convert to dictionary for database insert.
+  src/api/routers/timesheet.py:
+    functions[12]{name,kind,sig,loc,async,lines,cc,does}:
       ensure_tables,function,"(db:AsyncSession) -> None",74-111,true,38,1,Create timesheet tables if they don't exist
       list_workers,function,"(db:AsyncSession=Depends(get_db)) -> None",117-137,true,21,3,List all workers
       create_worker,function,"(worker:WorkerCreate, db:AsyncSession=Depends(get_db)) -> None",141-165,true,25,1,Create a new worker
@@ -452,6 +574,7 @@ function_details:
       get_timesheet_summary,function,"(year:int=Query(...), month:int=Query(...), db:AsyncSession=Depends(get_db)) -> None",301-353,true,53,4,Get summary of hours by project and worker
       get_contractors,function,"(db:AsyncSession=Depends(get_db)) -> None",359-377,true,19,2,Get list of contractors/vendors from expenses
       get_time_slots,function,() -> None,381-383,true,3,1,Get available time slots
+      create_validated_time_entry,function,"(entry_data:dict, db:AsyncSession=Depends(get_db)) -> None",389-487,true,99,5,Create a validated time entry with B+R compliance checks.
   src/api/routers/config.py:
     functions[11]{name,kind,sig,loc,async,lines,cc,does}:
       list_ocr_engines,function,() -> None,49-65,true,17,2,List all available OCR engines with their capabilities
@@ -474,7 +597,7 @@ function_details:
       answer_clarification,function,"(clarification_id:str, answer:ClarificationAnswer, db:AsyncSession=Depends(get_db)) -> None",157-206,true,50,4,Answer a clarification question
       delete_clarification,function,"(clarification_id:str, db:AsyncSession=Depends(get_db)) -> None",210-216,true,7,1,Delete a clarification question
   src/api/routers/projects.py:
-    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
       create_project,function,"(project:ProjectCreate, db:AsyncSession=Depends(get_db)) -> None",81-105,true,25,1,Create a new B+R project
       get_project,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",109-138,true,30,5,Get project details
       list_projects,function,"(fiscal_year:Optional[int]=Query(default=None), status:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",142-185,true,44,7,List all projects
@@ -483,6 +606,7 @@ function_details:
       recalculate_project_totals,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",299-335,true,37,4,Recalculate project expense totals
       delete_project,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",339-368,true,30,4,Delete a project (only if no expenses attached)
       bulk_assign_expenses,function,"(request:BulkAssignRequest, db:AsyncSession=Depends(get_db)) -> None",378-401,true,24,3,Assign multiple expenses to a project
+      generate_uncertainty_section,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",405-459,true,55,3,Generate the 'Niepewność technologiczna' section for B+R documentation.
   src/api/routers/auth.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
       verify_password,function,"(plain_password:str, hashed_password:str) -> bool",53-54,false,2,1,validates password
@@ -493,7 +617,7 @@ function_details:
       register_user,function,"(user:UserCreate, db:AsyncSession=Depends(get_db)) -> None",136-176,true,41,2,Register a new user
       get_current_user_info,function,"(current_user:dict=Depends(get_current_user), db:AsyncSession=Depends(get_db)) -> None",180-198,true,19,1,Get current user info
   src/api/routers/integrations.py:
-    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[17]{name,kind,sig,loc,async,lines,cc,does}:
       get_db,function,() -> ConfigDatabase,105-106,false,2,1,retrieves db
       get_manager,function,"(db:ConfigDatabase=Depends(get_db)) -> IntegrationManager",109-110,false,2,1,retrieves manager
       list_providers,function,() -> None,118-133,true,16,1,List available integration providers
@@ -508,6 +632,9 @@ function_details:
       get_sync_logs,function,"(integration_id:str, limit:int=Query(default=50, le=100), db:ConfigDatabase=Depends(get_db)) -> None",361-382,true,22,2,Get sync logs for integration
       sync_all_invoices,function,"(sync_request:SyncRequest, background_tasks:BackgroundTasks, manager:IntegrationManager=Depends(get_manager)) -> None",390-411,true,22,2,Sync invoices from all active accounting integrations
       upload_monthly_reports,function,"(year:int=Query(...), month:int=Query(..., ge=1, le=12), manager:IntegrationManager=Depends(get_manager)) -> None",415-444,true,30,3,Upload monthly reports to all active cloud storage integrations
+      import_ksef_invoices,function,"(nip:str=Query(..., description='NIP podatnika'), date_from:date=Query(...), date_to:date=Query(...), invoice_type:str=Query(default='purchase', description='purchase or sales')) -> None",452-483,true,32,4,"P3: Import invoices from KSeF (Polish Electronic Invoice System)."
+      generate_jpk_v7m,function,"(nip:str=Query(..., description='NIP podatnika'), full_name:str=Query(..., description='Pełna nazwa podatnika'), email:str=Query(..., description='Email kontaktowy'), year:int=Query(...), month:int=Query(..., ge=1, le=12), purpose:int=Query(default=0, description='0=oryginał, 1=korekta'), db=Depends(get_db)) -> None",491-573,true,83,8,"P3: Generate JPK_V7M XML file for Polish tax authority."
+      download_jpk_v7m,function,"(nip:str=Query(...), full_name:str=Query(...), email:str=Query(...), year:int=Query(...), month:int=Query(..., ge=1, le=12)) -> None",577-608,true,32,2,Download JPK_V7M as XML file.
   src/api/routers/logs.py:
     functions[9]{name,kind,sig,loc,async,lines,cc,does}:
       _escape_sse,function,"(text:str) -> str",18-19,false,2,1,escape sse
@@ -520,28 +647,32 @@ function_details:
       get_logs_snapshot,function,"(service:str=Query(..., description='Service name'), lines:int=Query(default=100, ge=10, le=1000)) -> None",238-311,true,74,14,Get a snapshot of recent logs (non-streaming)
       list_services,function,() -> None,315-328,true,14,1,List available services for log streaming
   src/api/routers/git_timesheet.py:
-    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
-      run_git_command,function,"(repo_path:str, args:List[str]) -> str",78-93,false,16,3,Run a git command in the specified repository.
-      is_git_repo,function,"(path:str) -> bool",96-99,false,4,1,Check if path is a git repository.
-      find_git_repos,function,"(base_path:str, max_depth:int, current_depth:int=0) -> List[str]",102-123,false,22,9,Recursively find git repositories up to max_depth.
-      get_repo_authors,function,"(repo_path:str) -> List[GitAuthor]",126-145,false,20,4,Get all authors from a git repository with commit counts.
-      get_repo_commits,function,"(repo_path:str, authors:List[str]=None, since:str=None, until:str=None) -> List[GitCommit]",148-189,false,42,9,Get commit history from a repository.
-      translate_path_to_container,function,"(host_path:str) -> str",196-201,false,6,3,Translate host path to container path.
-      translate_path_to_host,function,"(container_path:str) -> str",203-208,false,6,3,Translate container path back to host path.
-      scan_for_repositories,function,"(request:ScanRequest) -> None",212-276,true,65,8,Scan a folder for git repositories up to specified depth.
-      get_commit_history,function,"(request:CommitHistoryRequest) -> None",280-328,true,49,7,Get commit history from specified repositories.
-      generate_timesheet_from_commits,function,"(request:GenerateTimesheetRequest, db:AsyncSession=Depends(get_db)) -> None",332-428,true,97,11,Generate timesheet entries from git commits.
-      get_detailed_commits,function,"(repo_path:str=Query(...), author:Optional[str]=None, since:Optional[str]=None, until:Optional[str]=None) -> None",432-505,true,74,16,Get detailed commit log for a single repository.
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      run_git_command,function,"(repo_path:str, args:List[str]) -> str",86-101,false,16,3,Run a git command in the specified repository.
+      is_git_repo,function,"(path:str) -> bool",104-107,false,4,1,Check if path is a git repository.
+      find_git_repos,function,"(base_path:str, max_depth:int, current_depth:int=0) -> List[str]",110-131,false,22,9,Recursively find git repositories up to max_depth.
+      get_repo_authors,function,"(repo_path:str) -> List[GitAuthor]",134-153,false,20,4,Get all authors from a git repository with commit counts.
+      get_repo_commits,function,"(repo_path:str, authors:List[str]=None, since:str=None, until:str=None) -> List[GitCommit]",156-197,false,42,9,Get commit history from a repository.
+      translate_path_to_container,function,"(host_path:str) -> str",204-209,false,6,3,Translate host path to container path.
+      translate_path_to_host,function,"(container_path:str) -> str",211-216,false,6,3,Translate container path back to host path.
+      scan_for_repositories,function,"(request:ScanRequest) -> None",220-290,true,71,8,Scan a folder for git repositories up to specified depth.
+      get_commit_history,function,"(request:CommitHistoryRequest) -> None",294-342,true,49,7,Get commit history from specified repositories.
+      generate_timesheet_from_commits,function,"(request:GenerateTimesheetRequest, db:AsyncSession=Depends(get_db)) -> None",346-442,true,97,11,Generate timesheet entries from git commits.
+      get_detailed_commits,function,"(repo_path:str=Query(...), author:Optional[str]=None, since:Optional[str]=None, until:Optional[str]=None) -> None",446-519,true,74,16,Get detailed commit log for a single repository.
+      ScanRequest.get_folder_path,method,() -> str,56-57,false,2,2,retrieves folder path
+      ScanRequest.get_max_depth,method,() -> int,59-60,false,2,2,retrieves max depth
   src/api/routers/reports.py:
-    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
       generate_monthly_report,function,"(request:ReportGenerateRequest, db:AsyncSession=Depends(get_db)) -> None",81-127,true,47,5,Generate or regenerate monthly B+R report
       calculate_monthly_report,function,"(db:AsyncSession, project_id:str, year:int, month:int) -> dict",130-172,true,43,7,processes monthly report
       get_monthly_report,function,"(report_id:str, db:AsyncSession=Depends(get_db)) -> None",176-197,true,22,11,retrieves monthly report
       list_monthly_reports,function,"(project_id:Optional[str]=Query(default=None), fiscal_year:Optional[int]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",201-229,true,29,13,list monthly reports
       get_annual_br_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",233-287,true,55,9,retrieves annual br summary
       get_annual_ip_box_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",291-326,true,36,6,retrieves annual ip box summary
+      export_expenses_excel,function,"(year:int=Query(...), month:Optional[int]=Query(default=None), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",334-414,true,81,12,"P3: Export expenses to Excel file."
+      export_monthly_report_excel,function,"(year:int=Query(...), month:int=Query(..., ge=1, le=12), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",418-512,true,95,11,"P3: Export monthly B+R report to Excel."
   src/api/routers/documents.py:
-    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
       upload_document,function,"(background_tasks:BackgroundTasks, file:UploadFile=File(...), project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001'), document_type:str=Query(default='invoice'), db:AsyncSession=Depends(get_db)) -> None",53-120,true,68,2,Upload a document for OCR processing.
       detect_invoice_type,function,"(extracted_data:dict, our_nip:str='5881918662') -> str",123-170,false,48,13,Detect if invoice is a cost (expense) or revenue invoice.
       create_expense_from_document,function,"(doc_id:str, extracted_data:dict, doc_type:str) -> None",173-332,true,160,37,Create expense or revenue record from OCR-extracted document data
@@ -549,38 +680,47 @@ function_details:
       get_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",439-463,true,25,2,Get document details
       list_documents,function,"(project_id:Optional[str]=Query(default=None), status:Optional[str]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",467-509,true,43,4,List documents with optional filtering
       reprocess_document,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",513-537,true,25,2,Reprocess document with OCR
-      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",541-568,true,28,4,Delete a document
-      update_document,function,"(document_id:str, db:AsyncSession=Depends(get_db), document_type:Optional[str]=None, ocr_status:Optional[str]=None, extracted_data:Optional[dict]=None) -> None",572-605,true,34,5,Update document fields
-      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",623-650,true,28,2,Get full document details including OCR text
-      sync_expenses_from_documents,function,"(background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",654-690,true,37,3,Create expense records for all completed invoice documents that don't have expen...
-      check_document_duplicates,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",694-773,true,80,15,Check if a document might be a duplicate of another document.
-      re_extract_document_data,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",777-836,true,60,4,Re-run data extraction on a document using the current OCR text.
+      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",541-573,true,33,2,Delete a document and optionally its related expenses/revenues
+      update_document,function,"(document_id:str, db:AsyncSession=Depends(get_db), document_type:Optional[str]=None, ocr_status:Optional[str]=None, extracted_data:Optional[dict]=None) -> None",577-610,true,34,5,Update document fields
+      llm_extract_fields,function,"(document_id:str, request:dict, db:AsyncSession=Depends(get_db)) -> None",614-704,true,91,11,Use LLM to extract/fill invoice fields from OCR text.
+      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",722-749,true,28,2,Get full document details including OCR text
+      sync_expenses_from_documents,function,"(background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",753-789,true,37,3,Create expense records for all completed invoice documents that don't have expen...
+      check_document_duplicates,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",793-872,true,80,15,Check if a document might be a duplicate of another document.
+      re_extract_document_data,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",876-935,true,60,4,Re-run data extraction on a document using the current OCR text.
   src/api/routers/expenses.py:
-    functions[24]{name,kind,sig,loc,async,lines,cc,does}:
-      get_br_categories,function,() -> None,168-170,true,3,1,Get list of B+R expense categories according to art.
-      create_expense,function,"(expense:ExpenseCreate, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",174-213,true,40,1,Create a new expense record
-      get_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",217-264,true,48,10,Get expense details
-      list_expenses,function,"(project_id:Optional[str]=Query(default=None), br_qualified:Optional[bool]=Query(default=None), ip_qualified:Optional[bool]=Query(default=None), status:Optional[str]=Query(default=None), year:Optional[int]=Query(default=None), month:Optional[int]=Query(default=None), limit:int=Query(default=50, le=1000), offset:int=Query(default=0)) -> None",268-353,true,86,16,List expenses with filtering
-      classify_expense_manually,function,"(expense_id:str, classification:ExpenseClassifyRequest, db:AsyncSession=Depends(get_db)) -> None",357-424,true,68,11,Manually classify expense for B+R or IP Box
-      trigger_auto_classification,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",428-444,true,17,2,Trigger automatic LLM classification
-      update_expense_status,function,"(expense_id:str, status_update:ExpenseStatusUpdate, db:AsyncSession=Depends(get_db)) -> None",453-476,true,24,3,Update expense status
-      delete_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",480-496,true,17,2,Delete an expense
-      generate_expense_documentation,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",500-566,true,67,9,Generate B+R documentation for a single expense
-      generate_project_documentation_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",570-733,true,164,20,Generate B+R documentation summary for entire project
-      list_revenues,function,"(project_id:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",737-783,true,47,12,List revenues (sales invoices) with optional project filter.
-      classify_revenue,function,"(revenue_id:str, classification:dict, db:AsyncSession=Depends(get_db)) -> None",787-869,true,83,12,Classify a revenue for IP Box purposes.
-      reclassify_invoice,function,"(invoice_id:str, from_type:str=Query(..., description='Current type: expense or revenue'), to_type:str=Query(..., description='Target type: expense or revenue'), reason:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",873-900,true,28,2,Reclassify an invoice from expense to revenue or vice versa.
-      get_invoice_history,function,"(invoice_id:str, db:AsyncSession=Depends(get_db)) -> None",904-919,true,16,1,Get event history for an invoice (expenses or revenues).
-      list_project_documentation,function,"(project_id:str) -> None",923-941,true,19,3,List all generated documentation files for a project
-      get_documentation_content,function,"(project_id:str, filename:str) -> None",945-959,true,15,4,Get content of a specific documentation file
-      get_documentation_history,function,"(project_id:str, filename:str) -> None",963-977,true,15,2,Get version history for a documentation file
-      get_documentation_version,function,"(project_id:str, filename:str, commit:str) -> None",981-999,true,19,4,Get document content at specific version
-      refine_documentation_with_llm,function,"(project_id:str, filename:str) -> None",1003-1063,true,61,8,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
-      get_documentation_pdf,function,"(project_id:str, filename:str) -> None",1067-1173,true,107,23,Generate and return PDF from markdown documentation
-      classify_expense_with_llm,function,"(expense_id:str) -> None",1176-1262,true,87,4,Background task to classify expense using LLM
-      get_br_classifier_system_prompt,function,() -> str,1265-1301,false,37,1,System prompt for B+R expense classifier
-      build_classification_prompt,function,(expense_row) -> str,1304-1324,false,21,8,Build prompt for expense classification
-      parse_llm_classification,function,"(response:str) -> dict",1327-1345,false,19,4,Parse LLM response to classification dict
+    functions[32]{name,kind,sig,loc,async,lines,cc,does}:
+      get_br_categories,function,() -> None,173-175,true,3,1,Get list of B+R expense categories according to art.
+      create_expense,function,"(expense:ExpenseCreate, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",179-218,true,40,1,Create a new expense record
+      validate_expense_pipeline,function,"(expense_data:dict) -> None",226-238,true,13,1,"P2: Run comprehensive validation pipeline on expense data."
+      categorize_expense,function,"(description:str=Query(...), vendor_name:Optional[str]=Query(default=None), amount:Optional[float]=Query(default=None)) -> None",242-267,true,26,1,"P2: Automatically categorize expense for B+R qualification."
+      validate_invoice_number,function,"(invoice_number:str=Query(...)) -> None",271-282,true,12,1,Validate invoice number against Polish standards.
+      convert_currency_to_pln,function,"(amount:Decimal=Query(...), currency:str=Query(...), expense_date:date=Query(...)) -> None",286-305,true,20,2,Convert foreign currency to PLN using NBP exchange rates.
+      validate_all_expenses,function,"(project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",309-370,true,62,13,Validate all expenses for a project.
+      get_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",378-425,true,48,10,Get expense details
+      list_expenses,function,"(project_id:Optional[str]=Query(default=None), br_qualified:Optional[bool]=Query(default=None), ip_qualified:Optional[bool]=Query(default=None), status:Optional[str]=Query(default=None), year:Optional[int]=Query(default=None), month:Optional[int]=Query(default=None), limit:int=Query(default=50, le=1000), offset:int=Query(default=0)) -> None",429-514,true,86,16,List expenses with filtering
+      classify_expense_manually,function,"(expense_id:str, classification:ExpenseClassifyRequest, db:AsyncSession=Depends(get_db)) -> None",518-585,true,68,11,Manually classify expense for B+R or IP Box
+      trigger_auto_classification,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",589-605,true,17,2,Trigger automatic LLM classification
+      update_expense_status,function,"(expense_id:str, status_update:ExpenseStatusUpdate, db:AsyncSession=Depends(get_db)) -> None",614-637,true,24,3,Update expense status
+      delete_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",641-657,true,17,2,Delete an expense
+      generate_expense_justification,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",661-735,true,75,7,Generate individualized B+R justification for an expense using LLM.
+      update_expense_vendor,function,"(expense_id:str, vendor_name:str=Query(...), vendor_nip:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",739-784,true,46,4,Update vendor information for an expense.
+      generate_expense_documentation,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",788-854,true,67,9,Generate B+R documentation for a single expense
+      generate_project_documentation_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",858-1021,true,164,20,Generate B+R documentation summary for entire project
+      list_revenues,function,"(project_id:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",1025-1071,true,47,12,List revenues (sales invoices) with optional project filter.
+      create_revenue,function,"(revenue:dict, db:AsyncSession=Depends(get_db)) -> None",1075-1117,true,43,1,Create a new revenue (sales invoice) from document.
+      classify_revenue,function,"(revenue_id:str, classification:dict, db:AsyncSession=Depends(get_db)) -> None",1121-1203,true,83,12,Classify a revenue for IP Box purposes.
+      reclassify_invoice,function,"(invoice_id:str, from_type:str=Query(..., description='Current type: expense or revenue'), to_type:str=Query(..., description='Target type: expense or revenue'), reason:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",1207-1234,true,28,2,Reclassify an invoice from expense to revenue or vice versa.
+      get_invoice_history,function,"(invoice_id:str, db:AsyncSession=Depends(get_db)) -> None",1238-1253,true,16,1,Get event history for an invoice (expenses or revenues).
+      list_project_documentation,function,"(project_id:str) -> None",1257-1275,true,19,3,List all generated documentation files for a project
+      get_documentation_content,function,"(project_id:str, filename:str) -> None",1279-1293,true,15,4,Get content of a specific documentation file
+      get_documentation_history,function,"(project_id:str, filename:str) -> None",1297-1311,true,15,2,Get version history for a documentation file
+      get_documentation_version,function,"(project_id:str, filename:str, commit:str) -> None",1315-1333,true,19,4,Get document content at specific version
+      refine_documentation_with_llm,function,"(project_id:str, filename:str) -> None",1337-1397,true,61,8,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
+      get_documentation_pdf,function,"(project_id:str, filename:str) -> None",1401-1507,true,107,23,Generate and return PDF from markdown documentation
+      classify_expense_with_llm,function,"(expense_id:str) -> None",1510-1596,true,87,4,Background task to classify expense using LLM
+      get_br_classifier_system_prompt,function,() -> str,1599-1635,false,37,1,System prompt for B+R expense classifier
+      build_classification_prompt,function,(expense_row) -> str,1638-1658,false,21,8,Build prompt for expense classification
+      parse_llm_classification,function,"(response:str) -> dict",1661-1679,false,19,4,Parse LLM response to classification dict
   src/api/cqrs/commands.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
       get_command_handler,function,"(command_type:str, db:AsyncSession) -> CommandHandler",324-334,true,11,2,Factory function to get appropriate command handler.
@@ -612,6 +752,35 @@ function_details:
       RevenueQueryHandler.execute,method,"(query:GetRevenuesQuery) -> Dict[str, Any]",145-203,true,59,14,Get revenues with optional filters.
       InvoiceHistoryQueryHandler.execute,method,"(query:GetInvoiceHistoryQuery) -> Dict[str, Any]",209-218,true,10,1,Get event history for an invoice.
       UnifiedInvoiceQueryHandler.execute,method,"(query:GetAllInvoicesQuery) -> Dict[str, Any]",224-260,true,37,3,Get all invoices from both expenses and revenues tables.
+  src/api/integrations/ksef_client.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      get_ksef_service,function,"(nip:str) -> KSeFService",351-355,false,5,2,Get KSeF service instance for given NIP.
+      KSeFInvoice.to_dict,method,"() -> Dict[str, Any]",50-64,false,15,1,converts dict
+      KSeFClient.__init__,method,"(nip:str, environment:KSeFEnvironment=KSeFEnvironment.TEST, token:Optional[str]=None) -> None",83-93,false,11,2,creates
+      KSeFClient.authenticate,method,() -> KSeFSession,95-152,true,58,4,Authenticate with KSeF API using token.
+      KSeFClient.fetch_invoices,method,"(date_from:date, date_to:date, invoice_type:str='purchase') -> List[KSeFInvoice]",154-215,true,62,7,Fetch invoices from KSeF for date range.
+      KSeFClient._fetch_invoice_details,method,"(client:Any, ksef_ref:str) -> Optional[KSeFInvoice]",217-233,true,17,2,Fetch and parse single invoice.
+      KSeFClient._parse_invoice_xml,method,"(ksef_ref:str, xml:str) -> KSeFInvoice",235-256,false,22,1,Parse KSeF FA(2) XML format.
+      KSeFClient._sign_challenge,method,"(challenge:str) -> str",258-265,false,8,2,Sign authentication challenge with token.
+      KSeFClient.close_session,method,() -> None,267-279,true,13,2,Close active KSeF session.
+      KSeFService.__init__,method,"(nip:str, environment:KSeFEnvironment=KSeFEnvironment.TEST) -> None",289-291,false,3,1,creates
+      KSeFService.import_purchase_invoices,method,"(date_from:date, date_to:date) -> Dict[str, Any]",293-347,true,55,3,Import purchase invoices and prepare for expense creation.
+  src/api/integrations/jpk_export.py:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+      create_jpk_from_expenses,function,"(expenses:List[Dict[str,Any]], header:JPKHeader) -> JPKExporter",416-445,false,30,2,Create JPK exporter from expense records.
+      JPKExporter.__init__,method,"(header:JPKHeader) -> None",175-179,false,5,1,creates
+      JPKExporter.add_sales_record,method,"(record:JPKSalesRecord) -> None",181-183,false,3,1,Add sales invoice record.
+      JPKExporter.add_purchase_record,method,"(record:JPKPurchaseRecord) -> None",185-187,false,3,1,Add purchase invoice record.
+      JPKExporter.set_declaration,method,"(declaration:JPKDeclaration) -> None",189-191,false,3,1,Set VAT declaration summary.
+      JPKExporter.calculate_declaration,method,() -> JPKDeclaration,193-228,false,36,4,Auto-calculate declaration from records.
+      JPKExporter.generate_xml,method,() -> str,230-265,false,36,5,Generate JPK_V7M XML file.
+      JPKExporter._add_header,method,"(root:Any) -> None",267-288,false,22,1,Add Naglowek section.
+      JPKExporter._add_subject,method,"(root:Any) -> None",290-304,false,15,1,Add Podmiot1 section.
+      JPKExporter._add_declaration,method,"(root:Any) -> None",306-333,false,28,3,Add Deklaracja section.
+      JPKExporter._add_sales_record,method,"(root:Any, rec:JPKSalesRecord, lp:int) -> None",335-351,false,17,5,Add SprzedazWiersz record.
+      JPKExporter._add_purchase_record,method,"(root:Any, rec:JPKPurchaseRecord, lp:int) -> None",353-368,false,16,5,Add ZakupWiersz record.
+      JPKExporter._add_control,method,"(root:Any) -> None",370-384,false,15,5,Add control totals.
+      JPKExporter.validate,method,"() -> List[str]",386-413,false,28,12,Validate JPK data before export.
   src/integrations/accounting/fakturownia.py:
     functions[13]{name,kind,sig,loc,async,lines,cc,does}:
       FakturowniaClient.provider_name,method,() -> str,29-30,false,2,1,provider name
@@ -779,7 +948,7 @@ function_details:
       NextcloudClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",244-278,true,35,4,Get file metadata
       NextcloudClient._parse_propfind_response,method,"(xml_text:str, base_path:str) -> List[CloudFile]",280-349,false,70,14,Parse WebDAV PROPFIND response
   web/static/js/app.js:
-    functions[150]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[154]{name,kind,sig,loc,async,lines,cc,does}:
       getPageFromUrl,function,() -> None,11-14,false,4,1,retrieves page from url
       getUrlParam,function,(key) -> None,16-19,false,4,1,retrieves url param
       setUrlParam,function,"(key, value) -> None",21-34,false,14,1,updates url param
@@ -810,126 +979,130 @@ function_details:
       getDocTypeName,function,(type) -> None,389-392,false,4,1,retrieves doc type name
       deleteDocument,function,(docId) -> None,394-403,true,10,1,deletes document
       retryOcr,function,(docId) -> None,405-411,true,7,1,retry ocr
-      showDocumentDetail,function,(docId) -> None,415-486,true,72,1,show document detail
-      getFieldLabel,function,(field) -> None,488-500,false,13,1,retrieves field label
-      toggleEditMode,function,() -> None,502-510,false,9,1,toggle edit mode
-      saveExtractedData,function,(docId) -> None,512-534,true,23,1,caches extracted data
-      createExpenseFromDoc,function,(docId) -> None,536-575,true,40,1,creates expense from doc
-      closeDocumentModal,function,() -> None,577-583,false,7,1,stops document modal
-      approveDocument,function,(docId) -> None,585-592,true,8,1,approve document
-      loadProjects,function,() -> None,597-640,true,44,1,retrieves projects
-      showCreateProjectModal,function,() -> None,642-649,false,8,1,show create project modal
-      createProject,function,"(name, description, fiscalYear) -> None",651-660,true,10,1,creates project
-      editProject,function,(id) -> None,662-678,true,17,1,updates project
-      deleteProject,function,(id) -> None,680-689,true,10,1,deletes project
-      viewProjectExpenses,function,(projectId) -> None,691-697,false,7,1,view project expenses
-      loadProjectsForFilter,function,() -> None,700-718,true,19,1,retrieves projects for filter
-      getProjectName,function,(projectId) -> None,720-723,false,4,1,retrieves project name
-      loadExpenses,function,() -> None,728-839,true,112,1,retrieves expenses
-      classifyRevenue,function,"(revenueId, ipQualified) -> None",841-852,true,12,1,classify revenue
-      showRevenueDetails,function,(revenueId) -> None,854-857,true,4,1,show revenue details
-      deleteRevenue,function,(revenueId) -> None,859-862,true,4,1,deletes revenue
-      convertToRevenue,function,(expenseId) -> None,864-882,true,19,1,converts to revenue
-      convertToExpense,function,(revenueId) -> None,884-902,true,19,1,converts to expense
-      toggleExpenseSelection,function,"(id, checked) -> None",905-912,false,8,1,toggle expense selection
-      toggleSelectAll,function,(checkbox) -> None,914-925,false,12,1,toggle select all
-      updateBulkActionsBar,function,() -> None,927-936,false,10,1,updates bulk actions bar
-      clearSelection,function,() -> None,938-943,false,6,1,deletes selection
-      bulkAssignToProject,function,() -> None,945-970,true,26,1,bulk assign to project
-      showExpenseDetails,function,(id) -> None,972-1005,true,34,1,show expense details
-      classifyExpense,function,(id) -> None,1007-1017,true,11,1,classify expense
-      reclassifyWithLLM,function,(id) -> None,1019-1022,true,4,1,reclassify with llm
-      loadReports,function,() -> None,1025-1087,true,63,1,retrieves reports
-      loadMonthlyDetails,function,(year) -> None,1089-1140,true,52,1,retrieves monthly details
-      viewMonthExpenses,function,"(year, month) -> None",1142-1159,false,18,1,view month expenses
-      showMonthDetails,function,"(year, month) -> None",1161-1230,true,70,1,show month details
-      regenerateMonthReport,function,"(year, month) -> None",1232-1244,true,13,1,regenerate month report
-      regenerateAllMonthlyReports,function,() -> None,1246-1265,true,20,1,regenerate all monthly reports
-      generateMonthlyReport,function,() -> None,1267-1273,true,7,1,creates monthly report
-      generateAllReports,function,() -> None,1275-1281,true,7,1,creates all reports
-      loadClarifications,function,() -> None,1284-1297,true,14,1,retrieves clarifications
-      answerClarification,function,(id) -> None,1299-1304,true,6,1,answer clarification
-      saveProjectSettings,function,() -> None,1309-1314,false,6,1,caches project settings
-      formatCurrency,function,(amount) -> None,1317-1317,false,1,1,formats currency
-      formatCurrencyWithCode,function,(amount) -> None,1318-1325,false,8,1,formats currency with code
-      getStatusLabel,function,(s) -> None,1326-1326,false,1,1,retrieves status label
-      getCategoryName,function,(c) -> None,1327-1327,false,1,1,retrieves category name
-      showToast,function,(msg) -> None,1328-1328,false,1,1,show toast
-      changeExpenseStatus,function,"(id, status) -> None",1331-1336,true,6,1,updates expense status
-      saveExpenseStatus,function,(id) -> None,1338-1346,true,9,1,caches expense status
-      deleteExpense,function,(id) -> None,1348-1356,true,9,1,deletes expense
-      checkDuplicates,function,(docId) -> None,1359-1389,true,31,1,checks duplicates
-      reExtractData,function,(docId) -> None,1391-1402,true,12,1,re extract data
-      generateExpenseDoc,function,(expenseId) -> None,1405-1422,true,18,1,creates expense doc
-      generateProjectSummary,function,(projectId) -> None,1424-1442,true,19,1,creates project summary
-      regenerateAllReports,function,() -> None,1444-1475,true,32,1,regenerate all reports
-      viewProjectDocs,function,(projectId) -> None,1478-1519,true,42,1,view project docs
-      viewDocContent,function,"(projectId, filename) -> None",1521-1549,true,29,1,view doc content
-      renderMarkdown,function,(md) -> None,1552-1554,false,3,1,formats markdown
-      copyDocToClipboard,function,() -> None,1558-1569,false,12,1,copy doc to clipboard
-      downloadDocFile,function,() -> None,1571-1586,false,16,1,download doc file
-      downloadPdf,function,"(projectId, filename) -> None",1588-1591,false,4,1,download pdf
-      viewDocHistory,function,"(projectId, filename) -> None",1593-1625,true,33,1,view doc history
-      viewDocVersion,function,"(projectId, filename, commit) -> None",1627-1645,true,19,1,view doc version
-      compareDocs,function,"(projectId, filename, oldCommit) -> None",1647-1707,true,61,1,compare docs
-      escapeHtml,function,(text) -> None,1709-1713,false,5,1,escape html
-      printDoc,function,() -> None,1715-1745,false,31,1,logs doc
-      closeDocsModal,function,() -> None,1747-1749,false,3,1,stops docs modal
-      initTimesheet,function,() -> None,1774-1795,true,22,1,creates timesheet
-      loadWorkers,function,() -> None,1797-1806,true,10,1,retrieves workers
-      loadContractors,function,() -> None,1808-1826,true,19,1,retrieves contractors
-      loadTimesheet,function,() -> None,1828-1930,true,103,1,retrieves timesheet
-      toggleTimesheetBlock,function,(checkbox) -> None,1932-1977,true,46,1,toggle timesheet block
-      updateTimesheetCell,function,(input) -> None,1979-1992,false,14,1,updates timesheet cell
-      saveTimesheet,function,() -> None,1994-2030,true,37,1,caches timesheet
-      updateTimesheetSummary,function,"(year, month) -> None",2032-2057,true,26,1,updates timesheet summary
-      showAddWorkerModal,function,() -> None,2059-2068,false,10,1,show add worker modal
-      createWorker,function,"(name, role, hourlyRate) -> None",2070-2081,true,12,1,creates worker
-      loadIntegrations,function,() -> None,2183-2215,true,33,1,retrieves integrations
-      renderIntegrationCard,function,(integration) -> None,2217-2242,false,26,1,formats integration card
-      loadSyncLogs,function,() -> None,2244-2271,true,28,1,retrieves sync logs
-      showAddIntegrationModal,function,() -> None,2273-2282,false,10,1,show add integration modal
-      closeIntegrationModal,function,() -> None,2284-2286,false,3,1,stops integration modal
-      updateProviderOptions,function,() -> None,2288-2301,false,14,1,updates provider options
-      updateCredentialFields,function,() -> None,2303-2321,false,19,1,updates credential fields
-      saveIntegration,function,(event) -> None,2323-2358,true,36,1,caches integration
-      verifyIntegration,function,(id) -> None,2360-2375,true,16,1,validates integration
-      syncInvoices,function,(integrationId) -> None,2377-2393,true,17,1,sync invoices
-      syncAllInvoices,function,() -> None,2395-2411,true,17,1,sync all invoices
-      uploadReport,function,(integrationId) -> None,2413-2437,true,25,1,upload report
-      uploadAllReports,function,() -> None,2439-2454,true,16,1,upload all reports
-      deleteIntegration,function,(id) -> None,2456-2466,true,11,1,deletes integration
-      loadAIConfig,function,() -> None,2469-2506,true,38,1,retrieves ai config
-      loadOCREngines,function,() -> None,2508-2529,true,22,1,retrieves ocr engines
-      loadDocumentTypes,function,() -> None,2531-2549,true,19,1,retrieves document types
-      saveAIConfig,function,() -> None,2551-2578,true,28,1,caches ai config
-      testConnections,function,() -> None,2580-2605,true,26,1,checks connections
-      updateModelList,function,() -> None,2607-2634,false,28,1,updates model list
-      initLogStreams,function,() -> None,2640-2644,false,5,1,creates log streams
-      startLogStreamForPage,function,(service) -> None,2646-2685,false,40,1,starts log stream for page
-      switchLogTab,function,(service) -> None,2687-2701,false,15,1,switch log tab
-      copyLogs,function,(service) -> None,2703-2715,false,13,1,copy logs
-      clearAllLogs,function,() -> None,2717-2722,false,6,1,deletes all logs
-      reconnectAllLogs,function,() -> None,2724-2733,false,10,1,reconnect all logs
-      stopAllLogStreams,function,() -> None,2735-2742,false,8,1,stops all log streams
-      isGlobalLogsOpen,function,() -> None,2745-2748,false,4,1,is global logs open
-      toggleGlobalLogs,function,() -> None,2750-2765,false,16,1,toggle global logs
-      switchGlobalLogTab,function,(service) -> None,2767-2777,false,11,1,switch global log tab
-      clearGlobalLogs,function,() -> None,2779-2784,false,6,1,deletes global logs
-      copyGlobalLogs,function,() -> None,2786-2800,false,15,1,copy global logs
-      downloadGlobalLogs,function,() -> None,2802-2822,false,21,1,download global logs
-      startLogStreamFor,function,(service) -> None,2825-2863,false,39,1,starts log stream for
-      initGitTimesheet,function,() -> None,2928-2942,true,15,1,creates git timesheet
-      scanGitRepos,function,() -> None,2944-2995,true,52,1,scan git repos
-      displayGitAuthors,function,(authors) -> None,2997-3030,false,34,1,logs git authors
-      toggleGitAuthor,function,(authorName) -> None,3032-3039,false,8,1,toggle git author
-      selectAllGitAuthors,function,(select) -> None,3041-3050,false,10,1,retrieves all git authors
-      displayGitRepoMapping,function,() -> None,3052-3124,true,73,1,logs git repo mapping
-      selectAllReposForProject,function,(projectId) -> None,3126-3156,false,31,1,retrieves all repos for project
-      updateGitProjectMapping,function,"(repoPath, projectId) -> None",3158-3161,false,4,1,updates git project mapping
-      checkGitTimesheetReady,function,() -> None,3163-3169,false,7,1,checks git timesheet ready
-      loadGitCommits,function,() -> None,3171-3247,true,77,1,retrieves git commits
-      generateGitTimesheet,function,() -> None,3249-3329,true,81,1,creates git timesheet
+      showDocumentDetail,function,(docId) -> None,415-498,true,84,1,show document detail
+      getFieldLabel,function,(field) -> None,500-512,false,13,1,retrieves field label
+      toggleEditMode,function,() -> None,514-522,false,9,1,toggle edit mode
+      saveExtractedData,function,(docId) -> None,524-546,true,23,1,caches extracted data
+      createExpenseFromDoc,function,(docId) -> None,548-587,true,40,1,creates expense from doc
+      createRevenueFromDoc,function,(docId) -> None,589-630,true,42,1,creates revenue from doc
+      closeDocumentModal,function,() -> None,632-638,false,7,1,stops document modal
+      approveDocument,function,(docId) -> None,640-647,true,8,1,approve document
+      loadProjects,function,() -> None,652-695,true,44,1,retrieves projects
+      showCreateProjectModal,function,() -> None,697-704,false,8,1,show create project modal
+      createProject,function,"(name, description, fiscalYear) -> None",706-715,true,10,1,creates project
+      editProject,function,(id) -> None,717-733,true,17,1,updates project
+      deleteProject,function,(id) -> None,735-744,true,10,1,deletes project
+      viewProjectExpenses,function,(projectId) -> None,746-752,false,7,1,view project expenses
+      loadProjectsForFilter,function,() -> None,755-773,true,19,1,retrieves projects for filter
+      getProjectName,function,(projectId) -> None,775-778,false,4,1,retrieves project name
+      initExpenseFilters,function,() -> None,783-794,false,12,1,creates expense filters
+      loadExpenses,function,() -> None,796-922,true,127,1,retrieves expenses
+      classifyRevenue,function,"(revenueId, ipQualified) -> None",924-935,true,12,1,classify revenue
+      showRevenueDetails,function,(revenueId) -> None,937-940,true,4,1,show revenue details
+      deleteRevenue,function,(revenueId) -> None,942-945,true,4,1,deletes revenue
+      convertToRevenue,function,(expenseId) -> None,947-965,true,19,1,converts to revenue
+      convertToExpense,function,(revenueId) -> None,967-985,true,19,1,converts to expense
+      toggleExpenseSelection,function,"(id, checked) -> None",988-995,false,8,1,toggle expense selection
+      toggleSelectAll,function,(checkbox) -> None,997-1008,false,12,1,toggle select all
+      updateBulkActionsBar,function,() -> None,1010-1019,false,10,1,updates bulk actions bar
+      clearSelection,function,() -> None,1021-1026,false,6,1,deletes selection
+      bulkAssignToProject,function,() -> None,1028-1053,true,26,1,bulk assign to project
+      showExpenseDetails,function,(id) -> None,1055-1088,true,34,1,show expense details
+      classifyExpense,function,(id) -> None,1090-1100,true,11,1,classify expense
+      reclassifyWithLLM,function,(id) -> None,1102-1105,true,4,1,reclassify with llm
+      loadReports,function,() -> None,1108-1170,true,63,1,retrieves reports
+      loadMonthlyDetails,function,(year) -> None,1172-1223,true,52,1,retrieves monthly details
+      viewMonthExpenses,function,"(year, month) -> None",1225-1242,false,18,1,view month expenses
+      showMonthDetails,function,"(year, month) -> None",1244-1313,true,70,1,show month details
+      regenerateMonthReport,function,"(year, month) -> None",1315-1327,true,13,1,regenerate month report
+      regenerateAllMonthlyReports,function,() -> None,1329-1348,true,20,1,regenerate all monthly reports
+      generateMonthlyReport,function,() -> None,1350-1356,true,7,1,creates monthly report
+      generateAllReports,function,() -> None,1358-1364,true,7,1,creates all reports
+      loadClarifications,function,() -> None,1367-1380,true,14,1,retrieves clarifications
+      answerClarification,function,(id) -> None,1382-1387,true,6,1,answer clarification
+      saveProjectSettings,function,() -> None,1392-1397,false,6,1,caches project settings
+      formatCurrency,function,(amount) -> None,1400-1400,false,1,1,formats currency
+      formatCurrencyWithCode,function,(amount) -> None,1401-1408,false,8,1,formats currency with code
+      getStatusLabel,function,(s) -> None,1409-1409,false,1,1,retrieves status label
+      getCategoryName,function,(c) -> None,1410-1410,false,1,1,retrieves category name
+      showToast,function,(msg) -> None,1411-1411,false,1,1,show toast
+      changeExpenseStatus,function,"(id, status) -> None",1414-1419,true,6,1,updates expense status
+      saveExpenseStatus,function,(id) -> None,1421-1429,true,9,1,caches expense status
+      deleteExpense,function,(id) -> None,1431-1439,true,9,1,deletes expense
+      checkDuplicates,function,(docId) -> None,1442-1472,true,31,1,checks duplicates
+      reExtractData,function,(docId) -> None,1474-1485,true,12,1,re extract data
+      updateOcrEngine,function,(engine) -> None,1489-1492,false,4,1,updates ocr engine
+      fillFieldsWithLLM,function,(docId) -> None,1494-1542,true,49,1,fill fields with llm
+      generateExpenseDoc,function,(expenseId) -> None,1545-1562,true,18,1,creates expense doc
+      generateProjectSummary,function,(projectId) -> None,1564-1582,true,19,1,creates project summary
+      regenerateAllReports,function,() -> None,1584-1615,true,32,1,regenerate all reports
+      viewProjectDocs,function,(projectId) -> None,1618-1659,true,42,1,view project docs
+      viewDocContent,function,"(projectId, filename) -> None",1661-1689,true,29,1,view doc content
+      renderMarkdown,function,(md) -> None,1692-1694,false,3,1,formats markdown
+      copyDocToClipboard,function,() -> None,1698-1709,false,12,1,copy doc to clipboard
+      downloadDocFile,function,() -> None,1711-1726,false,16,1,download doc file
+      downloadPdf,function,"(projectId, filename) -> None",1728-1731,false,4,1,download pdf
+      viewDocHistory,function,"(projectId, filename) -> None",1733-1765,true,33,1,view doc history
+      viewDocVersion,function,"(projectId, filename, commit) -> None",1767-1785,true,19,1,view doc version
+      compareDocs,function,"(projectId, filename, oldCommit) -> None",1787-1847,true,61,1,compare docs
+      escapeHtml,function,(text) -> None,1849-1853,false,5,1,escape html
+      printDoc,function,() -> None,1855-1885,false,31,1,logs doc
+      closeDocsModal,function,() -> None,1887-1889,false,3,1,stops docs modal
+      initTimesheet,function,() -> None,1914-1935,true,22,1,creates timesheet
+      loadWorkers,function,() -> None,1937-1946,true,10,1,retrieves workers
+      loadContractors,function,() -> None,1948-1966,true,19,1,retrieves contractors
+      loadTimesheet,function,() -> None,1968-2070,true,103,1,retrieves timesheet
+      toggleTimesheetBlock,function,(checkbox) -> None,2072-2117,true,46,1,toggle timesheet block
+      updateTimesheetCell,function,(input) -> None,2119-2132,false,14,1,updates timesheet cell
+      saveTimesheet,function,() -> None,2134-2170,true,37,1,caches timesheet
+      updateTimesheetSummary,function,"(year, month) -> None",2172-2197,true,26,1,updates timesheet summary
+      showAddWorkerModal,function,() -> None,2199-2208,false,10,1,show add worker modal
+      createWorker,function,"(name, role, hourlyRate) -> None",2210-2221,true,12,1,creates worker
+      loadIntegrations,function,() -> None,2323-2355,true,33,1,retrieves integrations
+      renderIntegrationCard,function,(integration) -> None,2357-2382,false,26,1,formats integration card
+      loadSyncLogs,function,() -> None,2384-2411,true,28,1,retrieves sync logs
+      showAddIntegrationModal,function,() -> None,2413-2422,false,10,1,show add integration modal
+      closeIntegrationModal,function,() -> None,2424-2426,false,3,1,stops integration modal
+      updateProviderOptions,function,() -> None,2428-2441,false,14,1,updates provider options
+      updateCredentialFields,function,() -> None,2443-2461,false,19,1,updates credential fields
+      saveIntegration,function,(event) -> None,2463-2498,true,36,1,caches integration
+      verifyIntegration,function,(id) -> None,2500-2515,true,16,1,validates integration
+      syncInvoices,function,(integrationId) -> None,2517-2533,true,17,1,sync invoices
+      syncAllInvoices,function,() -> None,2535-2551,true,17,1,sync all invoices
+      uploadReport,function,(integrationId) -> None,2553-2577,true,25,1,upload report
+      uploadAllReports,function,() -> None,2579-2594,true,16,1,upload all reports
+      deleteIntegration,function,(id) -> None,2596-2606,true,11,1,deletes integration
+      loadAIConfig,function,() -> None,2609-2646,true,38,1,retrieves ai config
+      loadOCREngines,function,() -> None,2648-2669,true,22,1,retrieves ocr engines
+      loadDocumentTypes,function,() -> None,2671-2689,true,19,1,retrieves document types
+      saveAIConfig,function,() -> None,2691-2718,true,28,1,caches ai config
+      testConnections,function,() -> None,2720-2745,true,26,1,checks connections
+      updateModelList,function,() -> None,2747-2774,false,28,1,updates model list
+      initLogStreams,function,() -> None,2780-2784,false,5,1,creates log streams
+      startLogStreamForPage,function,(service) -> None,2786-2825,false,40,1,starts log stream for page
+      switchLogTab,function,(service) -> None,2827-2841,false,15,1,switch log tab
+      copyLogs,function,(service) -> None,2843-2855,false,13,1,copy logs
+      clearAllLogs,function,() -> None,2857-2862,false,6,1,deletes all logs
+      reconnectAllLogs,function,() -> None,2864-2873,false,10,1,reconnect all logs
+      stopAllLogStreams,function,() -> None,2875-2882,false,8,1,stops all log streams
+      isGlobalLogsOpen,function,() -> None,2885-2888,false,4,1,is global logs open
+      toggleGlobalLogs,function,() -> None,2890-2905,false,16,1,toggle global logs
+      switchGlobalLogTab,function,(service) -> None,2907-2917,false,11,1,switch global log tab
+      clearGlobalLogs,function,() -> None,2919-2924,false,6,1,deletes global logs
+      copyGlobalLogs,function,() -> None,2926-2940,false,15,1,copy global logs
+      downloadGlobalLogs,function,() -> None,2942-2962,false,21,1,download global logs
+      startLogStreamFor,function,(service) -> None,2965-3003,false,39,1,starts log stream for
+      initGitTimesheet,function,() -> None,3068-3082,true,15,1,creates git timesheet
+      scanGitRepos,function,() -> None,3084-3135,true,52,1,scan git repos
+      displayGitAuthors,function,(authors) -> None,3137-3170,false,34,1,logs git authors
+      toggleGitAuthor,function,(authorName) -> None,3172-3179,false,8,1,toggle git author
+      selectAllGitAuthors,function,(select) -> None,3181-3190,false,10,1,retrieves all git authors
+      displayGitRepoMapping,function,() -> None,3192-3264,true,73,1,logs git repo mapping
+      selectAllReposForProject,function,(projectId) -> None,3266-3296,false,31,1,retrieves all repos for project
+      updateGitProjectMapping,function,"(repoPath, projectId) -> None",3298-3301,false,4,1,updates git project mapping
+      checkGitTimesheetReady,function,() -> None,3303-3309,false,7,1,checks git timesheet ready
+      loadGitCommits,function,() -> None,3311-3387,true,77,1,retrieves git commits
+      generateGitTimesheet,function,() -> None,3389-3469,true,81,1,creates git timesheet
   brgenerator/tests/conftest.py:
     functions[4]{name,kind,sig,loc,async,lines,cc,does}:
       env_setup,function,(monkeypatch) -> None,10-15,false,6,1,Set up test environment variables.
