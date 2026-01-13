@@ -10,6 +10,7 @@ from pathlib import Path
 import httpx
 import aiofiles
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Query, BackgroundTasks
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, text
@@ -35,6 +36,8 @@ class DocumentResponse(BaseModel):
     ocr_status: str
     ocr_confidence: Optional[float] = None
     extracted_data: Optional[dict] = None
+    mime_type: Optional[str] = None
+    file_url: Optional[str] = None
     created_at: datetime
     
     class Config:
@@ -47,6 +50,25 @@ class DocumentUploadResponse(BaseModel):
     filename: str
     status: str
     message: str
+
+
+class DocumentNoteUpsert(BaseModel):
+    notes: Optional[str] = None
+
+
+async def ensure_document_notes_table(db: AsyncSession) -> None:
+    await db.execute(
+        text(
+            """
+            CREATE TABLE IF NOT EXISTS read_models.document_notes (
+                document_id UUID PRIMARY KEY REFERENCES read_models.documents(id) ON DELETE CASCADE,
+                notes TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+            """
+        )
+    )
 
 
 @router.post("/upload", response_model=DocumentUploadResponse)
@@ -441,7 +463,7 @@ async def get_document(document_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         text("""
         SELECT id, filename, document_type, ocr_status, ocr_confidence, 
-               extracted_data, created_at
+               extracted_data, mime_type, created_at
         FROM read_models.documents 
         WHERE id = :id
         """),
@@ -459,7 +481,9 @@ async def get_document(document_id: str, db: AsyncSession = Depends(get_db)):
         ocr_status=row[3],
         ocr_confidence=row[4],
         extracted_data=row[5],
-        created_at=row[6]
+        mime_type=row[6],
+        file_url=f"/api/documents/{str(row[0])}/file",
+        created_at=row[7]
     )
 
 
@@ -474,7 +498,7 @@ async def list_documents(
     """List documents with optional filtering"""
     query = """
         SELECT id, filename, document_type, ocr_status, ocr_confidence, 
-               extracted_data, created_at
+               extracted_data, mime_type, created_at
         FROM read_models.documents 
         WHERE 1=1
     """
@@ -503,10 +527,127 @@ async def list_documents(
             ocr_status=row[3],
             ocr_confidence=row[4],
             extracted_data=row[5],
-            created_at=row[6]
+            mime_type=row[6],
+            file_url=f"/api/documents/{str(row[0])}/file",
+            created_at=row[7]
         )
         for row in rows
     ]
+
+
+@router.get("/{document_id}/file")
+async def download_document_file(document_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        text("""
+            SELECT original_path, mime_type, filename
+            FROM read_models.documents
+            WHERE id = :id
+        """),
+        {"id": document_id}
+    )
+    row = result.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = Path(row[0]) if row[0] else None
+    if not file_path or not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    resolved = file_path.resolve()
+    upload_root = UPLOAD_DIR.resolve()
+    if upload_root not in resolved.parents and resolved != upload_root:
+        raise HTTPException(status_code=400, detail="Invalid file path")
+
+    return FileResponse(
+        path=str(resolved),
+        media_type=row[1] or "application/octet-stream",
+        filename=row[2] or resolved.name
+    )
+
+
+@router.get("/notes")
+async def list_document_notes(
+    project_id: Optional[str] = Query(default=None),
+    limit: int = Query(default=200, le=500),
+    offset: int = Query(default=0),
+    db: AsyncSession = Depends(get_db)
+):
+    await ensure_document_notes_table(db)
+    
+    query = """
+        SELECT d.id, d.filename, d.document_type, d.ocr_status, d.ocr_confidence,
+               d.extracted_data, substring(d.ocr_text for 240) as ocr_excerpt,
+               d.mime_type, d.created_at,
+               n.notes, n.updated_at
+        FROM read_models.documents d
+        LEFT JOIN read_models.document_notes n ON n.document_id = d.id
+        WHERE 1=1
+    """
+    params = {"limit": limit, "offset": offset}
+    if project_id:
+        query += " AND d.project_id = :project_id"
+        params["project_id"] = project_id
+    query += " ORDER BY d.created_at DESC LIMIT :limit OFFSET :offset"
+
+    result = await db.execute(text(query), params)
+    rows = result.fetchall()
+
+    items = []
+    for r in rows:
+        doc_id = str(r[0])
+        extracted = r[5] or {}
+        if isinstance(extracted, dict) and isinstance(extracted.get('extracted_data'), dict):
+            nested = extracted.get('extracted_data') or {}
+            extracted = {k: v for k, v in extracted.items() if k != 'extracted_data'}
+            extracted.update(nested)
+
+        items.append({
+            "id": doc_id,
+            "filename": r[1],
+            "document_type": r[2],
+            "ocr_status": r[3],
+            "ocr_confidence": float(r[4]) if r[4] is not None else None,
+            "extracted_data": extracted,
+            "ocr_excerpt": r[6],
+            "mime_type": r[7],
+            "created_at": r[8].isoformat() if r[8] else None,
+            "notes": r[9],
+            "notes_updated_at": r[10].isoformat() if r[10] else None,
+            "file_url": f"/api/documents/{doc_id}/file",
+            "open_url": f"/?page=expenses&doc={doc_id}",
+        })
+
+    return {"items": items, "total": len(items)}
+
+
+@router.put("/{document_id}/notes")
+async def upsert_document_notes(
+    document_id: str,
+    payload: DocumentNoteUpsert,
+    db: AsyncSession = Depends(get_db)
+):
+    await ensure_document_notes_table(db)
+
+    exists = await db.execute(
+        text("SELECT id FROM read_models.documents WHERE id = :id"),
+        {"id": document_id}
+    )
+    if not exists.fetchone():
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    await db.execute(
+        text(
+            """
+            INSERT INTO read_models.document_notes (document_id, notes)
+            VALUES (:document_id, :notes)
+            ON CONFLICT (document_id)
+            DO UPDATE SET notes = EXCLUDED.notes, updated_at = NOW()
+            """
+        ),
+        {"document_id": document_id, "notes": payload.notes}
+    )
+    await db.commit()
+    return {"status": "updated", "document_id": document_id}
 
 
 @router.post("/{document_id}/reprocess")

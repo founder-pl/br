@@ -1,12 +1,12 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T19:07:46.041880
+generated: 2026-01-13T20:59:48.159109
 stats:
-  files: 106
-  lines: 33355
-  languages[2]: python:104,javascript:2
+  files: 107
+  lines: 33950
+  languages[2]: python:105,javascript:2
 
-modules[106]{path,lang,lines,kb}:
+modules[107]{path,lang,lines,kb}:
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
   tests/test_documentation_validation.py,python,501,22.7
@@ -27,6 +27,7 @@ modules[106]{path,lang,lines,kb}:
   tests/integration/test_sql_fixes.py,python,122,5.7
   tests/integration/test_integrations_api.py,python,220,9.9
   tests/integration/test_git_timesheet.py,python,137,6.1
+  src/doc_generator/__init__.py,python,9,0.4
   src/ocr/extractors.py,python,223,9.6
   src/ocr/engines.py,python,233,8.3
   src/ocr/__init__.py,python,26,0.9
@@ -55,7 +56,7 @@ modules[106]{path,lang,lines,kb}:
   src/api/services/__init__.py,python,20,0.6
   src/api/services/expense_categorizer.py,python,246,11.0
   src/api/services/audit_trail.py,python,244,8.7
-  src/api/services/expense_service.py,python,338,14.7
+  src/api/services/expense_service.py,python,575,26.3
   src/api/models/project_extended.py,python,139,6.3
   src/api/models/__init__.py,python,50,1.1
   src/api/models/daily_time_entry.py,python,167,6.8
@@ -68,9 +69,9 @@ modules[106]{path,lang,lines,kb}:
   src/api/routers/integrations.py,python,452,19.9
   src/api/routers/logs.py,python,268,11.3
   src/api/routers/git_timesheet.py,python,407,15.9
-  src/api/routers/reports.py,python,439,20.0
-  src/api/routers/documents.py,python,740,33.8
-  src/api/routers/expenses.py,python,1359,57.9
+  src/api/routers/reports.py,python,448,20.3
+  src/api/routers/documents.py,python,870,39.0
+  src/api/routers/expenses.py,python,1376,58.5
   src/api/cqrs/commands.py,python,276,12.2
   src/api/cqrs/events.py,python,220,9.3
   src/api/cqrs/__init__.py,python,46,1.1
@@ -91,7 +92,7 @@ modules[106]{path,lang,lines,kb}:
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
   web/static/js/markdown-renderer.js,javascript,136,5.4
-  web/static/js/app.js,javascript,2911,144.0
+  web/static/js/app.js,javascript,3029,148.0
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -671,6 +672,8 @@ module_details:
         doc: Test path mapping between host and container
         methods[1]{name,sig,decorators,async,lines}:
           test_host_path_mapping,()->None,pytest.mark.asyncio,true,18
+  src/doc_generator/__init__.py:
+    imports[3]: engine.DocumentEngine,data_sources.DataSourceRegistry,templates.TemplateRegistry
   src/ocr/extractors.py:
     imports[8]: re,typing.Dict,typing.Any,typing.Optional,typing.List,datetime,datetime.date,structlog
     exports[4]: validate_nip,validate_regon,InvoiceExtractor,get_extractor
@@ -1251,15 +1254,15 @@ module_details:
       audit_br_qualification: audit br qualification
       get_audit_service: retrieves audit service
   src/api/services/expense_service.py:
-    imports[15]: typing.Optional,typing.Dict,typing.List,typing.Any,typing.Tuple,datetime.date,decimal.Decimal,uuid.UUID,structlog,sqlalchemy.text,sqlalchemy.ext.asyncio.AsyncSession,validators.expense_pipeline.get_validation_pipeline,services.expense_categorizer.get_expense_categorizer,services.audit_trail.get_audit_service,services.audit_trail.AuditEventType
+    imports[17]: typing.Optional,typing.Dict,typing.List,typing.Any,typing.Tuple,datetime.date,decimal.Decimal,uuid.UUID,structlog,sqlalchemy.text,sqlalchemy.ext.asyncio.AsyncSession,validators.expense_pipeline.get_validation_pipeline,validators.InvoiceValidator,validators.CurrencyConverter,services.expense_categorizer.get_expense_categorizer
     exports[2]: ExpenseService,get_expense_service
     classes[1]{name,bases,decorators,props,methods}:
-      ExpenseService,-,-,0,10
+      ExpenseService,-,-,0,11
     class_details:
       ExpenseService:
         doc: Service for expense business operations.
-        methods[10]{name,sig,decorators,async,lines}:
-          __init__,"(db:AsyncSession)->None",-,false,4
+        methods[11]{name,sig,decorators,async,lines}:
+          __init__,"(db:AsyncSession)->None",-,false,6
           get_expense,"(expense_id:str)->Optional[Dict[str, Any]]",-,true,21
           list_expenses,"(project_id:Optional[str]=None;year:Optional[int]=None;month:Optional[int]=None;br_qualified:Optional[bool]=None;status:Optional[str]=None;limit:int=100)->Tuple[List[Dict[str, Any]], int]",-,true,68
           create_expense,"(data:Dict[str;Any])->Dict[str, Any]",-,true,54
@@ -1267,6 +1270,7 @@ module_details:
           delete_expense,"(expense_id:str)->bool",-,true,24
           validate_expense,"(expense_id:str)->Dict[str, Any]",-,true,18
           categorize_expense,"(expense_id:str;apply:bool=False)->Dict[str, Any]",-,true,44
+          process_all,"(project_id:str;year:Optional[int]=None;month:Optional[int]=None)->Dict[str, Any]",-,true,264
           get_summary,"(project_id:Optional[str]=None;year:Optional[int]=None)->Dict[str, Any]",-,true,50
           _row_to_dict,"(row)->Dict[str, Any]",-,false,30
     functions[1]{name,sig,decorators,async,category,lines}:
@@ -1700,24 +1704,24 @@ module_details:
       generate_timesheet_from_commits: creates timesheet from commits
       get_detailed_commits: retrieves detailed commits
   src/api/routers/reports.py:
-    imports[17]: uuid,datetime,typing.Optional,typing.List,json,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
+    imports[18]: uuid,datetime,typing.Optional,typing.List,json,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
     exports[12]: MonthlyReportResponse,ReportGenerateRequest,AnnualBRSummary,IPBoxSummary,generate_monthly_report,calculate_monthly_report,get_monthly_report,list_monthly_reports,get_annual_br_summary,get_annual_ip_box_summary
     classes[4]{name,bases,decorators,props,methods}:
       MonthlyReportResponse,BaseModel,-,17,0
-      ReportGenerateRequest,BaseModel,-,4,0
+      ReportGenerateRequest,BaseModel,-,5,0
       AnnualBRSummary,BaseModel,-,14,0
       IPBoxSummary,BaseModel,-,11,0
     class_details:
       MonthlyReportResponse:
         properties[17]: "id: str","project_id: str","fiscal_year: int","month: int","total_expenses: float","br_expenses: float","br_deduction: float","ip_expenses: float","total_revenues: float","ip_revenues: float"
       ReportGenerateRequest:
-        properties[4]: "project_id: str","fiscal_year: int","month: int","regenerate: bool"
+        properties[5]: "project_id: str","fiscal_year: int","month: int","regenerate: bool","preprocess: bool"
       AnnualBRSummary:
         properties[14]: "fiscal_year: int","company_name: str","company_nip: str","project_name: str","personnel_employment: float","personnel_civil: float","materials: float","equipment: float","depreciation: float","expertise: float"
       IPBoxSummary:
         properties[11]: "fiscal_year: int","company_name: str","company_nip: str","ip_revenues: float","nexus_a: float","nexus_b: float","nexus_c: float","nexus_d: float","nexus_ratio: float","qualified_income: float"
     functions[8]{name,sig,decorators,async,category,lines}:
-      generate_monthly_report,"(request:ReportGenerateRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,47
+      generate_monthly_report,"(request:ReportGenerateRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,55
       calculate_monthly_report,"(db:AsyncSession;project_id:str;year:int;month:int)->dict",-,true,-,43
       get_monthly_report,"(report_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,22
       list_monthly_reports,"(project_id:Optional[str]=Query(default=None);fiscal_year:Optional[int]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,29
@@ -1736,45 +1740,56 @@ module_details:
       export_monthly_report_excel: export monthly report excel
   src/api/routers/documents.py:
     imports[20]: json,uuid,datetime,typing.Optional,typing.List,pathlib.Path,httpx,aiofiles,fastapi.APIRouter,fastapi.UploadFile,fastapi.File,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks
-    exports[18]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr,get_document,list_documents,reprocess_document
+    exports[23]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,DocumentNoteUpsert,ensure_document_notes_table,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr,get_document
     const[1]{n,t,v,keys}:
       UPLOAD_DIR,"-","Path(\"/app/uploads\")","-"
-    classes[3]{name,bases,decorators,props,methods}:
-      DocumentResponse,BaseModel,-,7,0
+    classes[4]{name,bases,decorators,props,methods}:
+      DocumentResponse,BaseModel,-,9,0
       DocumentUploadResponse,BaseModel,-,4,0
+      DocumentNoteUpsert,BaseModel,-,1,0
       DocumentDetailResponse,BaseModel,-,10,0
     class_details:
       DocumentResponse:
         doc: Document response model
-        properties[7]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","extracted_data: Optional[dict]","created_at: datetime"
+        properties[9]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","extracted_data: Optional[dict]","mime_type: Optional[str]","file_url: Optional[str]","created_at: datetime"
       DocumentUploadResponse:
         doc: Upload response
         properties[4]: "document_id: str","filename: str","status: str","message: str"
+      DocumentNoteUpsert:
+        properties[1]: "notes: Optional[str]"
       DocumentDetailResponse:
         doc: Extended document response with OCR text
         properties[10]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","ocr_text: Optional[str]","extracted_data: Optional[dict]","validation_errors: Optional[list]","created_at: datetime","updated_at: Optional[datetime]"
-    functions[14]{name,sig,decorators,async,category,lines}:
+    functions[18]{name,sig,decorators,async,category,lines}:
+      ensure_document_notes_table,"(db:AsyncSession)->None",-,true,-,13
       upload_document,"(background_tasks:BackgroundTasks;file:UploadFile=File(...);project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001');document_type:str=Query(default='invoice');db:AsyncSession=Depends(get_db))->None",router.post,true,-,68
       detect_invoice_type,"(extracted_data:dict;our_nip:str='5881918662')->str",-,false,-,48
       create_expense_from_document,"(doc_id:str;extracted_data:dict;doc_type:str)->None",-,true,-,160
       process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,101
-      get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,25
-      list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,43
+      get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,27
+      list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,45
+      download_document_file,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,27
+      list_document_notes,"(project_id:Optional[str]=Query(default=None);limit:int=Query(default=200; le=500);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,52
+      upsert_document_notes,"(document_id:str;payload:DocumentNoteUpsert;db:AsyncSession=Depends(get_db))->None",router.put,true,-,27
       reprocess_document,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
       delete_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,33
-      update_document,"(document_id:str;db:AsyncSession=Depends(get_db);document_type:Optional[str]=None;ocr_status:Optional[str]=None;extracted_data:Optional[dict]=None)->None",router.patch,true,-,34
+      update_document,"(document_id:str;db:AsyncSession=Depends(get_db);document_type:Optional[str]=None;ocr_status:Optional[str]=None;extracted_data:Optional[dict]=None)->None",router.patch,true,-,38
       llm_extract_fields,"(document_id:str;request:dict;db:AsyncSession=Depends(get_db))->None",router.post,true,-,91
-      get_document_detail,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,28
+      get_document_detail,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,34
       sync_expenses_from_documents,"(background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,37
       check_document_duplicates,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,80
       re_extract_document_data,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,60
     function_docs:
+      ensure_document_notes_table: ensure document notes table
       upload_document: upload document
       detect_invoice_type: detect invoice type
       create_expense_from_document: creates expense from document
       process_document_ocr: processes document ocr
       get_document: retrieves document
       list_documents: list documents
+      download_document_file: download document file
+      list_document_notes: list document notes
+      upsert_document_notes: upsert document notes
       reprocess_document: reprocess document
       delete_document: deletes document
       update_document: updates document
@@ -1785,13 +1800,14 @@ module_details:
       re_extract_document_data: re extract document data
   src/api/routers/expenses.py:
     imports[20]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,httpx,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession
-    exports[38]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,BRCategory,BR_CATEGORIES,get_br_categories,create_expense,validate_expense_pipeline,categorize_expense,validate_invoice_number
+    exports[40]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,ProcessAllRequest,BRCategory,BR_CATEGORIES,get_br_categories,process_all_expenses,create_expense,validate_expense_pipeline
     const[1]{n,t,v,keys}:
       BR_CATEGORIES,List,"[     BRCategory(         code=\"personnel_employment\",         name=\"Wynagrodzenia pracowników (umowa o pracę)\",     ...","-"
-    classes[5]{name,bases,decorators,props,methods}:
+    classes[6]{name,bases,decorators,props,methods}:
       ExpenseCreate,BaseModel,-,12,0
       ExpenseResponse,BaseModel,-,26,0
       ExpenseClassifyRequest,BaseModel,-,7,0
+      ProcessAllRequest,BaseModel,-,3,0
       BRCategory,BaseModel,-,5,0
       ExpenseStatusUpdate,BaseModel,-,1,0
     class_details:
@@ -1804,14 +1820,17 @@ module_details:
       ExpenseClassifyRequest:
         doc: Manual classification request
         properties[7]: "br_qualified: Optional[bool]","br_category: Optional[str]","br_qualification_reason: Optional[str]","br_deduction_rate: Optional[float]","ip_qualified: Optional[bool]","ip_category: Optional[str]","nexus_category: Optional[str]"
+      ProcessAllRequest:
+        properties[3]: "project_id: str","fiscal_year: Optional[int]","month: Optional[int]"
       BRCategory:
         doc: B+R expense category
         properties[5]: "code: str","name: str","description: str","deduction_rate: float","examples: List[str]"
       ExpenseStatusUpdate:
         doc: Status update request
         properties[1]: "status: str"
-    functions[32]{name,sig,decorators,async,category,lines}:
+    functions[33]{name,sig,decorators,async,category,lines}:
       get_br_categories,()->None,router.get,true,-,3
+      process_all_expenses,"(request:ProcessAllRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,11
       create_expense,"(expense:ExpenseCreate;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
       validate_expense_pipeline,"(expense_data:dict)->None",router.post,true,-,13
       categorize_expense,"(description:str=Query(...);vendor_name:Optional[str]=Query(default=None);amount:Optional[float]=Query(default=None))->None",router.post,true,-,26
@@ -1845,6 +1864,7 @@ module_details:
       parse_llm_classification,"(response:str)->dict",-,false,-,19
     function_docs:
       get_br_categories: retrieves br categories
+      process_all_expenses: processes all expenses
       create_expense: creates expense
       validate_expense_pipeline: validates expense pipeline
       categorize_expense: categorize expense
@@ -2610,7 +2630,7 @@ module_details:
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[154]: getProjectName,loadRecentDocuments,regenerateAllReports,deleteIntegration,startLogStreamFor,toggleDashboardConfig,initGitTimesheet,updateModuleSelect,loadAIConfig,updateBulkActionsBar
+    exports[159]: uploadReport,uploadFile,loadCategoryModule,generateGitTimesheet,saveDashboardLayout,confirmModalCancel,renderDashboard,showCreateProjectModal,handleFiles,viewDocVersion
     const[7]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
@@ -2619,11 +2639,15 @@ module_details:
       TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[154]{name,sig,decorators,async,category,lines}:
+    functions[159]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
+      processAllExpensesForYear,()->None,-,true,-,26
       getUrlParam,(key)->None,-,false,-,4
       setUrlParam,(key;value)->None,-,false,-,14
       setPageInUrl,(page)->None,-,false,-,3
+      closeConfirmModal,()->None,-,false,-,4
+      confirmModalCancel,()->None,-,false,-,10
+      openConfirmModal,()->None,-,false,-,34
       navigateTo,(page)->None,-,false,-,28
       apiCall,(endpoint)->None,-,true,-,13
       getDashboardLayout,()->None,-,false,-,4
@@ -2648,12 +2672,14 @@ module_details:
       pollDocumentStatus,(docId;itemId)->None,-,true,-,16
       loadRecentDocuments,()->None,-,true,-,24
       getDocTypeName,(type)->None,-,false,-,4
-      deleteDocument,(docId)->None,-,true,-,10
+      deleteDocumentFromModal,(docId)->None,-,true,-,6
       retryOcr,(docId)->None,-,true,-,7
+      normalizeExtractedData,(raw)->None,-,false,-,9
+      formatExtractedValue,(v)->None,-,false,-,11
       showDocumentDetail,(docId)->None,-,true,-,84
       getFieldLabel,(field)->None,-,false,-,13
       toggleEditMode,()->None,-,false,-,9
-      saveExtractedData,(docId)->None,-,true,-,23
+      saveExtractedData,(docId)->None,-,true,-,25
       createExpenseFromDoc,(docId)->None,-,true,-,40
       createRevenueFromDoc,(docId)->None,-,true,-,42
       closeDocumentModal,()->None,-,false,-,7
@@ -2685,8 +2711,8 @@ module_details:
       loadMonthlyDetails,(year)->None,-,true,-,52
       viewMonthExpenses,(year;month)->None,-,false,-,18
       showMonthDetails,(year;month)->None,-,true,-,70
-      regenerateMonthReport,(year;month)->None,-,true,-,13
-      regenerateAllMonthlyReports,()->None,-,true,-,20
+      regenerateMonthReport,(year;month)->None,-,true,-,11
+      regenerateAllMonthlyReports,()->None,-,true,-,25
       generateMonthlyReport,()->None,-,true,-,7
       generateAllReports,()->None,-,true,-,7
       loadClarifications,()->None,-,true,-,14
@@ -2699,7 +2725,6 @@ module_details:
       showToast,(msg)->None,-,false,-,1
       changeExpenseStatus,(id;status)->None,-,true,-,6
       saveExpenseStatus,(id)->None,-,true,-,9
-      deleteExpense,(id)->None,-,true,-,9
       checkDuplicates,(docId)->None,-,true,-,31
       reExtractData,(docId)->None,-,true,-,12
       updateOcrEngine,(engine)->None,-,false,-,4
@@ -2776,9 +2801,13 @@ module_details:
       generateGitTimesheet,()->None,-,true,-,81
     function_docs:
       getPageFromUrl: retrieves page from url
+      processAllExpensesForYear: processes all expenses for year
       getUrlParam: retrieves url param
       setUrlParam: updates url param
       setPageInUrl: updates page in url
+      closeConfirmModal: stops confirm modal
+      confirmModalCancel: validates modal cancel
+      openConfirmModal: starts confirm modal
       navigateTo: navigate to
       apiCall: api call
       getDashboardLayout: retrieves dashboard layout
@@ -2803,8 +2832,10 @@ module_details:
       pollDocumentStatus: poll document status
       loadRecentDocuments: retrieves recent documents
       getDocTypeName: retrieves doc type name
-      deleteDocument: deletes document
+      deleteDocumentFromModal: deletes document from modal
       retryOcr: retry ocr
+      normalizeExtractedData: normalize extracted data
+      formatExtractedValue: formats extracted value
       showDocumentDetail: show document detail
       getFieldLabel: retrieves field label
       toggleEditMode: toggle edit mode
@@ -2854,7 +2885,6 @@ module_details:
       showToast: show toast
       changeExpenseStatus: updates expense status
       saveExpenseStatus: caches expense status
-      deleteExpense: deletes expense
       checkDuplicates: checks duplicates
       reExtractData: re extract data
       updateOcrEngine: updates ocr engine

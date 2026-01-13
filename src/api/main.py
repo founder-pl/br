@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .routers import documents, expenses, projects, reports, auth, clarifications, integrations, logs, config, timesheet, git_timesheet
+from ..doc_generator.router import router as doc_generator_router
 from .database import init_database, close_database
 from .config import settings
 
@@ -60,6 +61,7 @@ openapi_tags = [
     {"name": "Konfiguracja", "description": "Ustawienia systemowe i parametry"},
     {"name": "Harmonogram", "description": "Rejestr czasu pracy pracowników B+R"},
     {"name": "Harmonogram Git", "description": "Generowanie ewidencji z commitów Git"},
+    {"name": "Generator dokumentów", "description": "Generowanie dokumentów B+R i IP Box"},
 ]
 
 # Create FastAPI app
@@ -151,6 +153,7 @@ app.include_router(logs.router, prefix="/logs", tags=["Logi"])
 app.include_router(config.router, prefix="/config", tags=["Konfiguracja"])
 app.include_router(timesheet.router, prefix="/timesheet", tags=["Harmonogram"])
 app.include_router(git_timesheet.router, prefix="/git-timesheet", tags=["Harmonogram Git"])
+app.include_router(doc_generator_router, tags=["Generator dokumentów"])
 
 
 # Health check

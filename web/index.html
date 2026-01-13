@@ -51,6 +51,14 @@
                     <span>Wyjaśnienia</span>
                     <span class="badge" id="clarification-badge">0</span>
                 </li>
+                <li class="nav-item" data-page="doc-generator">
+                    <span class="nav-icon">📝</span>
+                    <span>Generator dokumentów</span>
+                </li>
+                <li class="nav-item" data-page="doc-annotations">
+                    <span class="nav-icon">📎</span>
+                    <span>Adnotacje dokumentów</span>
+                </li>
                 <li class="nav-item" data-page="integrations">
                     <span class="nav-icon">🔗</span>
                     <span>Integracje</span>
@@ -787,6 +795,64 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Document Generator Page -->
+            <section id="page-doc-generator" class="page">
+                <header class="page-header">
+                    <h2>Generator dokumentów B+R / IP Box</h2>
+                    <div class="header-actions">
+                        <select id="docgen-project-filter" class="filter-select" onchange="loadDocTemplates()">
+                            <option value="">-- Wszystkie projekty --</option>
+                        </select>
+                        <select id="docgen-year-filter" class="filter-select" onchange="loadDocTemplates()">
+                            <option value="">-- Rok --</option>
+                        </select>
+                        <select id="docgen-month-filter" class="filter-select">
+                            <option value="">-- Miesiąc --</option>
+                            <option value="1">Styczeń</option>
+                            <option value="2">Luty</option>
+                            <option value="3">Marzec</option>
+                            <option value="4">Kwiecień</option>
+                            <option value="5">Maj</option>
+                            <option value="6">Czerwiec</option>
+                            <option value="7">Lipiec</option>
+                            <option value="8">Sierpień</option>
+                            <option value="9">Wrzesień</option>
+                            <option value="10">Październik</option>
+                            <option value="11">Listopad</option>
+                            <option value="12">Grudzień</option>
+                        </select>
+                    </div>
+                </header>
+                
+                <div class="docgen-categories">
+                    <button class="category-btn active" data-category="" onclick="filterDocTemplates('')">Wszystkie</button>
+                    <button class="category-btn" data-category="project" onclick="filterDocTemplates('project')">📁 Projekty</button>
+                    <button class="category-btn" data-category="financial" onclick="filterDocTemplates('financial')">💰 Finansowe</button>
+                    <button class="category-btn" data-category="timesheet" onclick="filterDocTemplates('timesheet')">⏱️ Czas pracy</button>
+                    <button class="category-btn" data-category="legal" onclick="filterDocTemplates('legal')">📜 Prawne</button>
+                    <button class="category-btn" data-category="tax" onclick="filterDocTemplates('tax')">🧾 Podatkowe</button>
+                    <button class="category-btn" data-category="report" onclick="filterDocTemplates('report')">📊 Raporty</button>
+                </div>
+                
+                <div class="docgen-templates-grid" id="docgen-templates">
+                    <!-- Templates loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Document Annotations Page -->
+            <section id="page-doc-annotations" class="page">
+                <header class="page-header">
+                    <h2>Adnotacje dokumentów</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="loadDocAnnotations()">🔄 Odśwież</button>
+                    </div>
+                </header>
+                
+                <div class="doc-annotations-list" id="doc-annotations-list">
+                    <!-- Annotations loaded dynamically -->
                 </div>
             </section>
 
