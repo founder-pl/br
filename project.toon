@@ -1,15 +1,15 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T13:58:31.410917
+generated: 2026-01-13T15:05:52.236865
 stats:
   files: 89
-  lines: 27439
+  lines: 27887
   languages[2]: python:87,javascript:2
 
 modules[89]{path,lang,lines,kb}:
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
-  tests/test_documentation_validation.py,python,501,22.6
+  tests/test_documentation_validation.py,python,501,22.7
   tests/test_invoice_detection.py,python,104,4.0
   cli/validate_documentation.py,python,131,6.2
   cli/generate_sample_invoices.py,python,186,7.8
@@ -48,12 +48,12 @@ modules[89]{path,lang,lines,kb}:
   src/api/routers/timesheet.py,python,309,11.8
   src/api/routers/config.py,python,253,10.4
   src/api/routers/clarifications.py,python,177,6.4
-  src/api/routers/projects.py,python,325,12.1
+  src/api/routers/projects.py,python,325,12.2
   src/api/routers/auth.py,python,152,5.4
   src/api/routers/__init__.py,python,5,0.2
   src/api/routers/integrations.py,python,329,14.5
   src/api/routers/logs.py,python,268,11.3
-  src/api/routers/git_timesheet.py,python,378,14.3
+  src/api/routers/git_timesheet.py,python,395,15.2
   src/api/routers/reports.py,python,285,13.3
   src/api/routers/documents.py,python,665,29.8
   src/api/routers/expenses.py,python,1089,46.7
@@ -74,7 +74,7 @@ modules[89]{path,lang,lines,kb}:
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
   web/static/js/markdown-renderer.js,javascript,136,5.4
-  web/static/js/app.js,javascript,2294,112.9
+  web/static/js/app.js,javascript,2654,131.2
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -1238,7 +1238,9 @@ module_details:
       list_services: list services
   src/api/routers/git_timesheet.py:
     imports[20]: os,subprocess,re,datetime,datetime.date,typing.Optional,typing.List,typing.Dict,typing.Any,pathlib.Path,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,pydantic.BaseModel
-    exports[16]: GitRepoInfo,GitAuthor,GitCommit,ScanRequest,CommitHistoryRequest,GitTimesheetEntry,GenerateTimesheetRequest,run_git_command,is_git_repo,find_git_repos
+    exports[19]: GitRepoInfo,GitAuthor,GitCommit,ScanRequest,CommitHistoryRequest,GitTimesheetEntry,GenerateTimesheetRequest,run_git_command,is_git_repo,find_git_repos
+    const[1]{n,t,v,keys}:
+      HOST_TO_CONTAINER_PATH_MAP,Dict,"{     \"/home/tom/github\": \"/repos\", }","-"
     classes[7]{name,bases,decorators,props,methods}:
       GitRepoInfo,BaseModel,-,5,0
       GitAuthor,BaseModel,-,3,0
@@ -1262,22 +1264,26 @@ module_details:
         properties[7]: "repo_path: str","repo_name: str","commit_hash: str","author: str","commit_date: datetime","message: str","project_id: Optional[str]"
       GenerateTimesheetRequest:
         properties[3]: "commits: List[Dict[str, Any]]","worker_id: str","project_mappings: Dict[str, str]"
-    functions[9]{name,sig,decorators,async,category,lines}:
+    functions[11]{name,sig,decorators,async,category,lines}:
       run_git_command,"(repo_path:str;args:List[str])->str",-,false,-,16
       is_git_repo,"(path:str)->bool",-,false,-,4
       find_git_repos,"(base_path:str;max_depth:int;current_depth:int=0)->List[str]",-,false,-,22
       get_repo_authors,"(repo_path:str)->List[GitAuthor]",-,false,-,20
       get_repo_commits,"(repo_path:str;authors:List[str]=None;since:str=None;until:str=None)->List[GitCommit]",-,false,-,42
-      scan_for_repositories,"(request:ScanRequest)->None",router.post,true,-,64
-      get_commit_history,"(request:CommitHistoryRequest)->None",router.post,true,-,48
+      translate_path_to_container,"(host_path:str)->str",-,false,-,6
+      translate_path_to_host,"(container_path:str)->str",-,false,-,6
+      scan_for_repositories,"(request:ScanRequest)->None",router.post,true,-,65
+      get_commit_history,"(request:CommitHistoryRequest)->None",router.post,true,-,49
       generate_timesheet_from_commits,"(request:GenerateTimesheetRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,92
       get_detailed_commits,"(repo_path:str=Query(...);author:Optional[str]=None;since:Optional[str]=None;until:Optional[str]=None)->None",router.get,true,-,74
     function_docs:
       run_git_command: starts git command
-      is_git_repo: checks git repo
+      is_git_repo: is git repo
       find_git_repos: retrieves git repos
       get_repo_authors: retrieves repo authors
       get_repo_commits: retrieves repo commits
+      translate_path_to_container: converts path to container
+      translate_path_to_host: converts path to host
       scan_for_repositories: scan for repositories
       get_commit_history: retrieves commit history
       generate_timesheet_from_commits: creates timesheet from commits
@@ -2000,21 +2006,38 @@ module_details:
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[125]: renderIntegrationCard,switchLogTab,loadRecentDocuments,closeDocumentModal,syncAllInvoices,viewProjectExpenses,testConnections,loadDocumentTypes,apiCall,toggleGitAuthor
-    const[5]{n,t,v,keys}:
+    exports[145]: deleteExpense,checkGitTimesheetReady,getPageFromUrl,saveTimesheet,loadExpenses,toggleExpenseSelection,deleteIntegration,syncAllInvoices,generateGitTimesheet,clearSelection
+    const[7]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
+      DASHBOARD_MODULES,"-","-","-"
+      DEFAULT_DASHBOARD_LAYOUT,"-","-","-"
       TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[125]{name,sig,decorators,async,category,lines}:
+    functions[145]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
       getUrlParam,(key)->None,-,false,-,4
       setUrlParam,(key;value)->None,-,false,-,14
       setPageInUrl,(page)->None,-,false,-,3
       navigateTo,(page)->None,-,false,-,27
       apiCall,(endpoint)->None,-,true,-,13
-      loadDashboard,()->None,-,true,-,16
+      getDashboardLayout,()->None,-,false,-,4
+      saveDashboardLayout,()->None,-,false,-,3
+      toggleDashboardConfig,()->None,-,false,-,5
+      updateModuleSelect,()->None,-,false,-,6
+      addDashboardModule,(moduleId)->None,-,false,-,6
+      removeDashboardModule,(moduleId)->None,-,false,-,5
+      resetDashboardConfig,()->None,-,false,-,6
+      renderDashboard,()->None,-,false,-,26
+      loadDashboard,()->None,-,true,-,4
+      loadDashboardModules,()->None,-,true,-,39
+      loadRecentDocsModule,(container)->None,-,true,-,15
+      loadCategoryModule,(container;summary)->None,-,false,-,8
+      loadTopVendorsModule,(container)->None,-,true,-,15
+      loadTimesheetModule,(container)->None,-,true,-,6
+      loadGitActivityModule,(container)->None,-,true,-,4
+      loadMonthlyTrendModule,(container)->None,-,true,-,18
       setupUploadListeners,()->None,-,false,-,13
       handleFiles,(files)->None,-,false,-,1
       uploadFile,(file)->None,-,true,-,29
@@ -2052,7 +2075,11 @@ module_details:
       showExpenseDetails,(id)->None,-,true,-,34
       classifyExpense,(id)->None,-,true,-,11
       reclassifyWithLLM,(id)->None,-,true,-,4
-      loadReports,()->None,-,true,-,22
+      loadReports,()->None,-,true,-,62
+      loadMonthlyDetails,(year)->None,-,true,-,52
+      showMonthDetails,(year;month)->None,-,true,-,70
+      regenerateMonthReport,(year;month)->None,-,true,-,13
+      regenerateAllMonthlyReports,()->None,-,true,-,20
       generateMonthlyReport,()->None,-,true,-,7
       generateAllReports,()->None,-,true,-,7
       loadClarifications,()->None,-,true,-,14
@@ -2072,9 +2099,10 @@ module_details:
       generateProjectSummary,(projectId)->None,-,true,-,19
       regenerateAllReports,()->None,-,true,-,32
       viewProjectDocs,(projectId)->None,-,true,-,42
-      viewDocContent,(projectId;filename)->None,-,true,-,25
+      viewDocContent,(projectId;filename)->None,-,true,-,29
       renderMarkdown,(md)->None,-,false,-,3
-      downloadDoc,(projectId;filename)->None,-,false,-,4
+      copyDocToClipboard,()->None,-,false,-,12
+      downloadDocFile,()->None,-,false,-,16
       downloadPdf,(projectId;filename)->None,-,false,-,4
       viewDocHistory,(projectId;filename)->None,-,true,-,33
       viewDocVersion,(projectId;filename;commit)->None,-,true,-,19
@@ -2140,7 +2168,22 @@ module_details:
       setPageInUrl: updates page in url
       navigateTo: navigate to
       apiCall: api call
+      getDashboardLayout: retrieves dashboard layout
+      saveDashboardLayout: caches dashboard layout
+      toggleDashboardConfig: toggle dashboard config
+      updateModuleSelect: updates module select
+      addDashboardModule: creates dashboard module
+      removeDashboardModule: deletes dashboard module
+      resetDashboardConfig: reset dashboard config
+      renderDashboard: formats dashboard
       loadDashboard: retrieves dashboard
+      loadDashboardModules: retrieves dashboard modules
+      loadRecentDocsModule: retrieves recent docs module
+      loadCategoryModule: retrieves category module
+      loadTopVendorsModule: retrieves top vendors module
+      loadTimesheetModule: retrieves timesheet module
+      loadGitActivityModule: retrieves git activity module
+      loadMonthlyTrendModule: retrieves monthly trend module
       setupUploadListeners: initializes upload listeners
       handleFiles: handles files
       uploadFile: upload file
@@ -2179,6 +2222,10 @@ module_details:
       classifyExpense: classify expense
       reclassifyWithLLM: reclassify with llm
       loadReports: retrieves reports
+      loadMonthlyDetails: retrieves monthly details
+      showMonthDetails: show month details
+      regenerateMonthReport: regenerate month report
+      regenerateAllMonthlyReports: regenerate all monthly reports
       generateMonthlyReport: creates monthly report
       generateAllReports: creates all reports
       loadClarifications: retrieves clarifications
@@ -2200,7 +2247,8 @@ module_details:
       viewProjectDocs: view project docs
       viewDocContent: view doc content
       renderMarkdown: formats markdown
-      downloadDoc: download doc
+      copyDocToClipboard: copy doc to clipboard
+      downloadDocFile: download doc file
       downloadPdf: download pdf
       viewDocHistory: view doc history
       viewDocVersion: view doc version
@@ -2245,7 +2293,7 @@ module_details:
       clearAllLogs: deletes all logs
       reconnectAllLogs: reconnect all logs
       stopAllLogStreams: stops all log streams
-      isGlobalLogsOpen: checks global logs open
+      isGlobalLogsOpen: is global logs open
       toggleGlobalLogs: toggle global logs
       switchGlobalLogTab: switch global log tab
       clearGlobalLogs: deletes global logs

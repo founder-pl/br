@@ -95,7 +95,7 @@ class BRDocumentationValidator:
     LEGAL_REQUIREMENTS = {
         "company_nip": r"NIP[:\s*\*]*\d{10}|\*\*NIP[:\s*\*]*\d{10}",
         "fiscal_year": r"[Rr]ok\s*podatkowy[:\s\*]*\d{4}",
-        "article_reference": r"art\.\s*18d|art\.\s*26e",
+        "article_reference": r"[Aa]rt\.\s*18d|[Aa]rt\.\s*26e",
         "deduction_rates": r"200%|100%"
     }
     

@@ -235,10 +235,10 @@ async def get_project_summary(project_id: str, db: AsyncSession = Depends(get_db
     expense_result = await db.execute(
         text("""
         SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END) as br_total,
-            SUM(CASE WHEN br_qualified THEN gross_amount * br_deduction_rate ELSE 0 END) as br_deduction,
-            SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END) as ip_total
+            COALESCE(SUM(gross_amount), 0) as total,
+            COALESCE(SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END), 0) as br_total,
+            COALESCE(SUM(CASE WHEN br_qualified THEN gross_amount * br_deduction_rate ELSE 0 END), 0) as br_deduction,
+            COALESCE(SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END), 0) as ip_total
         FROM read_models.expenses WHERE project_id = :project_id
         """),
         {"project_id": project_id}

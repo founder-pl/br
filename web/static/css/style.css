@@ -2374,3 +2374,222 @@ select {
 #month-detail-card h4:first-child {
     margin-top: 0;
 }
+
+/* =============================================================================
+   Modular Dashboard
+   ============================================================================= */
+
+.dashboard-config {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.config-header h4 {
+    margin: 0;
+}
+
+.config-modules {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.config-modules select {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+.dashboard-modules-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-module {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-module.highlight {
+    border-color: var(--success);
+    box-shadow: 0 0 0 1px var(--success);
+}
+
+.module-header {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    gap: 0.5rem;
+}
+
+.module-icon {
+    font-size: 1rem;
+}
+
+.module-title {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.module-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.dashboard-module:hover .module-remove {
+    opacity: 1;
+}
+
+.module-remove:hover {
+    color: var(--danger);
+}
+
+.module-content {
+    padding: 0.75rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 60px;
+}
+
+.module-content .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.module-content .stat-mini {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem 0;
+}
+
+/* Module sizes */
+.module-1by-1 { grid-column: span 1; grid-row: span 1; }
+.module-2by-1 { grid-column: span 2; grid-row: span 1; }
+.module-1by-2 { grid-column: span 1; grid-row: span 2; }
+.module-2by-2 { grid-column: span 2; grid-row: span 2; }
+
+/* Module content styles */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.quick-actions-grid .btn {
+    font-size: 0.75rem;
+    padding: 0.4rem;
+}
+
+.mini-doc-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.mini-doc-item:hover {
+    background: var(--background);
+}
+
+.mini-doc-item .doc-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+}
+
+.mini-doc-item .doc-status.pending { background: var(--warning); }
+.mini-doc-item .doc-status.error { background: var(--danger); }
+
+.category-item, .vendor-item, .trend-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.category-item:last-child, .vendor-item:last-child, .trend-item:last-child {
+    border-bottom: none;
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--success);
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .dashboard-modules-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .dashboard-modules-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

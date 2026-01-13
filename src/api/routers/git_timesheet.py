@@ -189,16 +189,35 @@ def get_repo_commits(repo_path: str, authors: List[str] = None,
     return commits
 
 
+HOST_TO_CONTAINER_PATH_MAP = {
+    "/home/tom/github": "/repos",
+}
+
+def translate_path_to_container(host_path: str) -> str:
+    """Translate host path to container path."""
+    for host_prefix, container_prefix in HOST_TO_CONTAINER_PATH_MAP.items():
+        if host_path.startswith(host_prefix):
+            return host_path.replace(host_prefix, container_prefix, 1)
+    return host_path
+
+def translate_path_to_host(container_path: str) -> str:
+    """Translate container path back to host path."""
+    for host_prefix, container_prefix in HOST_TO_CONTAINER_PATH_MAP.items():
+        if container_path.startswith(container_prefix):
+            return container_path.replace(container_prefix, host_prefix, 1)
+    return container_path
+
+
 @router.post("/scan")
 async def scan_for_repositories(request: ScanRequest):
     """
     Scan a folder for git repositories up to specified depth.
     Returns list of repositories with their authors.
     """
-    base_path = request.folder_path
+    base_path = translate_path_to_container(request.folder_path)
     
     if not os.path.isdir(base_path):
-        raise HTTPException(status_code=400, detail=f"Folder not found: {base_path}")
+        raise HTTPException(status_code=400, detail=f"Folder not found: {request.folder_path} (mapped to {base_path})")
     
     # Find all git repos
     repo_paths = find_git_repos(base_path, request.max_depth)
@@ -225,8 +244,9 @@ async def scan_for_repositories(request: ScanRequest):
         except:
             commit_count = 0
         
+        host_path = translate_path_to_host(repo_path)
         repos.append(GitRepoInfo(
-            path=repo_path,
+            path=host_path,
             name=os.path.basename(repo_path),
             authors=[f"{a.name} <{a.email}>" for a in authors],
             commit_count=commit_count,
@@ -241,14 +261,14 @@ async def scan_for_repositories(request: ScanRequest):
                     "name": author.name,
                     "email": author.email,
                     "commit_count": author.commit_count,
-                    "repos": [repo_path]
+                    "repos": [host_path]
                 }
             else:
                 all_authors[key]["commit_count"] += author.commit_count
-                all_authors[key]["repos"].append(repo_path)
+                all_authors[key]["repos"].append(host_path)
     
     return {
-        "base_path": base_path,
+        "base_path": request.folder_path,
         "max_depth": request.max_depth,
         "repositories": repos,
         "total_repos": len(repos),
@@ -264,21 +284,22 @@ async def get_commit_history(request: CommitHistoryRequest):
     """
     all_commits = []
     
-    for repo_path in request.repo_paths:
-        if not os.path.isdir(repo_path):
+    for host_path in request.repo_paths:
+        container_path = translate_path_to_container(host_path)
+        if not os.path.isdir(container_path):
             continue
         
         commits = get_repo_commits(
-            repo_path,
+            container_path,
             authors=request.authors if request.authors else None,
             since=request.since,
             until=request.until
         )
         
-        repo_name = os.path.basename(repo_path)
+        repo_name = os.path.basename(container_path)
         for commit in commits:
             all_commits.append({
-                "repo_path": repo_path,
+                "repo_path": host_path,
                 "repo_name": repo_name,
                 "hash": commit.hash,
                 "author_name": commit.author_name,

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System B+R - Prototypowy System Modularny</title>
-    <link rel="stylesheet" href="static/css/style.css?v=20260113a">
+    <link rel="stylesheet" href="static/css/style.css?v=20260113c">
     <script src="static/js/markdown-renderer.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
@@ -87,56 +87,28 @@
                 <header class="page-header">
                     <h2>Dashboard</h2>
                     <div class="header-actions">
-                        <button class="btn btn-primary" onclick="generateAllReports()">
-                            Generuj raporty
-                        </button>
+                        <button class="btn btn-secondary" onclick="toggleDashboardConfig()">⚙️ Konfiguruj</button>
+                        <button class="btn btn-primary" onclick="generateAllReports()">Generuj raporty</button>
                     </div>
                 </header>
                 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">💰</div>
-                        <div class="stat-content">
-                            <h3>Wydatki ogółem</h3>
-                            <p class="stat-value" id="total-expenses">0,00 zł</p>
-                        </div>
+                <!-- Dashboard Configuration Panel -->
+                <div id="dashboard-config" class="dashboard-config" style="display:none;">
+                    <div class="config-header">
+                        <h4>Konfiguracja modułów</h4>
+                        <button class="btn btn-sm btn-secondary" onclick="resetDashboardConfig()">Resetuj</button>
                     </div>
-                    <div class="stat-card highlight">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-content">
-                            <h3>Koszty kwalifikowane B+R</h3>
-                            <p class="stat-value" id="br-expenses">0,00 zł</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📉</div>
-                        <div class="stat-content">
-                            <h3>Odliczenie B+R</h3>
-                            <p class="stat-value" id="br-deduction">0,00 zł</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🎯</div>
-                        <div class="stat-content">
-                            <h3>Koszty IP Box</h3>
-                            <p class="stat-value" id="ip-expenses">0,00 zł</p>
-                        </div>
+                    <div class="config-modules">
+                        <label>Dodaj moduł:</label>
+                        <select id="add-module-select" onchange="addDashboardModule(this.value); this.value='';">
+                            <option value="">-- Wybierz moduł --</option>
+                        </select>
                     </div>
                 </div>
                 
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3>Ostatnie dokumenty</h3>
-                        <div id="recent-documents" class="document-list">
-                            <p class="empty-state">Brak dokumentów</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3>Wydatki wg kategorii B+R</h3>
-                        <div id="category-breakdown" class="category-list">
-                            <p class="empty-state">Brak danych</p>
-                        </div>
-                    </div>
+                <!-- Modular Dashboard Grid 4x4 -->
+                <div id="dashboard-modules" class="dashboard-modules-grid">
+                    <!-- Modules will be rendered by JS -->
                 </div>
             </section>
 
@@ -947,6 +919,6 @@
     <!-- Toast notifications -->
     <div id="toast-container"></div>
 
-    <script src="static/js/app.js?v=20260112c"></script>
+    <script src="static/js/app.js?v=20260113c"></script>
 </body>
 </html>

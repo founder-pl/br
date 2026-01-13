@@ -272,7 +272,7 @@ async def list_expenses(
     status: Optional[str] = Query(default=None),
     year: Optional[int] = Query(default=None),
     month: Optional[int] = Query(default=None),
-    limit: int = Query(default=50, le=100),
+    limit: int = Query(default=50, le=1000),
     offset: int = Query(default=0),
     db: AsyncSession = Depends(get_db)
 ):

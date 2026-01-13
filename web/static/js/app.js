@@ -80,22 +80,219 @@ async function apiCall(endpoint, options = {}) {
     }
 }
 
-// Dashboard
+// Dashboard Modules Configuration
+const DASHBOARD_MODULES = {
+    'total-expenses': { icon: '💰', title: 'Wydatki ogółem', size: '1x1', type: 'stat', dataKey: 'total_expenses' },
+    'br-expenses': { icon: '✅', title: 'Koszty B+R', size: '1x1', type: 'stat', dataKey: 'br_qualified_expenses', highlight: true },
+    'br-deduction': { icon: '📉', title: 'Odliczenie B+R', size: '1x1', type: 'stat', dataKey: 'br_deduction_amount' },
+    'ip-expenses': { icon: '🎯', title: 'Koszty IP Box', size: '1x1', type: 'stat', dataKey: 'ip_qualified_expenses' },
+    'documents-count': { icon: '📄', title: 'Dokumenty', size: '1x1', type: 'stat', dataKey: 'documents_count', format: 'number' },
+    'pending-docs': { icon: '⏳', title: 'Oczekujące', size: '1x1', type: 'stat', dataKey: 'pending_documents', format: 'number' },
+    'clarifications': { icon: '❓', title: 'Wyjaśnienia', size: '1x1', type: 'stat', dataKey: 'needs_clarification', format: 'number' },
+    'recent-documents': { icon: '📑', title: 'Ostatnie dokumenty', size: '2x2', type: 'list', loader: 'loadRecentDocsModule' },
+    'category-breakdown': { icon: '📊', title: 'Wydatki wg kategorii', size: '2x2', type: 'chart', loader: 'loadCategoryModule' },
+    'quick-actions': { icon: '⚡', title: 'Szybkie akcje', size: '1x2', type: 'actions' },
+    'timesheet-summary': { icon: '⏱️', title: 'Czas pracy', size: '2x1', type: 'custom', loader: 'loadTimesheetModule' },
+    'git-activity': { icon: '🔀', title: 'Aktywność Git', size: '2x1', type: 'custom', loader: 'loadGitActivityModule' },
+    'project-progress': { icon: '📈', title: 'Postęp projektu', size: '2x1', type: 'progress' },
+    'fiscal-year': { icon: '📅', title: 'Rok podatkowy', size: '1x1', type: 'stat', dataKey: 'fiscal_year', format: 'year' },
+    'monthly-trend': { icon: '📉', title: 'Trend miesięczny', size: '2x2', type: 'chart', loader: 'loadMonthlyTrendModule' },
+    'top-vendors': { icon: '🏢', title: 'Top dostawcy', size: '2x2', type: 'list', loader: 'loadTopVendorsModule' }
+};
+
+const DEFAULT_DASHBOARD_LAYOUT = [
+    'total-expenses', 'br-expenses', 'br-deduction', 'ip-expenses',
+    'documents-count', 'pending-docs', 'clarifications', 'fiscal-year',
+    'recent-documents', 'category-breakdown', 'quick-actions', 'top-vendors'
+];
+
+let dashboardLayout = [];
+let dashboardData = {};
+
+function getDashboardLayout() {
+    const saved = localStorage.getItem('dashboardLayout');
+    return saved ? JSON.parse(saved) : [...DEFAULT_DASHBOARD_LAYOUT];
+}
+
+function saveDashboardLayout() {
+    localStorage.setItem('dashboardLayout', JSON.stringify(dashboardLayout));
+}
+
+function toggleDashboardConfig() {
+    const config = document.getElementById('dashboard-config');
+    config.style.display = config.style.display === 'none' ? 'block' : 'none';
+    updateModuleSelect();
+}
+
+function updateModuleSelect() {
+    const select = document.getElementById('add-module-select');
+    const available = Object.keys(DASHBOARD_MODULES).filter(m => !dashboardLayout.includes(m));
+    select.innerHTML = '<option value="">-- Wybierz moduł --</option>' +
+        available.map(m => `<option value="${m}">${DASHBOARD_MODULES[m].icon} ${DASHBOARD_MODULES[m].title}</option>`).join('');
+}
+
+function addDashboardModule(moduleId) {
+    if (!moduleId || dashboardLayout.includes(moduleId)) return;
+    dashboardLayout.push(moduleId);
+    saveDashboardLayout();
+    renderDashboard();
+}
+
+function removeDashboardModule(moduleId) {
+    dashboardLayout = dashboardLayout.filter(m => m !== moduleId);
+    saveDashboardLayout();
+    renderDashboard();
+}
+
+function resetDashboardConfig() {
+    dashboardLayout = [...DEFAULT_DASHBOARD_LAYOUT];
+    saveDashboardLayout();
+    renderDashboard();
+    showToast('Dashboard zresetowany', 'success');
+}
+
+function renderDashboard() {
+    const container = document.getElementById('dashboard-modules');
+    if (!container) return;
+    
+    container.innerHTML = dashboardLayout.map(moduleId => {
+        const mod = DASHBOARD_MODULES[moduleId];
+        if (!mod) return '';
+        const sizeClass = `module-${mod.size.replace('x', 'by-')}`;
+        const highlightClass = mod.highlight ? 'highlight' : '';
+        return `
+            <div class="dashboard-module ${sizeClass} ${highlightClass}" data-module="${moduleId}">
+                <div class="module-header">
+                    <span class="module-icon">${mod.icon}</span>
+                    <span class="module-title">${mod.title}</span>
+                    <button class="module-remove" onclick="removeDashboardModule('${moduleId}')" title="Usuń">×</button>
+                </div>
+                <div class="module-content" id="module-${moduleId}">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    updateModuleSelect();
+    loadDashboardModules();
+}
+
 async function loadDashboard() {
+    dashboardLayout = getDashboardLayout();
+    renderDashboard();
+}
+
+async function loadDashboardModules() {
     try {
         const summary = await apiCall(`/projects/${PROJECT_ID}/summary`);
-        document.getElementById('total-expenses').textContent = formatCurrency(summary.total_expenses);
-        document.getElementById('br-expenses').textContent = formatCurrency(summary.br_qualified_expenses);
-        document.getElementById('br-deduction').textContent = formatCurrency(summary.br_deduction_amount);
-        document.getElementById('ip-expenses').textContent = formatCurrency(summary.ip_qualified_expenses);
+        dashboardData = summary;
         document.getElementById('clarification-badge').textContent = summary.needs_clarification || 0;
-        await loadRecentDocuments();
         
-        if (summary.expenses_by_category && Object.keys(summary.expenses_by_category).length > 0) {
-            document.getElementById('category-breakdown').innerHTML = Object.entries(summary.expenses_by_category)
-                .map(([cat, amount]) => `<div class="category-item"><span>${getCategoryName(cat)}</span><span>${formatCurrency(amount)}</span></div>`).join('');
-        }
+        // Update stat modules
+        dashboardLayout.forEach(moduleId => {
+            const mod = DASHBOARD_MODULES[moduleId];
+            if (!mod) return;
+            const content = document.getElementById(`module-${moduleId}`);
+            if (!content) return;
+            
+            if (mod.type === 'stat') {
+                const value = summary[mod.dataKey];
+                let formatted;
+                if (mod.format === 'number') formatted = value ?? 0;
+                else if (mod.format === 'year') formatted = value ?? new Date().getFullYear();
+                else formatted = formatCurrency(value ?? 0);
+                content.innerHTML = `<p class="stat-value">${formatted}</p>`;
+            } else if (mod.type === 'actions') {
+                content.innerHTML = `
+                    <div class="quick-actions-grid">
+                        <button class="btn btn-sm" onclick="navigateTo('upload')">📄 Upload</button>
+                        <button class="btn btn-sm" onclick="navigateTo('expenses')">💰 Wydatki</button>
+                        <button class="btn btn-sm" onclick="navigateTo('reports')">📊 Raporty</button>
+                        <button class="btn btn-sm" onclick="navigateTo('timesheet')">⏱️ Timesheet</button>
+                    </div>`;
+            } else if (mod.type === 'progress') {
+                const progress = summary.documents_count > 0 ? Math.min(100, Math.round((summary.documents_count - summary.pending_documents) / summary.documents_count * 100)) : 0;
+                content.innerHTML = `
+                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                    <p class="progress-text">${progress}% ukończone</p>`;
+            } else if (mod.loader) {
+                window[mod.loader]?.(content, summary);
+            }
+        });
     } catch (error) { console.error('Dashboard error:', error); }
+}
+
+async function loadRecentDocsModule(container) {
+    try {
+        const docs = await apiCall(`/documents/?limit=5`);
+        if (docs.length === 0) {
+            container.innerHTML = '<p class="empty-state">Brak dokumentów</p>';
+            return;
+        }
+        container.innerHTML = docs.map(d => `
+            <div class="mini-doc-item" onclick="showDocumentDetail('${d.id}')">
+                <span class="doc-status ${d.ocr_status}"></span>
+                <span class="doc-name">${d.filename.substring(0, 25)}${d.filename.length > 25 ? '...' : ''}</span>
+            </div>
+        `).join('');
+    } catch (e) { container.innerHTML = '<p class="empty-state">Błąd</p>'; }
+}
+
+function loadCategoryModule(container, summary) {
+    if (!summary.expenses_by_category || Object.keys(summary.expenses_by_category).length === 0) {
+        container.innerHTML = '<p class="empty-state">Brak danych</p>';
+        return;
+    }
+    container.innerHTML = Object.entries(summary.expenses_by_category)
+        .map(([cat, amount]) => `<div class="category-item"><span>${getCategoryName(cat)}</span><span>${formatCurrency(amount)}</span></div>`).join('');
+}
+
+async function loadTopVendorsModule(container) {
+    try {
+        const vendors = await apiCall('/timesheet/contractors');
+        if (!vendors || vendors.length === 0) {
+            container.innerHTML = '<p class="empty-state">Brak dostawców</p>';
+            return;
+        }
+        container.innerHTML = vendors.slice(0, 5).map(v => `
+            <div class="vendor-item">
+                <span class="vendor-name">${v.vendor_name || 'Nieznany'}</span>
+                <span class="vendor-total">${formatCurrency(v.total)}</span>
+            </div>
+        `).join('');
+    } catch (e) { container.innerHTML = '<p class="empty-state">Błąd</p>'; }
+}
+
+async function loadTimesheetModule(container) {
+    try {
+        const workers = await apiCall('/timesheet/workers');
+        container.innerHTML = `<p class="stat-value">${workers.length} pracowników</p>`;
+    } catch (e) { container.innerHTML = '<p class="empty-state">-</p>'; }
+}
+
+async function loadGitActivityModule(container) {
+    container.innerHTML = `<p class="stat-mini">Użyj Git Timesheet →</p>
+        <button class="btn btn-sm" onclick="navigateTo('git-timesheet')">🔀 Otwórz</button>`;
+}
+
+async function loadMonthlyTrendModule(container) {
+    try {
+        const expenses = await apiCall(`/expenses/?limit=100`);
+        const byMonth = {};
+        expenses.forEach(e => {
+            const m = e.invoice_date?.substring(0, 7) || 'Brak';
+            byMonth[m] = (byMonth[m] || 0) + parseFloat(e.gross_amount || 0);
+        });
+        const sorted = Object.entries(byMonth).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
+        if (sorted.length === 0) {
+            container.innerHTML = '<p class="empty-state">Brak danych</p>';
+            return;
+        }
+        container.innerHTML = sorted.map(([m, v]) => `
+            <div class="trend-item"><span>${m}</span><span>${formatCurrency(v)}</span></div>
+        `).join('');
+    } catch (e) { container.innerHTML = '<p class="empty-state">Błąd</p>'; }
 }
 
 // Upload - setup event listeners lazily
@@ -1281,14 +1478,18 @@ async function viewDocContent(projectId, filename) {
         document.querySelectorAll('.doc-item').forEach(d => d.classList.remove('active'));
         event?.target?.closest('.doc-item')?.classList.add('active');
         
+        // Store content for copy/download
+        currentDocContent = { projectId, filename, content: result.content };
+        
         // Render markdown content
         preview.innerHTML = `
             <div class="doc-content-header">
                 <strong>${filename}</strong>
                 <div class="doc-actions">
-                    <button class="btn btn-sm btn-secondary" onclick="viewDocHistory('${projectId}', '${filename}')">📜 Historia</button>
-                    <button class="btn btn-sm btn-secondary" onclick="downloadDoc('${projectId}', '${filename}')">⬇️ MD</button>
+                    <button class="btn btn-sm btn-secondary" onclick="copyDocToClipboard()" title="Kopiuj markdown">📋 Kopiuj</button>
+                    <button class="btn btn-sm btn-secondary" onclick="downloadDocFile()" title="Pobierz plik .md">⬇️ MD</button>
                     <button class="btn btn-sm btn-primary" onclick="downloadPdf('${projectId}', '${filename}')">📄 PDF</button>
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocHistory('${projectId}', '${filename}')">📜 Historia</button>
                     <button class="btn btn-sm btn-secondary" onclick="printDoc()">🖨️ Drukuj</button>
                 </div>
             </div>
@@ -1303,9 +1504,36 @@ function renderMarkdown(md) {
     return MarkdownRenderer.render(md);
 }
 
-function downloadDoc(projectId, filename) {
-    // Download markdown file
-    window.open(`${API_BASE}/expenses/project/${projectId}/docs/${filename}`, '_blank');
+let currentDocContent = null;
+
+function copyDocToClipboard() {
+    if (!currentDocContent) {
+        showToast('Brak dokumentu do skopiowania', 'error');
+        return;
+    }
+    navigator.clipboard.writeText(currentDocContent.content).then(() => {
+        showToast('Markdown skopiowany do schowka', 'success');
+    }).catch(err => {
+        showToast('Błąd kopiowania', 'error');
+        console.error('Copy failed:', err);
+    });
+}
+
+function downloadDocFile() {
+    if (!currentDocContent) {
+        showToast('Brak dokumentu do pobrania', 'error');
+        return;
+    }
+    const blob = new Blob([currentDocContent.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = currentDocContent.filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Pobrano ${currentDocContent.filename}`, 'success');
 }
 
 function downloadPdf(projectId, filename) {
