@@ -48,7 +48,7 @@ class GitCommit(BaseModel):
 
 
 class ScanRequest(BaseModel):
-    folder_path: str = Field(..., description="Base folder to scan for git repos")
+    folder_path: str = Field(default="/home/tom/github", description="Base folder to scan for git repos")
     max_depth: int = Field(default=3, ge=1, le=4, description="Max depth to search (1-4)")
 
 

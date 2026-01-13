@@ -99,7 +99,10 @@
 ### UI/UX
 - [ ] **Dark mode toggle**
 - [ ] **Drag & drop** dla modułów dashboard
-- [ ] **Eksport do Excel** (wydatki, raporty)
+- [x] **Eksport do Excel** ✅
+  - Moduł `src/api/services/excel_exporter.py`
+  - Endpoint `/reports/export/expenses`
+  - Endpoint `/reports/export/monthly`
 - [ ] **Powiadomienia push** (WebSocket)
 
 ### Performance
@@ -108,7 +111,10 @@
 - [ ] **Lazy loading** dla dużych zestawów
 
 ### DevOps
-- [ ] **CI/CD pipeline** (GitHub Actions)
+- [x] **CI/CD pipeline** (GitHub Actions) ✅
+  - Plik `.github/workflows/ci.yml`
+  - Lint, test, build, deploy stages
+  - Docker image push to GHCR
 - [ ] **Staging environment**
 - [ ] **Monitoring** (Prometheus/Grafana)
 - [ ] **Log aggregation** (ELK stack)
@@ -161,6 +167,10 @@
 - [x] Endpoint /integrations/jpk/download
 - [x] Dokumentacja API (OpenAPI tags, opisy)
 - [x] ExpenseService (expense_service.py) - wydzielenie logiki biznesowej
+- [x] Excel exporter (excel_exporter.py)
+- [x] Endpoint /reports/export/expenses
+- [x] Endpoint /reports/export/monthly
+- [x] CI/CD pipeline (.github/workflows/ci.yml)
 
 ### 2026-01-12
 - [x] URL state management
