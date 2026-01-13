@@ -417,6 +417,35 @@ select {
 .status-badge.classified { background: #dbeafe; color: #1e40af; }
 .status-badge.approved { background: #dcfce7; color: #166534; }
 .status-badge.pending { background: #fee2e2; color: #991b1b; }
+.status-badge.rejected { background: #fecaca; color: #991b1b; }
+.status-badge.completed { background: #dcfce7; color: #166534; }
+
+/* Status Select Dropdown */
+.status-select {
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--surface);
+}
+.status-select.status-draft { background: #fef3c7; border-color: #f59e0b; }
+.status-select.status-classified { background: #dbeafe; border-color: #3b82f6; }
+.status-select.status-approved { background: #dcfce7; border-color: #22c55e; }
+.status-select.status-rejected { background: #fecaca; border-color: #ef4444; }
+
+/* Duplicate warning badge */
+.duplicate-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
 
 .status-dot {
     display: inline-block;
@@ -708,6 +737,128 @@ select {
 .btn-danger {
     background: var(--danger);
     color: white;
+}
+
+.btn-warning {
+    background: var(--warning);
+    color: white;
+}
+
+/* Projects Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.project-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.project-year {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.project-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--background);
+    border-radius: 8px;
+}
+
+.project-stats .stat {
+    text-align: center;
+}
+
+.project-stats .stat-value {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.project-stats .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.project-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.project-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.empty-state-card {
+    text-align: center;
+    padding: 3rem;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 2px dashed var(--border);
+}
+
+/* Project tag in expenses table */
+.project-tag {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background: #e0e7ff;
+    color: #3730a3;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Bulk actions bar */
+.bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: #e0e7ff;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.bulk-actions-bar span {
+    font-weight: 600;
+    color: #3730a3;
+}
+
+.bulk-actions-bar select {
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #c7d2fe;
 }
 
 .btn-danger:hover {

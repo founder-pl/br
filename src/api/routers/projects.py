@@ -333,3 +333,69 @@ async def recalculate_project_totals(
     )
     
     return {"status": "recalculated", "project_id": project_id}
+
+
+@router.delete("/{project_id}")
+async def delete_project(project_id: str, db: AsyncSession = Depends(get_db)):
+    """Delete a project (only if no expenses attached)"""
+    # Check if project exists
+    result = await db.execute(
+        text("SELECT id FROM read_models.projects WHERE id = :id"),
+        {"id": project_id}
+    )
+    if not result.fetchone():
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Check for expenses
+    expense_result = await db.execute(
+        text("SELECT COUNT(*) FROM read_models.expenses WHERE project_id = :id"),
+        {"id": project_id}
+    )
+    expense_count = expense_result.scalar() or 0
+    
+    if expense_count > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete project with {expense_count} expenses. Reassign expenses first."
+        )
+    
+    await db.execute(
+        text("DELETE FROM read_models.projects WHERE id = :id"),
+        {"id": project_id}
+    )
+    
+    logger.info("Project deleted", project_id=project_id)
+    return {"status": "deleted", "project_id": project_id}
+
+
+class BulkAssignRequest(BaseModel):
+    """Bulk assign expenses to project"""
+    expense_ids: List[str]
+    project_id: str
+
+
+@router.post("/bulk-assign-expenses")
+async def bulk_assign_expenses(
+    request: BulkAssignRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """Assign multiple expenses to a project"""
+    # Verify project exists
+    result = await db.execute(
+        text("SELECT id FROM read_models.projects WHERE id = :id"),
+        {"id": request.project_id}
+    )
+    if not result.fetchone():
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Update expenses
+    updated = 0
+    for expense_id in request.expense_ids:
+        result = await db.execute(
+            text("UPDATE read_models.expenses SET project_id = :project_id, updated_at = NOW() WHERE id = :id"),
+            {"id": expense_id, "project_id": request.project_id}
+        )
+        updated += 1
+    
+    logger.info("Bulk assigned expenses", project_id=request.project_id, count=updated)
+    return {"status": "assigned", "project_id": request.project_id, "expenses_updated": updated}

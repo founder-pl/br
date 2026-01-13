@@ -195,6 +195,19 @@ async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_ty
                 except:
                     continue
         
+        # Extract currency - check various field names
+        raw_currency = (extracted_data.get('currency') or 
+                       extracted_data.get('waluta') or 
+                       'PLN')
+        # Normalize currency symbols
+        if isinstance(raw_currency, str):
+            currency_map = {'zł': 'PLN', 'złotych': 'PLN', '$': 'USD', '€': 'EUR', '£': 'GBP'}
+            currency = currency_map.get(raw_currency.lower(), raw_currency.upper())
+            if currency not in ('PLN', 'USD', 'EUR', 'GBP', 'CHF'):
+                currency = 'PLN'
+        else:
+            currency = 'PLN'
+        
         async with get_db_context() as db:
             await db.execute(
                 text("""
@@ -204,7 +217,7 @@ async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_ty
                  currency, expense_category, status, br_qualified, br_deduction_rate)
                 VALUES (:id, :project_id, :document_id, :invoice_number, :invoice_date,
                         :vendor_name, :vendor_nip, :net_amount, :vat_amount, :gross_amount,
-                        'PLN', :expense_category, 'draft', false, 1.0)
+                        :currency, :expense_category, 'draft', false, 1.0)
                 """),
                 {
                     "id": expense_id,
@@ -217,6 +230,7 @@ async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_ty
                     "net_amount": float(net),
                     "vat_amount": float(vat),
                     "gross_amount": float(gross),
+                    "currency": currency,
                     "expense_category": doc_type
                 }
             )
@@ -587,4 +601,150 @@ async def sync_expenses_from_documents(
         "status": "queued",
         "message": f"Queued expense creation for {created} documents",
         "documents_processed": created
+    }
+
+
+@router.get("/{document_id}/check-duplicates")
+async def check_document_duplicates(document_id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Check if a document might be a duplicate of another document.
+    Compares invoice number, date, amount, and vendor.
+    """
+    # Get the document's extracted data
+    result = await db.execute(
+        text("""
+        SELECT id, filename, extracted_data, document_type
+        FROM read_models.documents WHERE id = :id
+        """),
+        {"id": document_id}
+    )
+    doc = result.fetchone()
+    
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    extracted = doc[2] or {}
+    if 'extracted_data' in extracted:
+        extracted = {**extracted, **extracted['extracted_data']}
+    
+    # Extract key fields for comparison
+    invoice_number = extracted.get('invoice_number') or extracted.get('numer_faktury')
+    invoice_date = extracted.get('invoice_date') or extracted.get('data_wystawienia')
+    gross_amount = extracted.get('gross_amount') or extracted.get('total_gross')
+    
+    duplicates = []
+    
+    # Search for potential duplicates
+    if invoice_number:
+        result = await db.execute(
+            text("""
+            SELECT id, filename, extracted_data, created_at
+            FROM read_models.documents 
+            WHERE id != :id 
+              AND ocr_status = 'completed'
+              AND (
+                  extracted_data::text ILIKE :inv_num
+                  OR extracted_data->'extracted_data'->>'invoice_number' ILIKE :inv_num_exact
+              )
+            LIMIT 10
+            """),
+            {"id": document_id, "inv_num": f"%{invoice_number}%", "inv_num_exact": invoice_number}
+        )
+        for row in result.fetchall():
+            duplicates.append({
+                "id": str(row[0]),
+                "filename": row[1],
+                "match_reason": f"Podobny numer faktury: {invoice_number}",
+                "created_at": row[3].isoformat() if row[3] else None
+            })
+    
+    # Check by amount and date combination
+    if gross_amount and invoice_date and not duplicates:
+        result = await db.execute(
+            text("""
+            SELECT id, filename, extracted_data, created_at
+            FROM read_models.documents 
+            WHERE id != :id 
+              AND ocr_status = 'completed'
+              AND extracted_data::text ILIKE :amount
+              AND extracted_data::text ILIKE :date
+            LIMIT 5
+            """),
+            {"id": document_id, "amount": f"%{gross_amount}%", "date": f"%{invoice_date}%"}
+        )
+        for row in result.fetchall():
+            duplicates.append({
+                "id": str(row[0]),
+                "filename": row[1],
+                "match_reason": f"Ta sama kwota ({gross_amount}) i data ({invoice_date})",
+                "created_at": row[3].isoformat() if row[3] else None
+            })
+    
+    return {
+        "document_id": document_id,
+        "potential_duplicates": duplicates,
+        "is_duplicate": len(duplicates) > 0
+    }
+
+
+@router.post("/{document_id}/re-extract")
+async def re_extract_document_data(
+    document_id: str,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Re-run data extraction on a document using the current OCR text.
+    Useful when extraction rules have been updated.
+    """
+    result = await db.execute(
+        text("SELECT ocr_text, document_type FROM read_models.documents WHERE id = :id"),
+        {"id": document_id}
+    )
+    row = result.fetchone()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    ocr_text = row[0]
+    doc_type = row[1] or 'auto'
+    
+    if not ocr_text:
+        raise HTTPException(status_code=400, detail="No OCR text available. Run OCR first.")
+    
+    # Re-run extraction
+    classification = classify_and_extract(ocr_text, doc_type)
+    detected_type = classification['document_type']
+    detection_confidence = classification['detection_confidence']
+    extracted_fields = classification['extracted_fields']
+    
+    # Update document with new extracted data
+    await db.execute(
+        text("""
+        UPDATE read_models.documents 
+        SET extracted_data = CAST(:data AS jsonb),
+            document_type = :doc_type,
+            updated_at = NOW()
+        WHERE id = :id
+        """),
+        {
+            "id": document_id,
+            "data": json.dumps({
+                **extracted_fields,
+                '_detected_type': detected_type,
+                '_detection_confidence': detection_confidence,
+                '_re_extracted_at': datetime.now().isoformat()
+            }),
+            "doc_type": detected_type
+        }
+    )
+    
+    logger.info("Document data re-extracted", doc_id=document_id, detected_type=detected_type)
+    
+    return {
+        "status": "success",
+        "document_id": document_id,
+        "detected_type": detected_type,
+        "extracted_fields": extracted_fields,
+        "detection_confidence": detection_confidence
     }

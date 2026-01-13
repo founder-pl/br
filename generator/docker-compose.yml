@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  br-doc-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: br-doc-generator
+    environment:
+      # LLM Provider
+      - LLM_DEFAULT_PROVIDER=${LLM_DEFAULT_PROVIDER:-openrouter}
+      
+      # OpenRouter (remote)
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-nvidia/nemotron-3-nano-30b-a3b:free}
+      
+      # Ollama (local) - via host network
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:latest}
+      
+      # Validation
+      - VALIDATION_LEVELS=${VALIDATION_LEVELS:-structure,content,legal,financial}
+      - VALIDATION_MAX_ITERATIONS=${VALIDATION_MAX_ITERATIONS:-3}
+      - VALIDATION_MIN_QUALITY_SCORE=${VALIDATION_MIN_QUALITY_SCORE:-0.8}
+      
+      # PDF
+      - PDF_TEMPLATE=${PDF_TEMPLATE:-professional}
+    volumes:
+      - ./input:/app/input:ro
+      - ./output:/app/output
+      - ./templates:/app/templates:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - br-network
+
+  # Optional: Local Ollama service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: br-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    profiles:
+      - local-llm
+    networks:
+      - br-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+networks:
+  br-network:
+    driver: bridge
+
+volumes:
+  ollama_data:

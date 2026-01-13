@@ -98,15 +98,22 @@ EXTRACTION_PATTERNS = {
             r'(?:nabywca|buyer).*?nip[:\s]*(\d{10}|\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2})'
         ],
         'total_gross': [
-            r'(?:razem|suma|total|do\s*zapłaty).*?(\d+[\s,\.]\d{2})\s*(?:zł|pln)?',
+            r'(?:razem|suma|total|do\s*zapłaty).*?(\d+[\s,\.]\d{2})\s*(?:zł|pln|usd|eur)?',
             r'brutto[:\s]*(\d+[\s,\.]\d{2})',
-            r'(\d+[\s,\.]\d{2})\s*(?:zł|pln)\s*(?:brutto)?'
+            r'(\d+[\s,\.]\d{2})\s*(?:zł|pln|usd|eur)\s*(?:brutto)?'
         ],
         'total_net': [
             r'netto[:\s]*(\d+[\s,\.]\d{2})'
         ],
         'vat_amount': [
             r'(?:vat|podatek)[:\s]*(\d+[\s,\.]\d{2})'
+        ],
+        'currency': [
+            r'\d+[,\.]\d{2}\s*(USD|EUR|PLN|GBP|CHF)',
+            r'(USD|EUR|PLN|GBP|CHF)\s*\d+[,\.]\d{2}',
+            r'kwota.*?(USD|EUR|PLN|GBP|CHF)',
+            r'(zł|złotych|złoty)',
+            r'(\$|€|£)'
         ],
         'issue_date': [
             r'(?:data\s*wystawienia|issue\s*date)[:\s]*(\d{1,2}[\./-]\d{1,2}[\./-]\d{2,4})',
@@ -190,6 +197,22 @@ def detect_document_type(ocr_text: str) -> Tuple[str, float]:
     return best_type, round(confidence, 2)
 
 
+def normalize_currency(raw_currency: Optional[str]) -> str:
+    """Normalize currency symbol/name to ISO code"""
+    if not raw_currency:
+        return 'PLN'
+    
+    raw = raw_currency.upper().strip()
+    currency_map = {
+        'ZŁ': 'PLN', 'ZŁOTYCH': 'PLN', 'ZŁOTY': 'PLN', 'PLN': 'PLN',
+        '$': 'USD', 'USD': 'USD', 'DOLLAR': 'USD', 'DOLLARS': 'USD',
+        '€': 'EUR', 'EUR': 'EUR', 'EURO': 'EUR',
+        '£': 'GBP', 'GBP': 'GBP',
+        'CHF': 'CHF'
+    }
+    return currency_map.get(raw, 'PLN')
+
+
 def extract_document_data(ocr_text: str, document_type: str) -> Dict[str, Any]:
     """
     Extract structured data from OCR text based on document type.
@@ -207,6 +230,11 @@ def extract_document_data(ocr_text: str, document_type: str) -> Dict[str, Any]:
                 value = match.group(1).strip()
                 # Clean up value
                 value = re.sub(r'\s+', ' ', value)
+                
+                # Normalize currency field
+                if field == 'currency':
+                    value = normalize_currency(value)
+                
                 extracted[field] = value
                 break
     

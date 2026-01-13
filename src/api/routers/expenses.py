@@ -425,6 +425,57 @@ async def trigger_auto_classification(
     return {"status": "queued", "message": "Classification queued"}
 
 
+class ExpenseStatusUpdate(BaseModel):
+    """Status update request"""
+    status: str
+
+
+@router.put("/{expense_id}/status")
+async def update_expense_status(
+    expense_id: str,
+    status_update: ExpenseStatusUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    """Update expense status"""
+    valid_statuses = ['draft', 'classified', 'approved', 'rejected']
+    if status_update.status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    result = await db.execute(
+        text("SELECT id FROM read_models.expenses WHERE id = :id"),
+        {"id": expense_id}
+    )
+    if not result.fetchone():
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    await db.execute(
+        text("UPDATE read_models.expenses SET status = :status, updated_at = NOW() WHERE id = :id"),
+        {"id": expense_id, "status": status_update.status}
+    )
+    
+    logger.info("Expense status updated", expense_id=expense_id, status=status_update.status)
+    return {"status": "updated", "expense_id": expense_id, "new_status": status_update.status}
+
+
+@router.delete("/{expense_id}")
+async def delete_expense(expense_id: str, db: AsyncSession = Depends(get_db)):
+    """Delete an expense"""
+    result = await db.execute(
+        text("SELECT id FROM read_models.expenses WHERE id = :id"),
+        {"id": expense_id}
+    )
+    if not result.fetchone():
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    await db.execute(
+        text("DELETE FROM read_models.expenses WHERE id = :id"),
+        {"id": expense_id}
+    )
+    
+    logger.info("Expense deleted", expense_id=expense_id)
+    return {"status": "deleted", "expense_id": expense_id}
+
+
 async def classify_expense_with_llm(expense_id: str):
     """Background task to classify expense using LLM"""
     from ..database import get_db_context

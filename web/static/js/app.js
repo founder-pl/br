@@ -56,7 +56,8 @@ function navigateTo(page, options = {}) {
     }
     
     const loaders = { dashboard: loadDashboard, upload: () => { setupUploadListeners(); loadRecentDocuments(); }, 
-                      expenses: loadExpenses, reports: loadReports, clarifications: loadClarifications,
+                      projects: loadProjects, expenses: () => { loadProjectsForFilter(); loadExpenses(); },
+                      reports: loadReports, clarifications: loadClarifications,
                       integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig };
     if (loaders[page]) loaders[page]();
     
@@ -270,8 +271,11 @@ async function showDocumentDetail(docId, options = {}) {
                     <ul>${doc.validation_errors.map(e => `<li>${e}</li>`).join('')}</ul>
                 </div>
             ` : ''}
+            <div id="duplicate-check-result"></div>
             <div class="doc-detail-actions">
                 <button class="btn btn-primary" onclick="retryOcr('${docId}'); closeDocumentModal();">🔄 Powtórz OCR</button>
+                <button class="btn btn-secondary" onclick="reExtractData('${docId}')">🔍 Ponowne wyodrębnienie</button>
+                <button class="btn btn-warning" onclick="checkDuplicates('${docId}')">🔎 Sprawdź duplikaty</button>
                 <button class="btn btn-success" onclick="createExpenseFromDoc('${docId}')">💰 Utwórz wydatek</button>
                 <button class="btn btn-danger" onclick="deleteDocument('${docId}'); closeDocumentModal();">🗑️ Usuń</button>
             </div>
@@ -386,26 +390,246 @@ async function approveDocument(docId) {
     } catch (e) { showToast('Błąd zatwierdzania', 'error'); }
 }
 
+// ==================== PROJECTS ====================
+let projectsCache = [];
+
+async function loadProjects() {
+    try {
+        projectsCache = await apiCall('/projects/');
+        
+        if (projectsCache.length === 0) {
+            document.getElementById('projects-list').innerHTML = `
+                <div class="empty-state-card">
+                    <p>Brak projektów B+R</p>
+                    <button class="btn btn-primary" onclick="showCreateProjectModal()">➕ Utwórz pierwszy projekt</button>
+                </div>`;
+            return;
+        }
+        
+        document.getElementById('projects-list').innerHTML = projectsCache.map(p => `
+            <div class="project-card" data-id="${p.id}">
+                <div class="project-header">
+                    <h3>${p.name}</h3>
+                    <span class="project-year">${p.fiscal_year}</span>
+                </div>
+                <div class="project-stats">
+                    <div class="stat">
+                        <span class="stat-value">${formatCurrency(p.total_expenses)}</span>
+                        <span class="stat-label">Wydatki ogółem</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">${formatCurrency(p.br_qualified_expenses)}</span>
+                        <span class="stat-label">Kwalifikowane B+R</span>
+                    </div>
+                </div>
+                <p class="project-desc">${p.description || 'Brak opisu'}</p>
+                <div class="project-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="editProject('${p.id}')">✏️ Edytuj</button>
+                    <button class="btn btn-sm btn-primary" onclick="viewProjectExpenses('${p.id}')">💰 Wydatki</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteProject('${p.id}')">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) { 
+        console.error('Error loading projects:', e);
+        document.getElementById('projects-list').innerHTML = '<p class="error">Błąd ładowania projektów</p>';
+    }
+}
+
+function showCreateProjectModal() {
+    const name = prompt('Nazwa projektu:');
+    if (!name) return;
+    const description = prompt('Opis projektu (opcjonalnie):') || '';
+    const year = prompt('Rok podatkowy:', '2025') || '2025';
+    
+    createProject(name, description, parseInt(year));
+}
+
+async function createProject(name, description, fiscalYear) {
+    try {
+        await apiCall('/projects/', {
+            method: 'POST',
+            body: JSON.stringify({ name, description, fiscal_year: fiscalYear })
+        });
+        showToast('Projekt utworzony', 'success');
+        loadProjects();
+    } catch (e) { showToast('Błąd tworzenia projektu', 'error'); }
+}
+
+async function editProject(id) {
+    const project = projectsCache.find(p => p.id === id);
+    if (!project) return;
+    
+    const name = prompt('Nazwa projektu:', project.name);
+    if (!name) return;
+    const description = prompt('Opis projektu:', project.description || '');
+    
+    try {
+        await apiCall(`/projects/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ name, description })
+        });
+        showToast('Projekt zaktualizowany', 'success');
+        loadProjects();
+    } catch (e) { showToast('Błąd aktualizacji projektu', 'error'); }
+}
+
+async function deleteProject(id) {
+    if (!confirm('Czy na pewno chcesz usunąć ten projekt?')) return;
+    try {
+        await apiCall(`/projects/${id}`, { method: 'DELETE' });
+        showToast('Projekt usunięty', 'success');
+        loadProjects();
+    } catch (e) { 
+        showToast('Nie można usunąć projektu z wydatkami', 'error'); 
+    }
+}
+
+function viewProjectExpenses(projectId) {
+    navigateTo('expenses');
+    setTimeout(() => {
+        document.getElementById('expense-filter-project').value = projectId;
+        loadExpenses();
+    }, 100);
+}
+
+// Load projects for filter dropdowns
+async function loadProjectsForFilter() {
+    try {
+        projectsCache = await apiCall('/projects/');
+        
+        // Update expense filter dropdown
+        const filterSelect = document.getElementById('expense-filter-project');
+        if (filterSelect) {
+            filterSelect.innerHTML = '<option value="">Wszystkie projekty</option>' +
+                projectsCache.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        }
+        
+        // Update bulk assign dropdown
+        const bulkSelect = document.getElementById('bulk-assign-project');
+        if (bulkSelect) {
+            bulkSelect.innerHTML = '<option value="">Przypisz do projektu...</option>' +
+                projectsCache.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        }
+    } catch (e) { console.error('Error loading projects:', e); }
+}
+
+function getProjectName(projectId) {
+    const project = projectsCache.find(p => p.id === projectId);
+    return project ? project.name : '-';
+}
+
 // Expenses
+let selectedExpenses = new Set();
+
 async function loadExpenses() {
     try {
+        const projectFilter = document.getElementById('expense-filter-project')?.value;
         const status = document.getElementById('expense-filter-status').value;
         const brQualified = document.getElementById('expense-filter-br').value;
-        let url = `/expenses/?project_id=${PROJECT_ID}&year=${currentFiscalYear}`;
+        
+        let url = `/expenses/?year=${currentFiscalYear}`;
+        if (projectFilter) url += `&project_id=${projectFilter}`;
         if (status) url += `&status=${status}`;
         if (brQualified) url += `&br_qualified=${brQualified}`;
         
         const expenses = await apiCall(url);
+        selectedExpenses.clear();
+        updateBulkActionsBar();
+        
         document.getElementById('expenses-table-body').innerHTML = expenses.length === 0 ? 
-            '<tr><td colspan="8" class="empty-state">Brak wydatków</td></tr>' :
+            '<tr><td colspan="10" class="empty-state">Brak wydatków</td></tr>' :
             expenses.map(e => `<tr>
-                <td>${e.invoice_date || '-'}</td><td>${e.invoice_number || '-'}</td><td>${e.vendor_name || '-'}</td>
-                <td>${formatCurrency(e.gross_amount)}</td><td>${getCategoryName(e.br_category) || '-'}</td>
-                <td>${e.br_qualified ? (e.br_deduction_rate * 100) + '%' : '-'}</td>
-                <td><span class="status-badge ${e.status}">${getStatusLabel(e.status)}</span></td>
-                <td><button class="btn btn-small btn-secondary" onclick="showExpenseDetails('${e.id}')">Szczegóły</button></td>
+                <td><input type="checkbox" class="expense-checkbox" data-id="${e.id}" onchange="toggleExpenseSelection('${e.id}', this.checked)"></td>
+                <td><span class="project-tag">${getProjectName(e.project_id)}</span></td>
+                <td>${e.invoice_date || '-'}</td>
+                <td>${e.invoice_number || '-'}</td>
+                <td>${e.vendor_name || '-'}</td>
+                <td>${formatCurrencyWithCode(e.gross_amount, e.currency)}</td>
+                <td>${getCategoryName(e.br_category) || '-'}</td>
+                <td>
+                    <select class="status-select status-${e.status}" onchange="changeExpenseStatus('${e.id}', this.value)">
+                        <option value="draft" ${e.status === 'draft' ? 'selected' : ''}>Szkic</option>
+                        <option value="classified" ${e.status === 'classified' ? 'selected' : ''}>Sklasyfikowany</option>
+                        <option value="approved" ${e.status === 'approved' ? 'selected' : ''}>Zatwierdzony</option>
+                        <option value="rejected" ${e.status === 'rejected' ? 'selected' : ''}>Odrzucony</option>
+                    </select>
+                </td>
+                <td>
+                    ${e.document_id ? `<button class="btn btn-small btn-outline" onclick="showDocumentDetail('${e.document_id}')" title="Pokaż dokument">📄</button>` : ''}
+                    <button class="btn btn-small btn-secondary" onclick="showExpenseDetails('${e.id}')">Szczegóły</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteExpense('${e.id}')" title="Usuń">🗑️</button>
+                </td>
             </tr>`).join('');
     } catch (e) { console.error('Error:', e); }
+}
+
+// Bulk selection functions
+function toggleExpenseSelection(id, checked) {
+    if (checked) {
+        selectedExpenses.add(id);
+    } else {
+        selectedExpenses.delete(id);
+    }
+    updateBulkActionsBar();
+}
+
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.expense-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+        if (checkbox.checked) {
+            selectedExpenses.add(cb.dataset.id);
+        } else {
+            selectedExpenses.delete(cb.dataset.id);
+        }
+    });
+    updateBulkActionsBar();
+}
+
+function updateBulkActionsBar() {
+    const bar = document.getElementById('bulk-actions-bar');
+    const count = document.getElementById('selected-count');
+    if (selectedExpenses.size > 0) {
+        bar.style.display = 'flex';
+        count.textContent = `${selectedExpenses.size} zaznaczonych`;
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function clearSelection() {
+    selectedExpenses.clear();
+    document.querySelectorAll('.expense-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('select-all-expenses').checked = false;
+    updateBulkActionsBar();
+}
+
+async function bulkAssignToProject() {
+    const projectId = document.getElementById('bulk-assign-project').value;
+    if (!projectId) {
+        showToast('Wybierz projekt', 'warning');
+        return;
+    }
+    if (selectedExpenses.size === 0) {
+        showToast('Zaznacz wydatki', 'warning');
+        return;
+    }
+    
+    try {
+        await apiCall('/projects/bulk-assign-expenses', {
+            method: 'POST',
+            body: JSON.stringify({
+                expense_ids: Array.from(selectedExpenses),
+                project_id: projectId
+            })
+        });
+        showToast(`Przypisano ${selectedExpenses.size} wydatków do projektu`, 'success');
+        clearSelection();
+        loadExpenses();
+    } catch (e) {
+        showToast('Błąd przypisywania', 'error');
+    }
 }
 
 async function showExpenseDetails(id) {
@@ -415,15 +639,28 @@ async function showExpenseDetails(id) {
             <p><strong>Nr faktury:</strong> ${e.invoice_number || '-'}</p>
             <p><strong>Data:</strong> ${e.invoice_date || '-'}</p>
             <p><strong>Dostawca:</strong> ${e.vendor_name || '-'} (NIP: ${e.vendor_nip || '-'})</p>
-            <p><strong>Kwota brutto:</strong> ${formatCurrency(e.gross_amount)}</p>
+            <p><strong>Kwota brutto:</strong> ${formatCurrencyWithCode(e.gross_amount, e.currency)}</p>
+            <p><strong>Kwota netto:</strong> ${formatCurrencyWithCode(e.net_amount, e.currency)}</p>
+            <p><strong>VAT:</strong> ${formatCurrencyWithCode(e.vat_amount, e.currency)}</p>
+            ${e.document_id ? `<p><strong>Dokument źródłowy:</strong> <a href="#" onclick="showDocumentDetail('${e.document_id}'); return false;">📄 Zobacz dokument</a></p>` : ''}
             <hr><h4>Klasyfikacja B+R</h4>
             <p><strong>Kwalifikowany:</strong> ${e.br_qualified ? '✅ Tak' : '❌ Nie'}</p>
             <p><strong>Kategoria:</strong> ${getCategoryName(e.br_category) || '-'}</p>
             <p><strong>Stawka:</strong> ${e.br_deduction_rate * 100}%</p>
             <p><strong>Uzasadnienie:</strong> ${e.br_qualification_reason || '-'}</p>
-            <div style="margin-top:1rem;">
+            <p><strong>Status:</strong> 
+                <select id="expense-status-select" class="status-select">
+                    <option value="draft" ${e.status === 'draft' ? 'selected' : ''}>Szkic</option>
+                    <option value="classified" ${e.status === 'classified' ? 'selected' : ''}>Sklasyfikowany</option>
+                    <option value="approved" ${e.status === 'approved' ? 'selected' : ''}>Zatwierdzony</option>
+                    <option value="rejected" ${e.status === 'rejected' ? 'selected' : ''}>Odrzucony</option>
+                </select>
+            </p>
+            <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
                 <button class="btn btn-primary" onclick="classifyExpense('${e.id}')">Zmień klasyfikację</button>
                 <button class="btn btn-secondary" onclick="reclassifyWithLLM('${e.id}')">Reklasyfikuj AI</button>
+                <button class="btn btn-success" onclick="saveExpenseStatus('${e.id}')">💾 Zapisz status</button>
+                <button class="btn btn-danger" onclick="deleteExpense('${e.id}')">🗑️ Usuń</button>
             </div>`;
         document.getElementById('expense-modal').classList.add('active');
     } catch (e) { showToast('Błąd', 'error'); }
@@ -521,9 +758,91 @@ function saveProjectSettings() {
 
 // Utilities
 function formatCurrency(amount) { return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(amount || 0); }
-function getStatusLabel(s) { return { pending: 'Oczekuje', processing: 'Przetwarzanie', completed: 'Gotowe', failed: 'Błąd', draft: 'Szkic', classified: 'Sklasyfikowane', generated: 'Wygenerowany' }[s] || s; }
+function formatCurrencyWithCode(amount, currency = 'PLN') {
+    const cur = (currency || 'PLN').toUpperCase();
+    try {
+        return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: cur }).format(amount || 0);
+    } catch (e) {
+        return `${(amount || 0).toFixed(2)} ${cur}`;
+    }
+}
+function getStatusLabel(s) { return { pending: 'Oczekuje', processing: 'Przetwarzanie', completed: 'Gotowe', failed: 'Błąd', draft: 'Szkic', classified: 'Sklasyfikowane', approved: 'Zatwierdzony', rejected: 'Odrzucony', generated: 'Wygenerowany' }[s] || s; }
 function getCategoryName(c) { return { personnel_employment: 'Wynagrodzenia (umowa o pracę)', personnel_civil: 'Wynagrodzenia (cywilnoprawne)', materials: 'Materiały', equipment: 'Sprzęt', depreciation: 'Amortyzacja', expertise: 'Ekspertyzy', external_services: 'Usługi zewnętrzne' }[c] || c; }
 function showToast(msg, type = 'info') { const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; document.getElementById('toast-container').appendChild(t); setTimeout(() => t.remove(), 4000); }
+
+// Expense management functions
+async function changeExpenseStatus(id, status) {
+    try {
+        await apiCall(`/expenses/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+        showToast('Status zmieniony', 'success');
+    } catch (e) { showToast('Błąd zmiany statusu', 'error'); loadExpenses(); }
+}
+
+async function saveExpenseStatus(id) {
+    const status = document.getElementById('expense-status-select').value;
+    try {
+        await apiCall(`/expenses/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+        showToast('Status zapisany', 'success');
+        document.getElementById('expense-modal').classList.remove('active');
+        loadExpenses();
+    } catch (e) { showToast('Błąd zapisu statusu', 'error'); }
+}
+
+async function deleteExpense(id) {
+    if (!confirm('Czy na pewno chcesz usunąć ten wydatek?')) return;
+    try {
+        await apiCall(`/expenses/${id}`, { method: 'DELETE' });
+        showToast('Wydatek usunięty', 'success');
+        document.getElementById('expense-modal').classList.remove('active');
+        loadExpenses(); loadDashboard();
+    } catch (e) { showToast('Błąd usuwania', 'error'); }
+}
+
+// Document duplicate check and re-extract
+async function checkDuplicates(docId) {
+    try {
+        const result = await apiCall(`/documents/${docId}/check-duplicates`);
+        const container = document.getElementById('duplicate-check-result');
+        
+        if (result.potential_duplicates && result.potential_duplicates.length > 0) {
+            container.innerHTML = `
+                <div class="doc-detail-section warning-section" style="background:#fef3c7; padding:1rem; border-radius:8px; margin:1rem 0;">
+                    <h4 style="color:#92400e;">⚠️ Potencjalne duplikaty (${result.potential_duplicates.length})</h4>
+                    <ul style="margin:0.5rem 0; padding-left:1.5rem;">
+                        ${result.potential_duplicates.map(d => `
+                            <li style="margin:0.25rem 0;">
+                                <a href="#" onclick="showDocumentDetail('${d.id}'); return false;">${d.filename}</a>
+                                <small style="color:#92400e;"> - ${d.match_reason}</small>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>`;
+            showToast('Znaleziono potencjalne duplikaty', 'warning');
+        } else {
+            container.innerHTML = `
+                <div class="doc-detail-section" style="background:#dcfce7; padding:1rem; border-radius:8px; margin:1rem 0;">
+                    <p style="color:#166534; margin:0;">✅ Nie znaleziono duplikatów</p>
+                </div>`;
+            showToast('Brak duplikatów', 'success');
+        }
+    } catch (e) { 
+        showToast('Błąd sprawdzania duplikatów', 'error'); 
+        console.error(e);
+    }
+}
+
+async function reExtractData(docId) {
+    try {
+        showToast('Wyodrębnianie danych...', 'info');
+        const result = await apiCall(`/documents/${docId}/re-extract`, { method: 'POST' });
+        showToast(`Dane wyodrębnione (typ: ${result.detected_type})`, 'success');
+        // Refresh the document detail view
+        showDocumentDetail(docId, { updateUrl: false });
+    } catch (e) { 
+        showToast('Błąd wyodrębniania danych', 'error'); 
+        console.error(e);
+    }
+}
 
 // Modal
 document.querySelector('.modal-close').addEventListener('click', () => document.getElementById('expense-modal').classList.remove('active'));

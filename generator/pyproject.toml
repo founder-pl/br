@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "br-doc-generator"
+version = "1.0.0"
+description = "Automatic B+R documentation generator with multi-level LLM validation"
+readme = "README.md"
+license = {text = "Proprietary"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Softreck", email = "info@softreck.com"}
+]
+keywords = ["br", "tax-relief", "documentation", "llm", "automation", "poland"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Accounting",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "litellm>=1.40.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "pyyaml>=6.0.1",
+    "jinja2>=3.1.2",
+    "weasyprint>=60.0",
+    "markdown>=3.5",
+    "pymdown-extensions>=10.5",
+    "structlog>=24.1.0",
+    "httpx>=0.26.0",
+    "aiofiles>=23.2.1",
+    "python-dotenv>=1.0.0",
+    "typer>=0.9.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.8.0",
+    "ruff>=0.1.9",
+]
+
+[project.scripts]
+br-doc = "br_doc_generator.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/softreck/br-doc-generator"
+Documentation = "https://docs.softreck.com/br-doc-generator"
+Repository = "https://github.com/softreck/br-doc-generator"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "SIM", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --cov=br_doc_generator --cov-report=term-missing"

@@ -1,0 +1,285 @@
+# ============================================================================
+# BR Documentation Generator - Example Project Form
+# Przykładowy formularz danych projektu B+R
+# ============================================================================
+# 
+# Ten plik zawiera przykładowe dane projektu badawczo-rozwojowego.
+# Skopiuj ten plik i wypełnij własnymi danymi.
+#
+# Użycie:
+#   cp example_form.yaml moj_projekt.yaml
+#   # Edytuj moj_projekt.yaml
+#   br-doc generate --input moj_projekt.yaml
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# DANE PROJEKTU
+# ----------------------------------------------------------------------------
+project:
+  # Nazwa projektu (krótka, opisowa)
+  name: "System automatycznej analizy dokumentów z wykorzystaniem AI"
+  
+  # Szczegółowy opis projektu (2-5 zdań)
+  description: |
+    Innowacyjny system wykorzystujący uczenie maszynowe do automatycznej 
+    analizy i klasyfikacji dokumentów biznesowych. Projekt obejmuje 
+    stworzenie modeli NLP, integrację z systemami OCR oraz budowę 
+    interfejsu użytkownika.
+  
+  # Rok podatkowy, za który rozliczana jest ulga B+R
+  fiscal_year: 2024
+
+# ----------------------------------------------------------------------------
+# DANE FIRMY
+# ----------------------------------------------------------------------------
+company:
+  # Pełna nazwa firmy
+  name: "Softreck Sp. z o.o."
+  
+  # NIP (10 cyfr, bez myślników)
+  nip: "5252448481"
+  
+  # Adres siedziby
+  address: "ul. Przykładowa 123, 00-001 Warszawa"
+
+# ----------------------------------------------------------------------------
+# HARMONOGRAM PROJEKTU
+# ----------------------------------------------------------------------------
+timeline:
+  # Data rozpoczęcia (format: YYYY-MM-DD)
+  start_date: "2024-01-01"
+  
+  # Data zakończenia (format: YYYY-MM-DD)
+  end_date: "2024-12-31"
+  
+  # Kamienie milowe projektu
+  # Zalecane: 3-6 kamieni milowych rozłożonych równomiernie
+  milestones:
+    - name: "Etap 1: Analiza i projektowanie"
+      date: "2024-03-31"
+      description: |
+        Analiza wymagań, przegląd stanu techniki, projektowanie 
+        architektury systemu.
+    
+    - name: "Etap 2: Implementacja modeli ML"
+      date: "2024-06-30"
+      description: |
+        Trening i optymalizacja modeli uczenia maszynowego, 
+        testy jednostkowe.
+    
+    - name: "Etap 3: Integracja i testy"
+      date: "2024-09-30"
+      description: |
+        Integracja komponentów, testy integracyjne, 
+        optymalizacja wydajności.
+    
+    - name: "Etap 4: Wdrożenie i dokumentacja"
+      date: "2024-12-31"
+      description: |
+        Wdrożenie produkcyjne, dokumentacja techniczna, 
+        szkolenia użytkowników.
+
+# ----------------------------------------------------------------------------
+# INNOWACYJNOŚĆ
+# ----------------------------------------------------------------------------
+innovation:
+  # Typ innowacji:
+  #   - product: innowacja produktowa (nowy produkt/usługa)
+  #   - process: innowacja procesowa (nowy proces/metoda)
+  #   - mixed: innowacja mieszana (produkt + proces)
+  type: "product"
+  
+  # Skala innowacji:
+  #   - company: nowość w skali firmy
+  #   - industry: nowość w skali branży
+  #   - global: nowość w skali światowej
+  scale: "company"
+  
+  # Opis innowacji (co jest nowe/unikalne)
+  description: |
+    System stanowi pierwszą w firmie implementację technologii 
+    uczenia maszynowego do automatyzacji procesów dokumentowych.
+    Łączy najnowsze osiągnięcia w dziedzinie NLP z praktycznymi 
+    zastosowaniami biznesowymi.
+  
+  # Uzasadnienie nowatorstwa (dlaczego jest innowacyjne)
+  novelty_justification: |
+    Projekt wprowadza pionierskie rozwiązania w zakresie:
+    1. Automatycznej klasyfikacji dokumentów z dokładnością >95%
+    2. Ekstrakcji danych strukturalnych z dokumentów niestrukturalnych
+    3. Integracji z istniejącymi systemami ERP w czasie rzeczywistym
+    
+    Analiza stanu techniki wykazała, że podobne rozwiązania nie są 
+    dostępne na rynku polskim dla segmentu MŚP.
+
+# ----------------------------------------------------------------------------
+# METODOLOGIA
+# ----------------------------------------------------------------------------
+# Opis metodologii badawczej (systematyczne podejście)
+methodology: |
+  Projekt realizowany jest w oparciu o metodologię Agile (Scrum) 
+  z elementami Design Thinking i CRISP-DM dla komponentów ML.
+  
+  Systematyczne podejście obejmuje:
+  
+  1. FAZA DISCOVERY (Q1 2024)
+     - Analiza wymagań biznesowych
+     - Przegląd literatury i stanu techniki
+     - Definiowanie hipotez badawczych
+     - Projektowanie eksperymentów
+  
+  2. FAZA DEVELOPMENT (Q2-Q3 2024)
+     - Iteracyjne tworzenie prototypów
+     - Trening i walidacja modeli ML
+     - Testy A/B różnych architektur
+     - Dokumentacja wyników eksperymentów
+  
+  3. FAZA DELIVERY (Q4 2024)
+     - Integracja komponentów
+     - Testy akceptacyjne
+     - Wdrożenie produkcyjne
+     - Analiza wyników i wnioski
+
+# ----------------------------------------------------------------------------
+# CELE BADAWCZE
+# ----------------------------------------------------------------------------
+# Lista celów badawczych projektu
+research_goals:
+  - "Opracowanie modelu NLP do klasyfikacji dokumentów biznesowych z dokładnością >95%"
+  - "Stworzenie algorytmu ekstrakcji danych z dokumentów niestrukturalnych"
+  - "Zbadanie możliwości zastosowania transfer learning w domenie dokumentów polskojęzycznych"
+  - "Opracowanie metody integracji wyników analizy ML z systemami ERP"
+
+# ----------------------------------------------------------------------------
+# OCZEKIWANE REZULTATY
+# ----------------------------------------------------------------------------
+# Lista oczekiwanych rezultatów projektu
+expected_results:
+  - "Działający system automatycznej analizy dokumentów"
+  - "Wytrenowane modele ML do klasyfikacji i ekstrakcji danych"
+  - "API do integracji z systemami zewnętrznymi"
+  - "Dokumentacja techniczna i użytkownika"
+  - "Publikacja wyników w formie case study"
+
+# ----------------------------------------------------------------------------
+# KOSZTY B+R
+# ----------------------------------------------------------------------------
+costs:
+  # -------------------------------------------------------------------------
+  # WYNAGRODZENIA PRACOWNIKÓW (umowa o pracę)
+  # Stawka odliczenia: 200%
+  # -------------------------------------------------------------------------
+  personnel_employment:
+    - name: "Jan Kowalski"
+      role: "Lead ML Engineer"
+      monthly_gross_salary: 18000  # PLN brutto
+      br_time_percent: 80          # % czasu na B+R (0-100)
+      months_worked: 12            # liczba miesięcy
+      # Kalkulacja: 18000 × 12 × 0.80 = 172 800 PLN
+      # Odliczenie: 172 800 × 200% = 345 600 PLN
+    
+    - name: "Anna Nowak"
+      role: "Senior Data Scientist"
+      monthly_gross_salary: 15000
+      br_time_percent: 100
+      months_worked: 12
+      # Kalkulacja: 15000 × 12 × 1.00 = 180 000 PLN
+      # Odliczenie: 180 000 × 200% = 360 000 PLN
+    
+    - name: "Piotr Wiśniewski"
+      role: "Backend Developer"
+      monthly_gross_salary: 12000
+      br_time_percent: 50
+      months_worked: 10
+      # Kalkulacja: 12000 × 10 × 0.50 = 60 000 PLN
+      # Odliczenie: 60 000 × 200% = 120 000 PLN
+
+  # -------------------------------------------------------------------------
+  # WYNAGRODZENIA (umowy cywilnoprawne)
+  # Stawka odliczenia: 200%
+  # -------------------------------------------------------------------------
+  personnel_civil:
+    - name: "Dr Maria Kowalczyk"
+      role: "Konsultant NLP"
+      total_amount: 30000  # PLN brutto za cały okres
+      br_time_percent: 100
+      # Odliczenie: 30 000 × 200% = 60 000 PLN
+
+  # -------------------------------------------------------------------------
+  # MATERIAŁY I SUROWCE
+  # Stawka odliczenia: 100%
+  # -------------------------------------------------------------------------
+  materials:
+    - description: "Zbiory danych treningowych (licencje)"
+      amount: 25000
+      justification: "Zakup licencjonowanych zbiorów danych do treningu modeli ML"
+    
+    - description: "Książki i publikacje naukowe"
+      amount: 3000
+      justification: "Literatura specjalistyczna z dziedziny NLP i ML"
+
+  # -------------------------------------------------------------------------
+  # SPRZĘT SPECJALISTYCZNY
+  # Stawka odliczenia: 100%
+  # -------------------------------------------------------------------------
+  equipment:
+    - description: "Serwer GPU (NVIDIA A100)"
+      amount: 80000
+      justification: "Dedykowany serwer do treningu modeli deep learning"
+    
+    - description: "Stacje robocze dla zespołu ML"
+      amount: 45000
+      justification: "3 stacje robocze z GPU do lokalnego developmentu"
+
+  # -------------------------------------------------------------------------
+  # EKSPERTYZY I OPINIE
+  # Stawka odliczenia: 100%
+  # -------------------------------------------------------------------------
+  expertise:
+    - description: "Audyt architektury ML"
+      amount: 15000
+      provider: "ML Consulting Sp. z o.o."
+      justification: "Zewnętrzna ekspertyza architektury modeli"
+
+  # -------------------------------------------------------------------------
+  # USŁUGI BADAWCZE ZEWNĘTRZNE
+  # Stawka odliczenia: 100%
+  # -------------------------------------------------------------------------
+  external_services:
+    - description: "Chmura obliczeniowa (AWS/GCP)"
+      amount: 40000
+      provider: "Amazon Web Services"
+      justification: "Zasoby obliczeniowe do treningu modeli na dużą skalę"
+
+# ----------------------------------------------------------------------------
+# KRYTERIA B+R (art. 18d CIT)
+# Wszystkie muszą być spełnione (true)
+# ----------------------------------------------------------------------------
+br_criteria:
+  # Systematyczność: planowe, metodyczne podejście
+  systematycznosc: true
+  
+  # Twórczość: oryginalne, kreatywne rozwiązania
+  tworczosc: true
+  
+  # Nowatorstwo: innowacja (min. w skali firmy)
+  nowatorstwo: true
+  
+  # Niepewność: ryzyko nieosiągnięcia zakładanego celu
+  niepewnosc: true
+
+# ============================================================================
+# PODSUMOWANIE KOSZTÓW (automatycznie kalkulowane)
+# ============================================================================
+# 
+# Kategoria                      | Kwota brutto | Stawka | Do odliczenia
+# -------------------------------|--------------|--------|---------------
+# Wynagrodzenia (UoP)            | 412 800 PLN  | 200%   | 825 600 PLN
+# Wynagrodzenia (cywilnoprawne)  |  30 000 PLN  | 200%   |  60 000 PLN
+# Materiały                      |  28 000 PLN  | 100%   |  28 000 PLN
+# Sprzęt                         | 125 000 PLN  | 100%   | 125 000 PLN
+# Ekspertyzy                     |  15 000 PLN  | 100%   |  15 000 PLN
+# Usługi zewnętrzne              |  40 000 PLN  | 100%   |  40 000 PLN
+# -------------------------------|--------------|--------|---------------
+# RAZEM                          | 650 800 PLN  |   -    | 1 093 600 PLN
+# ============================================================================
