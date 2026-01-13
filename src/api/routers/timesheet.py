@@ -381,3 +381,107 @@ async def get_contractors(db: AsyncSession = Depends(get_db)):
 async def get_time_slots():
     """Get available time slots"""
     return {"slots": TIME_SLOTS}
+
+
+# ==================== VALIDATED TIME ENTRIES (P1) ====================
+
+@router.post("/entries/validated")
+async def create_validated_time_entry(
+    entry_data: dict,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Create a validated time entry with B+R compliance checks.
+    
+    Validates:
+    - Description length (min 50 chars)
+    - B+R keywords presence
+    - Git commit evidence (optional but recommended)
+    """
+    from ..models.daily_time_entry import (
+        DailyTimeEntry, TimeSlot, BRTaskType, GitCommitLink, validate_time_entry
+    )
+    
+    try:
+        # Parse git commits if provided
+        git_commits = []
+        for c in entry_data.get("git_commits", []):
+            git_commits.append(GitCommitLink(**c))
+        
+        # Create entry model with validation
+        entry = DailyTimeEntry(
+            project_id=entry_data["project_id"],
+            worker_id=entry_data["worker_id"],
+            work_date=entry_data["work_date"],
+            time_slot=TimeSlot(entry_data.get("time_slot", "morning")),
+            hours=entry_data.get("hours", 4),
+            task_type=BRTaskType(entry_data.get("task_type", "rozwój")),
+            description=entry_data["description"],
+            git_commits=git_commits
+        )
+        
+        # Validate entry
+        validation = validate_time_entry(entry)
+        
+        if not validation.is_valid:
+            return {
+                "status": "validation_failed",
+                "errors": validation.errors,
+                "warnings": validation.warnings,
+                "suggestions": validation.suggestions
+            }
+        
+        # Save to database
+        entry_id = str(uuid.uuid4())
+        await db.execute(
+            text("""
+                INSERT INTO read_models.timesheet_entries 
+                (id, project_id, worker_id, work_date, time_slot, hours, description)
+                VALUES (:id, :project_id, :worker_id, :work_date, :time_slot, :hours, :description)
+                ON CONFLICT (project_id, worker_id, work_date, time_slot)
+                DO UPDATE SET hours = :hours, description = :description, updated_at = NOW()
+            """),
+            {
+                "id": entry_id,
+                "project_id": entry.project_id,
+                "worker_id": entry.worker_id,
+                "work_date": entry.work_date,
+                "time_slot": entry.time_slot.value,
+                "hours": entry.hours,
+                "description": entry.description
+            }
+        )
+        await db.commit()
+        
+        logger.info("Validated time entry created", entry_id=entry_id, hours=entry.hours)
+        
+        return {
+            "status": "success",
+            "entry_id": entry_id,
+            "validation": {
+                "is_valid": True,
+                "warnings": validation.warnings,
+                "suggestions": validation.suggestions
+            },
+            "entry": {
+                "project_id": entry.project_id,
+                "worker_id": entry.worker_id,
+                "work_date": str(entry.work_date),
+                "time_slot": entry.time_slot.value,
+                "hours": entry.hours,
+                "task_type": entry.task_type.value,
+                "description": entry.description,
+                "has_evidence": entry.has_evidence
+            }
+        }
+        
+    except ValueError as e:
+        return {
+            "status": "validation_failed",
+            "errors": [str(e)],
+            "warnings": [],
+            "suggestions": ["Sprawdź wymagania dla opisu i typu zadania"]
+        }
+    except Exception as e:
+        logger.error("Failed to create validated entry", error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))

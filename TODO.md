@@ -46,12 +46,13 @@
   - Model `src/api/models/project_extended.py`
   - TechnicalProblem, ResearchMethodology, RiskAnalysis
   - Domyślne szablony dla szybkiego startu
-- [ ] **Dzienny rejestr czasu pracy**
-  - Model DailyTimeEntry z walidacją
-  - Min. 50 znaków opisu
-- [ ] **Integracja Git z ewidencją**
-  - Wzbogacanie wpisów o commity
-  - Dowody pracy (linki do commitów)
+- [x] **Dzienny rejestr czasu pracy** ✅
+  - Model `src/api/models/daily_time_entry.py`
+  - Endpoint `/timesheet/entries/validated`
+  - Walidacja: min. 50 znaków, słowa kluczowe B+R
+- [x] **Integracja Git z ewidencją** ✅
+  - Model GitCommitLink do powiązania commitów
+  - Walidacja obecności dowodów (warnings)
 
 ## Priorytet: Średni 🟡
 
@@ -130,6 +131,10 @@
 - [x] Generator sekcji niepewności (uncertainty_generator.py)
 - [x] Endpoint /projects/{id}/generate-uncertainty
 - [x] 166 testów jednostkowych passed
+- [x] Optymalizacja startu br-ocr (start_period: 90s)
+- [x] Fix git-timesheet (worker_id opcjonalny)
+- [x] Model DailyTimeEntry z walidacją B+R
+- [x] Endpoint /timesheet/entries/validated
 
 ### 2026-01-12
 - [x] URL state management

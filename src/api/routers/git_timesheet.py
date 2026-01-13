@@ -71,8 +71,8 @@ class GitTimesheetEntry(BaseModel):
 
 class GenerateTimesheetRequest(BaseModel):
     commits: List[Dict[str, Any]]
-    worker_id: str
-    project_mappings: Dict[str, str]  # repo_path -> project_id
+    worker_id: Optional[str] = None
+    project_mappings: Dict[str, str] = {}  # repo_path -> project_id
 
 
 def run_git_command(repo_path: str, args: List[str]) -> str:
