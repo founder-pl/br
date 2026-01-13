@@ -400,6 +400,25 @@ async def classify_expense_manually(
             text(f"UPDATE read_models.expenses SET {', '.join(updates)} WHERE id = :id"),
             params
         )
+        
+        # Record event in event store (CQRS)
+        from ..cqrs.events import EventStore, EventType, DomainEvent
+        event_store = EventStore(db)
+        await event_store.ensure_table_exists()
+        
+        event_type = EventType.EXPENSE_BR_QUALIFIED if classification.br_qualified else EventType.EXPENSE_BR_DISQUALIFIED
+        event = DomainEvent(
+            event_type=event_type,
+            aggregate_id=expense_id,
+            aggregate_type="expense",
+            data={
+                "br_category": classification.br_category,
+                "br_qualified": classification.br_qualified,
+                "br_deduction_rate": classification.br_deduction_rate,
+                "reason": classification.br_qualification_reason or "manual_classification"
+            }
+        )
+        await event_store.append(event)
     
     logger.info("Expense classified manually", expense_id=expense_id)
     return await get_expense(expense_id, db)
@@ -780,6 +799,10 @@ async def classify_revenue(
         raise HTTPException(status_code=404, detail="Revenue not found")
     
     # Update classification
+    ip_qualified = classification.get("ip_qualified", False)
+    ip_type = classification.get("ip_type") or classification.get("ip_category")
+    ip_description = classification.get("ip_description")
+    
     await db.execute(
         text("""
             UPDATE read_models.revenues SET
@@ -791,11 +814,30 @@ async def classify_revenue(
         """),
         {
             "id": revenue_id,
-            "ip_qualified": classification.get("ip_qualified", False),
-            "ip_type": classification.get("ip_type") or classification.get("ip_category"),
-            "ip_description": classification.get("ip_description")
+            "ip_qualified": ip_qualified,
+            "ip_type": ip_type,
+            "ip_description": ip_description
         }
     )
+    
+    # Record event in event store (CQRS)
+    from ..cqrs.events import EventStore, EventType, DomainEvent
+    event_store = EventStore(db)
+    await event_store.ensure_table_exists()
+    
+    event_type = EventType.REVENUE_IP_QUALIFIED if ip_qualified else EventType.REVENUE_IP_DISQUALIFIED
+    event = DomainEvent(
+        event_type=event_type,
+        aggregate_id=revenue_id,
+        aggregate_type="revenue",
+        data={
+            "ip_type": ip_type,
+            "ip_qualified": ip_qualified,
+            "ip_description": ip_description,
+            "reason": "manual_classification"
+        }
+    )
+    await event_store.append(event)
     
     # Fetch updated record
     result = await db.execute(

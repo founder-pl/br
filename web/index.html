@@ -175,6 +175,9 @@
                 <header class="page-header">
                     <h2>Projekty B+R</h2>
                     <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="regenerateAllReports()">
+                            🔄 Regeneruj wszystkie raporty
+                        </button>
                         <button class="btn btn-primary" onclick="showCreateProjectModal()">
                             ➕ Nowy projekt
                         </button>
@@ -400,25 +403,29 @@
                 <header class="page-header">
                     <h2>Raporty miesięczne</h2>
                     <div class="header-actions">
-                        <select id="report-year">
-                            <option value="2025">2025</option>
+                        <select id="report-year" onchange="loadReports()">
+                            <option value="2026">2026</option>
+                            <option value="2025" selected>2025</option>
                             <option value="2024">2024</option>
                         </select>
+                        <button class="btn btn-secondary" onclick="regenerateAllMonthlyReports()">
+                            🔄 Regeneruj wszystkie
+                        </button>
                         <button class="btn btn-primary" onclick="generateMonthlyReport()">
-                            Generuj raport
+                            ➕ Generuj miesiąc
                         </button>
                     </div>
                 </header>
                 
                 <div class="reports-grid">
                     <div class="card report-summary">
-                        <h3>Podsumowanie roczne B+R</h3>
+                        <h3>📊 Podsumowanie roczne B+R</h3>
                         <div id="annual-br-summary">
                             <p class="empty-state">Wybierz rok i wygeneruj raport</p>
                         </div>
                     </div>
                     <div class="card report-summary">
-                        <h3>Podsumowanie IP Box</h3>
+                        <h3>🎯 Podsumowanie IP Box</h3>
                         <div id="annual-ip-summary">
                             <p class="empty-state">Wybierz rok i wygeneruj raport</p>
                         </div>
@@ -426,9 +433,42 @@
                 </div>
                 
                 <div class="card">
-                    <h3>Raporty miesięczne</h3>
-                    <div id="monthly-reports-list" class="reports-list">
-                        <p class="empty-state">Brak raportów</p>
+                    <h3>📅 Szczegóły miesięczne</h3>
+                    <div class="table-container">
+                        <table class="data-table" id="monthly-details-table">
+                            <thead>
+                                <tr>
+                                    <th>Miesiąc</th>
+                                    <th>Wydatki</th>
+                                    <th>B+R kwalifik.</th>
+                                    <th>Przychody</th>
+                                    <th>IP Box</th>
+                                    <th>Nexus</th>
+                                    <th>Akcje</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthly-reports-body">
+                                <tr><td colspan="7" class="empty-state">Ładowanie...</td></tr>
+                            </tbody>
+                            <tfoot id="monthly-reports-footer">
+                                <tr class="totals-row">
+                                    <td><strong>RAZEM</strong></td>
+                                    <td id="total-expenses">-</td>
+                                    <td id="total-br">-</td>
+                                    <td id="total-revenues">-</td>
+                                    <td id="total-ip">-</td>
+                                    <td id="avg-nexus">-</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card" id="month-detail-card" style="display:none;">
+                    <h3 id="month-detail-title">📋 Szczegóły miesiąca</h3>
+                    <div id="month-detail-content">
+                        <p class="empty-state">Wybierz miesiąc aby zobaczyć szczegóły</p>
                     </div>
                 </div>
             </section>

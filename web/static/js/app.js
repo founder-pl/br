@@ -799,24 +799,223 @@ async function reclassifyWithLLM(id) {
 async function loadReports() {
     const year = document.getElementById('report-year').value;
     currentFiscalYear = parseInt(year);
+    const months = ['','Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    
     try {
+        // Load annual B+R summary
         const br = await apiCall(`/reports/annual/br-summary?fiscal_year=${year}&project_id=${PROJECT_ID}`);
         document.getElementById('annual-br-summary').innerHTML = `
             <p><strong>Projekt:</strong> ${br.project_name}</p>
             <p><strong>Suma kosztów B+R:</strong> ${formatCurrency(br.total_br_costs)}</p>
             <p><strong>Kwota odliczenia:</strong> <span style="color:var(--success);font-size:1.25rem">${formatCurrency(br.total_br_deduction)}</span></p>`;
         
+        // Load annual IP Box summary
         const ip = await apiCall(`/reports/annual/ip-box-summary?fiscal_year=${year}&project_id=${PROJECT_ID}`);
         document.getElementById('annual-ip-summary').innerHTML = `
             <p><strong>Przychody IP:</strong> ${formatCurrency(ip.ip_revenues)}</p>
             <p><strong>Wskaźnik nexus:</strong> ${(ip.nexus_ratio * 100).toFixed(2)}%</p>
             <p><strong>Podatek 5%:</strong> <span style="color:var(--success);font-size:1.25rem">${formatCurrency(ip.tax_5_percent)}</span></p>`;
         
-        const monthly = await apiCall(`/reports/monthly?fiscal_year=${year}&project_id=${PROJECT_ID}`);
-        const months = ['','Sty','Lut','Mar','Kwi','Maj','Cze','Lip','Sie','Wrz','Paź','Lis','Gru'];
-        document.getElementById('monthly-reports-list').innerHTML = monthly.length === 0 ? '<p class="empty-state">Brak raportów</p>' :
-            monthly.map(r => `<div class="document-item"><span>${months[r.month]} ${r.fiscal_year}</span><span>B+R: ${formatCurrency(r.br_expenses)}</span></div>`).join('');
-    } catch (e) { console.error('Error:', e); }
+        // Load detailed monthly data
+        const monthlyData = await loadMonthlyDetails(year);
+        
+        // Render monthly table
+        let totalExpenses = 0, totalBr = 0, totalRevenues = 0, totalIp = 0;
+        let nexusSum = 0, nexusCount = 0;
+        
+        const tbody = document.getElementById('monthly-reports-body');
+        if (monthlyData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Brak danych za wybrany rok</td></tr>';
+        } else {
+            tbody.innerHTML = monthlyData.map(m => {
+                totalExpenses += m.expenses || 0;
+                totalBr += m.br_qualified || 0;
+                totalRevenues += m.revenues || 0;
+                totalIp += m.ip_qualified || 0;
+                if (m.nexus_ratio > 0) { nexusSum += m.nexus_ratio; nexusCount++; }
+                
+                return `<tr>
+                    <td><strong>${months[m.month]}</strong></td>
+                    <td>${formatCurrency(m.expenses || 0)}</td>
+                    <td class="br-qualified">${formatCurrency(m.br_qualified || 0)}</td>
+                    <td class="revenue">${formatCurrency(m.revenues || 0)}</td>
+                    <td class="ip-qualified">${formatCurrency(m.ip_qualified || 0)}</td>
+                    <td>${m.nexus_ratio ? (m.nexus_ratio * 100).toFixed(1) + '%' : '-'}</td>
+                    <td>
+                        <button class="btn btn-small btn-outline" onclick="showMonthDetails(${year}, ${m.month})" title="Szczegóły">📋</button>
+                        <button class="btn btn-small btn-secondary" onclick="regenerateMonthReport(${year}, ${m.month})" title="Regeneruj">🔄</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+        
+        // Update totals
+        document.getElementById('total-expenses').textContent = formatCurrency(totalExpenses);
+        document.getElementById('total-br').textContent = formatCurrency(totalBr);
+        document.getElementById('total-revenues').textContent = formatCurrency(totalRevenues);
+        document.getElementById('total-ip').textContent = formatCurrency(totalIp);
+        document.getElementById('avg-nexus').textContent = nexusCount > 0 ? ((nexusSum / nexusCount) * 100).toFixed(1) + '%' : '-';
+        
+    } catch (e) { console.error('Error loading reports:', e); }
+}
+
+async function loadMonthlyDetails(year) {
+    try {
+        // Get expenses and revenues grouped by month
+        const [expenses, revenues] = await Promise.all([
+            apiCall(`/expenses/?year=${year}&limit=500`),
+            apiCall(`/expenses/revenues/`)
+        ]);
+        
+        // Group by month
+        const monthlyMap = {};
+        for (let m = 1; m <= 12; m++) {
+            monthlyMap[m] = { month: m, expenses: 0, br_qualified: 0, revenues: 0, ip_qualified: 0, nexus_ratio: 0 };
+        }
+        
+        // Process expenses
+        expenses.forEach(e => {
+            if (!e.invoice_date) return;
+            const date = new Date(e.invoice_date);
+            if (date.getFullYear() !== parseInt(year)) return;
+            const month = date.getMonth() + 1;
+            monthlyMap[month].expenses += e.gross_amount || 0;
+            if (e.br_qualified) {
+                monthlyMap[month].br_qualified += (e.gross_amount || 0) * (e.br_deduction_rate || 1);
+            }
+        });
+        
+        // Process revenues
+        revenues.forEach(r => {
+            if (!r.invoice_date) return;
+            const date = new Date(r.invoice_date);
+            if (date.getFullYear() !== parseInt(year)) return;
+            const month = date.getMonth() + 1;
+            monthlyMap[month].revenues += r.gross_amount || 0;
+            if (r.ip_qualified) {
+                monthlyMap[month].ip_qualified += r.gross_amount || 0;
+            }
+        });
+        
+        // Calculate nexus ratio per month (simplified)
+        Object.values(monthlyMap).forEach(m => {
+            if (m.br_qualified > 0 && m.expenses > 0) {
+                m.nexus_ratio = Math.min(1, m.br_qualified / m.expenses);
+            }
+        });
+        
+        // Return only months with data
+        return Object.values(monthlyMap).filter(m => m.expenses > 0 || m.revenues > 0);
+    } catch (e) {
+        console.error('Error loading monthly details:', e);
+        return [];
+    }
+}
+
+async function showMonthDetails(year, month) {
+    const months = ['','Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+    
+    document.getElementById('month-detail-card').style.display = 'block';
+    document.getElementById('month-detail-title').textContent = `📋 Szczegóły: ${months[month]} ${year}`;
+    
+    const content = document.getElementById('month-detail-content');
+    content.innerHTML = '<p class="loading">Ładowanie...</p>';
+    
+    try {
+        const [expenses, revenues] = await Promise.all([
+            apiCall(`/expenses/?year=${year}&month=${month}&limit=100`),
+            apiCall(`/expenses/revenues/`)
+        ]);
+        
+        // Filter revenues by month
+        const monthRevenues = revenues.filter(r => {
+            if (!r.invoice_date) return false;
+            const d = new Date(r.invoice_date);
+            return d.getFullYear() === year && d.getMonth() + 1 === month;
+        });
+        
+        let html = '';
+        
+        // Expenses table
+        if (expenses.length > 0) {
+            html += `<h4>📤 Wydatki (${expenses.length})</h4>
+            <table class="data-table compact">
+                <thead><tr><th>Data</th><th>Nr faktury</th><th>Dostawca</th><th>Kwota</th><th>Kategoria B+R</th><th>Status</th></tr></thead>
+                <tbody>
+                ${expenses.map(e => `<tr class="${e.br_qualified ? 'br-row' : ''}">
+                    <td>${e.invoice_date || '-'}</td>
+                    <td>${e.invoice_number || '-'}</td>
+                    <td>${e.vendor_name || e.vendor_nip || '-'}</td>
+                    <td>${formatCurrency(e.gross_amount)}</td>
+                    <td>${e.br_category || '-'}</td>
+                    <td>${e.br_qualified ? '✅ B+R' : '⏳'}</td>
+                </tr>`).join('')}
+                </tbody>
+            </table>`;
+        }
+        
+        // Revenues table
+        if (monthRevenues.length > 0) {
+            html += `<h4>📥 Przychody (${monthRevenues.length})</h4>
+            <table class="data-table compact">
+                <thead><tr><th>Data</th><th>Nr faktury</th><th>Klient</th><th>Kwota</th><th>Kategoria IP</th><th>Status</th></tr></thead>
+                <tbody>
+                ${monthRevenues.map(r => `<tr class="${r.ip_qualified ? 'ip-row' : ''}">
+                    <td>${r.invoice_date || '-'}</td>
+                    <td>${r.invoice_number || '-'}</td>
+                    <td>${r.client_name || r.client_nip || '-'}</td>
+                    <td>${formatCurrency(r.gross_amount)}</td>
+                    <td>${r.ip_category || '-'}</td>
+                    <td>${r.ip_qualified ? '✅ IP Box' : '⏳'}</td>
+                </tr>`).join('')}
+                </tbody>
+            </table>`;
+        }
+        
+        if (!html) {
+            html = '<p class="empty-state">Brak danych za ten miesiąc</p>';
+        }
+        
+        content.innerHTML = html;
+        
+    } catch (e) {
+        content.innerHTML = `<p class="error">Błąd ładowania: ${e.message}</p>`;
+    }
+}
+
+async function regenerateMonthReport(year, month) {
+    try {
+        showToast(`Regenerowanie raportu ${month}/${year}...`, 'info');
+        await apiCall('/reports/monthly/generate', { 
+            method: 'POST', 
+            body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: year, month: month, regenerate: true }) 
+        });
+        showToast('Raport zregenerowany', 'success');
+        loadReports();
+    } catch (e) {
+        showToast('Błąd regenerowania', 'error');
+    }
+}
+
+async function regenerateAllMonthlyReports() {
+    if (!confirm('Czy na pewno chcesz zregenerować raporty dla wszystkich miesięcy?')) return;
+    
+    const year = document.getElementById('report-year').value;
+    showToast('Regenerowanie wszystkich raportów...', 'info');
+    
+    let success = 0, errors = 0;
+    for (let m = 1; m <= 12; m++) {
+        try {
+            await apiCall('/reports/monthly/generate', { 
+                method: 'POST', 
+                body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: parseInt(year), month: m, regenerate: true }) 
+            });
+            success++;
+        } catch (e) { errors++; }
+    }
+    
+    showToast(`Zregenerowano ${success} raportów${errors > 0 ? `, ${errors} błędów` : ''}`, success > 0 ? 'success' : 'error');
+    loadReports();
 }
 
 async function generateMonthlyReport() {
@@ -992,6 +1191,39 @@ async function generateProjectSummary(projectId) {
         }
     } catch (e) { 
         showToast('Błąd generowania podsumowania', 'error'); 
+        console.error(e);
+    }
+}
+
+async function regenerateAllReports() {
+    if (!confirm('Czy na pewno chcesz wygenerować raporty dla wszystkich projektów?')) return;
+    
+    try {
+        showToast('Regenerowanie raportów...', 'info');
+        const projects = await apiCall('/projects/');
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const project of projects) {
+            try {
+                await apiCall(`/expenses/project/${project.id}/generate-summary`, { method: 'POST' });
+                successCount++;
+            } catch (e) {
+                console.error(`Error generating report for project ${project.id}:`, e);
+                errorCount++;
+            }
+        }
+        
+        if (errorCount === 0) {
+            showToast(`Wygenerowano ${successCount} raportów`, 'success');
+        } else {
+            showToast(`Wygenerowano ${successCount} raportów, ${errorCount} błędów`, 'warning');
+        }
+        
+        loadProjects();
+    } catch (e) {
+        showToast('Błąd regenerowania raportów', 'error');
         console.error(e);
     }
 }

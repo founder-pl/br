@@ -711,7 +711,9 @@ Poniższa sekcja dokumentuje przychody z komercjalizacji wyników projektu B+R.
 |------|------------|--------|-------|------|
 """
             for r in revenues:
-                revenues_section += f"| {r.get('invoice_date', 'N/A')} | {r.get('invoice_number', 'N/A')} | {r.get('client_name', 'N/A')} | {float(r.get('gross_amount', 0)):.2f} PLN | {r.get('ip_description', 'Usługi B+R')[:30]} |\n"
+                ip_desc = r.get('ip_description') or 'Usługi B+R'
+                client = r.get('client_name') or r.get('client_nip') or 'N/A'
+                revenues_section += f"| {r.get('invoice_date', 'N/A')} | {r.get('invoice_number', 'N/A')} | {client} | {float(r.get('gross_amount', 0)):.2f} PLN | {ip_desc[:30]} |\n"
             
             revenues_section += f"""
 **Łączne przychody z projektu B+R:** {total_revenue:.2f} PLN

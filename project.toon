@@ -1,12 +1,12 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T13:07:34.770770
+generated: 2026-01-13T13:58:31.410917
 stats:
-  files: 84
-  lines: 25512
-  languages[2]: python:82,javascript:2
+  files: 89
+  lines: 27439
+  languages[2]: python:87,javascript:2
 
-modules[84]{path,lang,lines,kb}:
+modules[89]{path,lang,lines,kb}:
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
   tests/test_documentation_validation.py,python,501,22.6
@@ -42,8 +42,8 @@ modules[84]{path,lang,lines,kb}:
   src/api/ocr_config.py,python,191,8.2
   src/api/document_classifier.py,python,226,8.3
   src/api/database.py,python,58,1.9
-  src/api/main.py,python,109,4.3
-  src/api/services/doc_generator.py,python,693,36.2
+  src/api/main.py,python,110,4.4
+  src/api/services/doc_generator.py,python,695,36.3
   src/api/services/__init__.py,python,0,0.0
   src/api/routers/timesheet.py,python,309,11.8
   src/api/routers/config.py,python,253,10.4
@@ -53,9 +53,14 @@ modules[84]{path,lang,lines,kb}:
   src/api/routers/__init__.py,python,5,0.2
   src/api/routers/integrations.py,python,329,14.5
   src/api/routers/logs.py,python,268,11.3
+  src/api/routers/git_timesheet.py,python,378,14.3
   src/api/routers/reports.py,python,285,13.3
   src/api/routers/documents.py,python,665,29.8
-  src/api/routers/expenses.py,python,1016,43.6
+  src/api/routers/expenses.py,python,1089,46.7
+  src/api/cqrs/commands.py,python,276,12.2
+  src/api/cqrs/events.py,python,220,9.3
+  src/api/cqrs/__init__.py,python,46,1.1
+  src/api/cqrs/queries.py,python,222,9.3
   src/integrations/accounting/fakturownia.py,python,232,9.4
   src/integrations/accounting/base.py,python,272,10.0
   src/integrations/accounting/__init__.py,python,24,0.5
@@ -69,7 +74,7 @@ modules[84]{path,lang,lines,kb}:
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
   web/static/js/markdown-renderer.js,javascript,136,5.4
-  web/static/js/app.js,javascript,1931,96.5
+  web/static/js/app.js,javascript,2294,112.9
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -954,7 +959,7 @@ module_details:
           get_document_at_version,"(project_id:str;filename:str;commit:str)->Optional[str]",-,false,4
           refine_with_llm,"(content:str;validation_issues:List[Dict[str;Any]];max_iterations:int=3)->Dict[str, Any]",-,true,106
           generate_project_summary,"(project:Dict[str;Any];expenses:list[Dict[str;Any]];timesheet_data:Optional[Dict[str;Any]]=None;contractors:Optional[list[Dict[str;Any]]]=None;revenues:Optional[list[Dict[str;Any]]]=None)->Dict[str, Any]",-,true,65
-          _generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float)->str",-,false,210
+          _generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float)->str",-,false,212
           _build_expense_details,"(expenses:list;company_nip:str='5881918662')->str",-,false,79
           _build_expense_list,"(expenses:list)->str",-,false,11
     functions[1]{name,sig,decorators,async,category,lines}:
@@ -1231,6 +1236,52 @@ module_details:
       stream_logs: stream logs
       get_logs_snapshot: retrieves logs snapshot
       list_services: list services
+  src/api/routers/git_timesheet.py:
+    imports[20]: os,subprocess,re,datetime,datetime.date,typing.Optional,typing.List,typing.Dict,typing.Any,pathlib.Path,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,pydantic.BaseModel
+    exports[16]: GitRepoInfo,GitAuthor,GitCommit,ScanRequest,CommitHistoryRequest,GitTimesheetEntry,GenerateTimesheetRequest,run_git_command,is_git_repo,find_git_repos
+    classes[7]{name,bases,decorators,props,methods}:
+      GitRepoInfo,BaseModel,-,5,0
+      GitAuthor,BaseModel,-,3,0
+      GitCommit,BaseModel,-,6,0
+      ScanRequest,BaseModel,-,2,0
+      CommitHistoryRequest,BaseModel,-,4,0
+      GitTimesheetEntry,BaseModel,-,7,0
+      GenerateTimesheetRequest,BaseModel,-,3,0
+    class_details:
+      GitRepoInfo:
+        properties[5]: "path: str","name: str","authors: List[str]","commit_count: int","last_commit: Optional[str]"
+      GitAuthor:
+        properties[3]: "name: str","email: str","commit_count: int"
+      GitCommit:
+        properties[6]: "hash: str","author_name: str","author_email: str","date: datetime","message: str","files_changed: int"
+      ScanRequest:
+        properties[2]: "folder_path: str","max_depth: int"
+      CommitHistoryRequest:
+        properties[4]: "repo_paths: List[str]","authors: List[str]","since: Optional[str]","until: Optional[str]"
+      GitTimesheetEntry:
+        properties[7]: "repo_path: str","repo_name: str","commit_hash: str","author: str","commit_date: datetime","message: str","project_id: Optional[str]"
+      GenerateTimesheetRequest:
+        properties[3]: "commits: List[Dict[str, Any]]","worker_id: str","project_mappings: Dict[str, str]"
+    functions[9]{name,sig,decorators,async,category,lines}:
+      run_git_command,"(repo_path:str;args:List[str])->str",-,false,-,16
+      is_git_repo,"(path:str)->bool",-,false,-,4
+      find_git_repos,"(base_path:str;max_depth:int;current_depth:int=0)->List[str]",-,false,-,22
+      get_repo_authors,"(repo_path:str)->List[GitAuthor]",-,false,-,20
+      get_repo_commits,"(repo_path:str;authors:List[str]=None;since:str=None;until:str=None)->List[GitCommit]",-,false,-,42
+      scan_for_repositories,"(request:ScanRequest)->None",router.post,true,-,64
+      get_commit_history,"(request:CommitHistoryRequest)->None",router.post,true,-,48
+      generate_timesheet_from_commits,"(request:GenerateTimesheetRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,92
+      get_detailed_commits,"(repo_path:str=Query(...);author:Optional[str]=None;since:Optional[str]=None;until:Optional[str]=None)->None",router.get,true,-,74
+    function_docs:
+      run_git_command: starts git command
+      is_git_repo: checks git repo
+      find_git_repos: retrieves git repos
+      get_repo_authors: retrieves repo authors
+      get_repo_commits: retrieves repo commits
+      scan_for_repositories: scan for repositories
+      get_commit_history: retrieves commit history
+      generate_timesheet_from_commits: creates timesheet from commits
+      get_detailed_commits: retrieves detailed commits
   src/api/routers/reports.py:
     imports[17]: uuid,datetime,typing.Optional,typing.List,json,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
     exports[10]: MonthlyReportResponse,ReportGenerateRequest,AnnualBRSummary,IPBoxSummary,generate_monthly_report,calculate_monthly_report,get_monthly_report,list_monthly_reports,get_annual_br_summary,get_annual_ip_box_summary
@@ -1311,7 +1362,7 @@ module_details:
       re_extract_document_data: re extract document data
   src/api/routers/expenses.py:
     imports[19]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,httpx,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession
-    exports[28]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,BRCategory,BR_CATEGORIES,get_br_categories,create_expense,get_expense,list_expenses,classify_expense_manually
+    exports[30]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,BRCategory,BR_CATEGORIES,get_br_categories,create_expense,get_expense,list_expenses,classify_expense_manually
     const[1]{n,t,v,keys}:
       BR_CATEGORIES,List,"[     BRCategory(         code=\"personnel_employment\",         name=\"Wynagrodzenia pracowników (umowa o pracę)\",     ...","-"
     classes[5]{name,bases,decorators,props,methods}:
@@ -1336,19 +1387,21 @@ module_details:
       ExpenseStatusUpdate:
         doc: Status update request
         properties[1]: "status: str"
-    functions[22]{name,sig,decorators,async,category,lines}:
+    functions[24]{name,sig,decorators,async,category,lines}:
       get_br_categories,()->None,router.get,true,-,3
       create_expense,"(expense:ExpenseCreate;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
       get_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,48
       list_expenses,"(project_id:Optional[str]=Query(default=None);br_qualified:Optional[bool]=Query(default=None);ip_qualified:Optional[bool]=Query(default=None);status:Optional[str]=Query(default=None);year:Optional[int]=Query(default=None);month:Optional[int]=Query(default=None);...+1)->None",router.get,true,-,86
-      classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,49
+      classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,68
       trigger_auto_classification,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,17
       update_expense_status,"(expense_id:str;status_update:ExpenseStatusUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,24
       delete_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,16
       generate_expense_documentation,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,67
       generate_project_documentation_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,164
       list_revenues,"(project_id:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,47
-      classify_revenue,"(revenue_id:str;classification:dict;db:AsyncSession=Depends(get_db))->None",router.put,true,-,60
+      classify_revenue,"(revenue_id:str;classification:dict;db:AsyncSession=Depends(get_db))->None",router.put,true,-,83
+      reclassify_invoice,"(invoice_id:str;from_type:str=Query(...; description='Current type: expense or revenue');to_type:str=Query(...; description='Target type: expense or revenue');reason:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.post,true,-,28
+      get_invoice_history,"(invoice_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,16
       list_project_documentation,"(project_id:str)->None",router.get,true,-,19
       get_documentation_content,"(project_id:str;filename:str)->None",router.get,true,-,15
       get_documentation_history,"(project_id:str;filename:str)->None",router.get,true,-,15
@@ -1372,6 +1425,8 @@ module_details:
       generate_project_documentation_summary: creates project documentation summary
       list_revenues: list revenues
       classify_revenue: classify revenue
+      reclassify_invoice: reclassify invoice
+      get_invoice_history: retrieves invoice history
       list_project_documentation: list project documentation
       get_documentation_content: retrieves documentation content
       get_documentation_history: retrieves documentation history
@@ -1382,6 +1437,199 @@ module_details:
       get_br_classifier_system_prompt: retrieves br classifier system prompt
       build_classification_prompt: creates classification prompt
       parse_llm_classification: parses llm classification
+  src/api/cqrs/commands.py:
+    imports[12]: dataclasses.dataclass,typing.Optional,typing.Dict,typing.Any,abc.ABC,abc.abstractmethod,sqlalchemy.text,sqlalchemy.ext.asyncio.AsyncSession,events.EventStore,events.InvoiceClassifiedEvent,events.InvoiceReclassifiedEvent,events.get_event_store
+    exports[9]: Command,ClassifyExpenseCommand,ClassifyRevenueCommand,ReclassifyInvoiceCommand,CommandHandler,ExpenseCommandHandler,RevenueCommandHandler,ReclassifyInvoiceHandler,get_command_handler
+    classes[8]{name,bases,decorators,props,methods}:
+      Command,ABC,dataclass,0,0
+      ClassifyExpenseCommand,Command,dataclass,0,0
+      ClassifyRevenueCommand,Command,dataclass,0,0
+      ReclassifyInvoiceCommand,Command,dataclass,0,0
+      CommandHandler,ABC,-,0,3
+      ExpenseCommandHandler,CommandHandler,-,0,1
+      RevenueCommandHandler,CommandHandler,-,0,1
+      ReclassifyInvoiceHandler,CommandHandler,-,0,1
+    class_details:
+      Command:
+        doc: Base class for commands.
+      ClassifyExpenseCommand:
+        doc: Command to classify an expense for B+R deduction.
+        fields[6]{n,t,default,factory}:
+          expense_id,str,"-","-"
+          br_qualified,bool,"-","-"
+          br_category,"Optional[str]",None,"-"
+          br_deduction_rate,float,"1.0","-"
+          reason,"Optional[str]",None,"-"
+          user_id,"Optional[str]",None,"-"
+      ClassifyRevenueCommand:
+        doc: Command to classify a revenue for IP Box.
+        fields[5]{n,t,default,factory}:
+          revenue_id,str,"-","-"
+          ip_qualified,bool,"-","-"
+          ip_type,"Optional[str]",None,"-"
+          ip_description,"Optional[str]",None,"-"
+          user_id,"Optional[str]",None,"-"
+      ReclassifyInvoiceCommand:
+        doc: Command to reclassify an invoice (expense <-> revenue).
+        fields[5]{n,t,default,factory}:
+          invoice_id,str,"-","-"
+          from_type,str,"-","-"
+          to_type,str,"-","-"
+          reason,"Optional[str]",None,"-"
+          user_id,"Optional[str]",None,"-"
+      CommandHandler:
+        doc: Base class for command handlers.
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(db:AsyncSession)->None",-,false,3
+          get_event_store,()->EventStore,-,true,4
+          handle,"(command:Command)->Dict[str, Any]",abstractmethod,true,3
+      ExpenseCommandHandler:
+        doc: Handler for expense-related commands.
+        methods[1]{name,sig,decorators,async,lines}:
+          handle,"(command:ClassifyExpenseCommand)->Dict[str, Any]",-,true,51
+      RevenueCommandHandler:
+        doc: Handler for revenue-related commands.
+        methods[1]{name,sig,decorators,async,lines}:
+          handle,"(command:ClassifyRevenueCommand)->Dict[str, Any]",-,true,46
+      ReclassifyInvoiceHandler:
+        doc: Handler for invoice reclassification (expense <-> revenue).
+        methods[1]{name,sig,decorators,async,lines}:
+          handle,"(command:ReclassifyInvoiceCommand)->Dict[str, Any]",-,true,135
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_command_handler,"(command_type:str;db:AsyncSession)->CommandHandler",-,true,-,11
+    function_docs:
+      get_command_handler: retrieves command handler
+  src/api/cqrs/events.py:
+    imports[13]: uuid,json,datetime,dataclasses.dataclass,dataclasses.field,dataclasses.asdict,typing.Optional,typing.List,typing.Dict,typing.Any,enum.Enum,sqlalchemy.text,sqlalchemy.ext.asyncio.AsyncSession
+    exports[7]: EventType,DomainEvent,InvoiceCreatedEvent,InvoiceClassifiedEvent,InvoiceReclassifiedEvent,EventStore,get_event_store
+    types[1]{name,kind,values,def}:
+      EventType,enum,"INVOICE_UPLOADED=\"invoice.uploaded\"|INVOICE_OCR_COMPLETED=\"invoice.ocr_completed\"|INVOICE_TYPE_DETECTED=\"invoice.type_detected\"|INVOICE_CLASSIFIED_AS_EXPENSE=\"invoice.classified_as_expense\"|INVOICE_CLASSIFIED_AS_REVENUE=\"invoice.classified_as_revenue\"|EXPENSE_BR_QUALIFIED=\"expense.br_qualified\"|EXPENSE_BR_DISQUALIFIED=\"expense.br_disqualified\"|REVENUE_IP_QUALIFIED=\"revenue.ip_qualified\"|REVENUE_IP_DISQUALIFIED=\"revenue.ip_disqualified\"|INVOICE_RECLASSIFIED=\"invoice.reclassified\"|INVOICE_DELETED=\"invoice.deleted\"","-"
+    classes[6]{name,bases,decorators,props,methods}:
+      EventType,str|Enum,-,0,0
+      DomainEvent,-,dataclass,0,1
+      InvoiceCreatedEvent,DomainEvent,dataclass,0,1
+      InvoiceClassifiedEvent,DomainEvent,dataclass,0,2
+      InvoiceReclassifiedEvent,DomainEvent,dataclass,0,1
+      EventStore,-,-,0,5
+    class_details:
+      EventType:
+        doc: Invoice lifecycle events.
+      DomainEvent:
+        doc: Base class for domain events.
+        fields[8]{n,t,default,factory}:
+          event_id,str,"-","lambda: str(uuid.uuid4("
+          event_type,str,"\"\"","-"
+          aggregate_id,str,"\"\"","-"
+          aggregate_type,str,"\"invoice\"","-"
+          timestamp,str,"-","lambda: datetime.utcnow("
+          version,int,"1","-"
+          data,"Dict[str, Any]","-",dict
+          metadata,"Dict[str, Any]","-",dict
+        methods[1]{name,sig,decorators,async,lines}:
+          to_dict,()->dict,-,false,2
+      InvoiceCreatedEvent:
+        doc: Event when an invoice is uploaded and processed.
+        fields[1]{n,t,default,factory}:
+          event_type,str,EventType.INVOICE_UPLOADED,"-"
+        methods[1]{name,sig,decorators,async,lines}:
+          create,"(document_id:str;invoice_data:dict;detected_type:str='unknown')->\"InvoiceCreatedEvent\"",classmethod,false,11
+      InvoiceClassifiedEvent:
+        doc: Event when an invoice is classified (B+R expense or IP revenue).
+        methods[2]{name,sig,decorators,async,lines}:
+          create_expense,"(expense_id:str;br_category:str;br_qualified:bool;deduction_rate:float=1.0;reason:str=None)->\"InvoiceClassifiedEvent\"",classmethod,false,13
+          create_revenue,"(revenue_id:str;ip_type:str;ip_qualified:bool;description:str=None)->\"InvoiceClassifiedEvent\"",classmethod,false,12
+      InvoiceReclassifiedEvent:
+        doc: Event when an invoice type is changed (expense <-> revenue).
+        fields[1]{n,t,default,factory}:
+          event_type,str,EventType.INVOICE_RECLASSIFIED,"-"
+        methods[1]{name,sig,decorators,async,lines}:
+          create,"(invoice_id:str;from_type:str;to_type:str;reason:str=None)->\"InvoiceReclassifiedEvent\"",classmethod,false,9
+      EventStore:
+        doc: Append-only event store for event sourcing.
+        methods[5]{name,sig,decorators,async,lines}:
+          __init__,"(db:AsyncSession)->None",-,false,2
+          ensure_table_exists,()->None,-,true,35
+          append,"(event:DomainEvent)->str",-,true,29
+          get_events_for_aggregate,"(aggregate_id:str)->List[dict]",-,true,25
+          get_events_by_type,"(event_type:str;limit:int=100)->List[dict]",-,true,26
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_event_store,"(db:AsyncSession)->EventStore",-,true,-,5
+    function_docs:
+      get_event_store: retrieves event store
+  src/api/cqrs/__init__.py:
+    imports[15]: commands.ClassifyExpenseCommand,commands.ClassifyRevenueCommand,commands.ReclassifyInvoiceCommand,commands.CommandHandler,commands.ExpenseCommandHandler,commands.RevenueCommandHandler,events.DomainEvent,events.InvoiceCreatedEvent,events.InvoiceClassifiedEvent,events.InvoiceReclassifiedEvent,events.EventStore,queries.GetExpensesQuery,queries.GetRevenuesQuery,queries.GetInvoiceHistoryQuery,queries.QueryHandler
+  src/api/cqrs/queries.py:
+    imports[11]: dataclasses.dataclass,typing.Optional,typing.List,typing.Dict,typing.Any,abc.ABC,abc.abstractmethod,sqlalchemy.text,sqlalchemy.ext.asyncio.AsyncSession,events.EventStore,events.get_event_store
+    exports[11]: Query,GetExpensesQuery,GetRevenuesQuery,GetInvoiceHistoryQuery,GetAllInvoicesQuery,QueryHandler,ExpenseQueryHandler,RevenueQueryHandler,InvoiceHistoryQueryHandler,UnifiedInvoiceQueryHandler
+    classes[10]{name,bases,decorators,props,methods}:
+      Query,ABC,dataclass,0,0
+      GetExpensesQuery,Query,dataclass,0,0
+      GetRevenuesQuery,Query,dataclass,0,0
+      GetInvoiceHistoryQuery,Query,dataclass,0,0
+      GetAllInvoicesQuery,Query,dataclass,0,0
+      QueryHandler,ABC,-,0,2
+      ExpenseQueryHandler,QueryHandler,-,0,1
+      RevenueQueryHandler,QueryHandler,-,0,1
+      InvoiceHistoryQueryHandler,QueryHandler,-,0,1
+      UnifiedInvoiceQueryHandler,QueryHandler,-,0,1
+    class_details:
+      Query:
+        doc: Base class for queries.
+      GetExpensesQuery:
+        doc: Query to get expenses with filters.
+        fields[6]{n,t,default,factory}:
+          project_id,"Optional[str]",None,"-"
+          year,"Optional[int]",None,"-"
+          br_qualified,"Optional[bool]",None,"-"
+          status,"Optional[str]",None,"-"
+          limit,int,"100","-"
+          offset,int,"0","-"
+      GetRevenuesQuery:
+        doc: Query to get revenues with filters.
+        fields[5]{n,t,default,factory}:
+          project_id,"Optional[str]",None,"-"
+          year,"Optional[int]",None,"-"
+          ip_qualified,"Optional[bool]",None,"-"
+          limit,int,"100","-"
+          offset,int,"0","-"
+      GetInvoiceHistoryQuery:
+        doc: Query to get event history for an invoice.
+        fields[2]{n,t,default,factory}:
+          invoice_id,str,"-","-"
+          include_related,bool,False,"-"
+      GetAllInvoicesQuery:
+        doc: Query to get all invoices (expenses + revenues) for unified view.
+        fields[5]{n,t,default,factory}:
+          project_id,"Optional[str]",None,"-"
+          year,"Optional[int]",None,"-"
+          invoice_type,"Optional[str]",None,"-"
+          limit,int,"100","-"
+          offset,int,"0","-"
+      QueryHandler:
+        doc: Base class for query handlers.
+        methods[2]{name,sig,decorators,async,lines}:
+          __init__,"(db:AsyncSession)->None",-,false,2
+          execute,"(query:Query)->Dict[str, Any]",abstractmethod,true,3
+      ExpenseQueryHandler:
+        doc: Handler for expense queries.
+        methods[1]{name,sig,decorators,async,lines}:
+          execute,"(query:GetExpensesQuery)->Dict[str, Any]",-,true,64
+      RevenueQueryHandler:
+        doc: Handler for revenue queries.
+        methods[1]{name,sig,decorators,async,lines}:
+          execute,"(query:GetRevenuesQuery)->Dict[str, Any]",-,true,59
+      InvoiceHistoryQueryHandler:
+        doc: Handler for invoice history queries using event store.
+        methods[1]{name,sig,decorators,async,lines}:
+          execute,"(query:GetInvoiceHistoryQuery)->Dict[str, Any]",-,true,10
+      UnifiedInvoiceQueryHandler:
+        doc: Handler for unified invoice queries (expenses + revenues).
+        methods[1]{name,sig,decorators,async,lines}:
+          execute,"(query:GetAllInvoicesQuery)->Dict[str, Any]",-,true,37
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_query_handler,"(query_type:str;db:AsyncSession)->QueryHandler",-,true,-,12
+    function_docs:
+      get_query_handler: retrieves query handler
   src/integrations/accounting/fakturownia.py:
     imports[13]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime.date,httpx,structlog,base.BaseAccountingClient,base.Invoice,base.InvoiceItem,base.InvoiceType,base.InvoiceStatus,base.AccountingDocument
     exports[1]: FakturowniaClient
@@ -1752,14 +2000,14 @@ module_details:
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[113]: loadReports,apiCall,saveTimesheet,loadProjects,escapeHtml,clearGlobalLogs,setupUploadListeners,saveExtractedData,testConnections,switchLogTab
+    exports[125]: renderIntegrationCard,switchLogTab,loadRecentDocuments,closeDocumentModal,syncAllInvoices,viewProjectExpenses,testConnections,loadDocumentTypes,apiCall,toggleGitAuthor
     const[5]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
       TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[113]{name,sig,decorators,async,category,lines}:
+    functions[125]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
       getUrlParam,(key)->None,-,false,-,4
       setUrlParam,(key;value)->None,-,false,-,14
@@ -1790,10 +2038,12 @@ module_details:
       viewProjectExpenses,(projectId)->None,-,false,-,7
       loadProjectsForFilter,()->None,-,true,-,19
       getProjectName,(projectId)->None,-,false,-,4
-      loadExpenses,()->None,-,true,-,85
+      loadExpenses,()->None,-,true,-,87
       classifyRevenue,(revenueId;ipQualified)->None,-,true,-,12
       showRevenueDetails,(revenueId)->None,-,true,-,4
       deleteRevenue,(revenueId)->None,-,true,-,4
+      convertToRevenue,(expenseId)->None,-,true,-,19
+      convertToExpense,(revenueId)->None,-,true,-,19
       toggleExpenseSelection,(id;checked)->None,-,false,-,8
       toggleSelectAll,(checkbox)->None,-,false,-,12
       updateBulkActionsBar,()->None,-,false,-,10
@@ -1820,6 +2070,7 @@ module_details:
       reExtractData,(docId)->None,-,true,-,12
       generateExpenseDoc,(expenseId)->None,-,true,-,18
       generateProjectSummary,(projectId)->None,-,true,-,19
+      regenerateAllReports,()->None,-,true,-,32
       viewProjectDocs,(projectId)->None,-,true,-,42
       viewDocContent,(projectId;filename)->None,-,true,-,25
       renderMarkdown,(md)->None,-,false,-,3
@@ -1834,8 +2085,8 @@ module_details:
       initTimesheet,()->None,-,true,-,22
       loadWorkers,()->None,-,true,-,10
       loadContractors,()->None,-,true,-,19
-      loadTimesheet,()->None,-,true,-,94
-      toggleTimesheetBlock,(checkbox)->None,-,true,-,36
+      loadTimesheet,()->None,-,true,-,103
+      toggleTimesheetBlock,(checkbox)->None,-,true,-,46
       updateTimesheetCell,(input)->None,-,false,-,14
       saveTimesheet,()->None,-,true,-,37
       updateTimesheetSummary,(year;month)->None,-,true,-,26
@@ -1873,6 +2124,15 @@ module_details:
       switchGlobalLogTab,(service)->None,-,false,-,11
       clearGlobalLogs,()->None,-,false,-,6
       startLogStreamFor,(service)->None,-,false,-,39
+      scanGitRepos,()->None,-,true,-,52
+      displayGitAuthors,(authors)->None,-,false,-,34
+      toggleGitAuthor,(authorName)->None,-,false,-,8
+      selectAllGitAuthors,(select)->None,-,false,-,10
+      displayGitRepoMapping,()->None,-,true,-,57
+      updateGitProjectMapping,(repoPath;projectId)->None,-,false,-,4
+      checkGitTimesheetReady,()->None,-,false,-,7
+      loadGitCommits,()->None,-,true,-,77
+      generateGitTimesheet,()->None,-,true,-,71
     function_docs:
       getPageFromUrl: retrieves page from url
       getUrlParam: retrieves url param
@@ -1908,6 +2168,8 @@ module_details:
       classifyRevenue: classify revenue
       showRevenueDetails: show revenue details
       deleteRevenue: deletes revenue
+      convertToRevenue: converts to revenue
+      convertToExpense: converts to expense
       toggleExpenseSelection: toggle expense selection
       toggleSelectAll: toggle select all
       updateBulkActionsBar: updates bulk actions bar
@@ -1934,6 +2196,7 @@ module_details:
       reExtractData: re extract data
       generateExpenseDoc: creates expense doc
       generateProjectSummary: creates project summary
+      regenerateAllReports: regenerate all reports
       viewProjectDocs: view project docs
       viewDocContent: view doc content
       renderMarkdown: formats markdown
@@ -1987,6 +2250,15 @@ module_details:
       switchGlobalLogTab: switch global log tab
       clearGlobalLogs: deletes global logs
       startLogStreamFor: starts log stream for
+      scanGitRepos: scan git repos
+      displayGitAuthors: logs git authors
+      toggleGitAuthor: toggle git author
+      selectAllGitAuthors: retrieves all git authors
+      displayGitRepoMapping: logs git repo mapping
+      updateGitProjectMapping: updates git project mapping
+      checkGitTimesheetReady: checks git timesheet ready
+      loadGitCommits: retrieves git commits
+      generateGitTimesheet: creates git timesheet
   brgenerator/tests/conftest.py:
     imports[4]: pytest,os,unittest.mock.AsyncMock,unittest.mock.MagicMock
     exports[4]: env_setup,mock_llm_client,temp_output_dir,sample_yaml_form
