@@ -359,6 +359,47 @@ class DataSourceRegistry:
         ))
         
         self.register(SQLDataSource(
+            name="document_annotations",
+            query_template="""
+                SELECT 
+                    d.id as document_id,
+                    d.filename,
+                    d.document_type,
+                    substring(d.ocr_text for 1000) as ocr_text,
+                    d.extracted_data,
+                    n.notes as annotation,
+                    n.updated_at as annotation_date
+                FROM read_models.documents d
+                INNER JOIN read_models.document_notes n ON n.document_id = d.id
+                WHERE d.project_id = :project_id
+                  AND n.notes IS NOT NULL AND n.notes != ''
+                ORDER BY n.updated_at DESC
+            """,
+            description="Adnotacje dokumentów z kontekstem B+R",
+            params_schema={"project_id": "UUID projektu"}
+        ))
+        
+        self.register(SQLDataSource(
+            name="expenses_with_docs",
+            query_template="""
+                SELECT 
+                    e.id, e.description, e.gross_amount, e.net_amount, e.currency,
+                    e.category, e.br_qualified, e.vendor_name, e.vendor_nip,
+                    e.invoice_number, e.invoice_date, e.justification,
+                    d.id as document_id, d.filename as document_filename,
+                    n.notes as document_annotation
+                FROM read_models.expenses e
+                LEFT JOIN read_models.documents d ON e.document_id = d.id
+                LEFT JOIN read_models.document_notes n ON n.document_id = d.id
+                WHERE e.project_id = :project_id
+                  AND (:year IS NULL OR EXTRACT(YEAR FROM e.invoice_date) = :year)
+                ORDER BY e.invoice_date ASC
+            """,
+            description="Wydatki z dokumentami i adnotacjami",
+            params_schema={"project_id": "UUID projektu", "year": "Rok (opcjonalny)"}
+        ))
+        
+        self.register(SQLDataSource(
             name="nexus_calculation",
             query_template="""
                 WITH expense_categories AS (
