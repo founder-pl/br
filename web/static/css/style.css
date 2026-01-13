@@ -989,6 +989,63 @@ select {
     color: var(--text);
 }
 
+.extracted-data-edit {
+    background: var(--background);
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+.edit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.edit-field label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.edit-field input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text);
+}
+
+.edit-field input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.edit-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.doc-detail-section.collapsible h4 {
+    cursor: pointer;
+}
+
+.doc-detail-section.collapsed pre,
+.doc-detail-section.collapsed .ocr-text {
+    display: none;
+}
+
 .ocr-text {
     background: #1e1e1e;
     color: #d4d4d4;

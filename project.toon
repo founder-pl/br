@@ -1,0 +1,1574 @@
+project: br
+root: /home/tom/github/founder-pl/br
+generated: 2026-01-13T10:47:44.412302
+stats:
+  files: 54
+  lines: 13637
+  languages[2]: python:53,javascript:1
+
+modules[54]{path,lang,lines,kb}:
+  tests/conftest.py,python,394,13.5
+  tests/__init__.py,python,3,0.0
+  tests/unit/test_extractors.py,python,149,6.4
+  tests/unit/__init__.py,python,1,0.0
+  tests/unit/test_validators.py,python,76,2.9
+  tests/unit/test_integrations.py,python,213,8.5
+  tests/e2e/test_web_gui_smoke.py,python,28,1.0
+  tests/e2e/test_scenarios.py,python,252,12.4
+  tests/e2e/test_integrations_e2e.py,python,508,25.0
+  tests/e2e/__init__.py,python,1,0.0
+  tests/integration/test_api.py,python,202,8.8
+  tests/integration/__init__.py,python,1,0.0
+  tests/integration/test_sql_fixes.py,python,122,5.7
+  tests/integration/test_integrations_api.py,python,220,9.9
+  src/ocr/extractors.py,python,223,9.6
+  src/ocr/engines.py,python,233,8.3
+  src/ocr/__init__.py,python,26,0.9
+  src/ocr/preprocessing.py,python,173,6.6
+  src/ocr/models.py,python,45,1.6
+  src/ocr/main.py,python,268,12.2
+  src/infrastructure/__init__.py,python,19,0.4
+  src/infrastructure/tasks.py,python,191,8.1
+  src/infrastructure/celery_app.py,python,57,2.0
+  src/integrations/__init__.py,python,65,1.5
+  src/integrations/factory.py,python,232,8.9
+  src/api/config.py,python,28,1.2
+  src/api/__init__.py,python,7,0.2
+  src/api/ocr_config.py,python,191,8.2
+  src/api/document_classifier.py,python,204,7.4
+  src/api/database.py,python,58,1.9
+  src/api/main.py,python,108,4.2
+  src/api/routers/config.py,python,253,10.4
+  src/api/routers/clarifications.py,python,177,6.4
+  src/api/routers/projects.py,python,275,10.0
+  src/api/routers/auth.py,python,152,5.4
+  src/api/routers/__init__.py,python,5,0.2
+  src/api/routers/integrations.py,python,329,14.5
+  src/api/routers/logs.py,python,268,11.3
+  src/api/routers/reports.py,python,285,13.3
+  src/api/routers/documents.py,python,348,13.5
+  src/api/routers/expenses.py,python,489,20.9
+  src/integrations/accounting/fakturownia.py,python,232,9.4
+  src/integrations/accounting/base.py,python,272,10.0
+  src/integrations/accounting/__init__.py,python,24,0.5
+  src/integrations/accounting/wfirma_infakt.py,python,308,12.6
+  src/integrations/accounting/ifirma.py,python,189,8.1
+  src/integrations/config/__init__.py,python,21,0.4
+  src/integrations/config/database.py,python,354,15.6
+  src/integrations/cloud/dropbox_onedrive.py,python,475,19.7
+  src/integrations/cloud/base.py,python,224,7.7
+  src/integrations/cloud/google_s3.py,python,509,21.6
+  src/integrations/cloud/__init__.py,python,19,0.5
+  src/integrations/cloud/nextcloud.py,python,280,11.6
+  web/static/js/app.js,javascript,1128,56.1
+
+module_details:
+  tests/conftest.py:
+    imports[20]: os,asyncio,typing.AsyncGenerator,typing.Generator,datetime,datetime.date,decimal.Decimal,uuid,pathlib.Path,pytest,pytest_asyncio,httpx.AsyncClient,httpx.ASGITransport,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.ext.asyncio.create_async_engine
+    exports[21]: TEST_DATABASE_URL,event_loop,db_session,client,sample_project_data,sample_expense_data,sample_document_data,sample_invoice_text,sample_nip_valid,sample_nip_invalid
+    const[1]{n,t,v,keys}:
+      TEST_DATABASE_URL,"-","os.getenv(     \"TEST_DATABASE_URL\",     os.getenv(\"DATABASE_URL\", \"postgresql+asyncpg://br_admin:br_secret_2025@postg...","-"
+    functions[20]{name,sig,decorators,async,category,lines}:
+      event_loop,()->None,pytest_asyncio.fixture,false,-,5
+      db_session,"()->AsyncGenerator[AsyncSession, None]",pytest_asyncio.fixture,true,-,5
+      client,"(db_session:AsyncSession)->AsyncGenerator[AsyncClient, None]",pytest_asyncio.fixture,true,-,13
+      sample_project_data,()->None,pytest.fixture,false,-,9
+      sample_expense_data,()->None,pytest.fixture,false,-,14
+      sample_document_data,()->None,pytest.fixture,false,-,8
+      sample_invoice_text,()->None,pytest.fixture,false,-,25
+      sample_nip_valid,()->None,pytest.fixture,false,-,6
+      sample_nip_invalid,()->None,pytest.fixture,false,-,8
+      mock_ocr_result,()->None,pytest.fixture,false,-,16
+      mock_llm_classification,()->None,pytest.fixture,false,-,13
+      create_test_pdf_content,()->bytes,-,false,-,24
+      create_test_image_content,()->bytes,-,false,-,14
+      sample_accounting_integration,()->None,pytest.fixture,false,-,19
+      sample_cloud_integration,()->None,pytest.fixture,false,-,16
+      sample_invoice_from_api,()->None,pytest.fixture,false,-,34
+      sample_cloud_file,()->None,pytest.fixture,false,-,12
+      all_accounting_providers,()->None,pytest.fixture,false,-,33
+      all_cloud_providers,()->None,pytest.fixture,false,-,54
+      temp_config_db,(tmp_path)->None,pytest.fixture,false,-,10
+    function_docs:
+      event_loop: event loop
+      db_session: db session
+      client: client
+      sample_project_data: sample project data
+      sample_expense_data: sample expense data
+      sample_document_data: sample document data
+      sample_invoice_text: sample invoice text
+      sample_nip_valid: sample nip valid
+      sample_nip_invalid: sample nip invalid
+      mock_ocr_result: mock ocr result
+      mock_llm_classification: mock llm classification
+      create_test_pdf_content: creates test pdf content
+      create_test_image_content: creates test image content
+      sample_accounting_integration: sample accounting integration
+      sample_cloud_integration: sample cloud integration
+      sample_invoice_from_api: sample invoice from api
+      sample_cloud_file: sample cloud file
+      all_accounting_providers: all accounting providers
+      all_cloud_providers: all cloud providers
+      temp_config_db: temp config db
+  tests/__init__.py:
+  tests/unit/test_extractors.py:
+    imports[4]: pytest,datetime.date,src.ocr.extractors.InvoiceExtractor,src.ocr.extractors.get_extractor
+    exports[4]: TestInvoiceExtractor,TestDateParsing,TestAmountParsing,TestExtractorFactory
+    classes[4]{name,bases,decorators,props,methods}:
+      TestInvoiceExtractor,-,-,0,9
+      TestDateParsing,-,-,0,6
+      TestAmountParsing,-,-,0,7
+      TestExtractorFactory,-,-,0,3
+    class_details:
+      TestInvoiceExtractor:
+        doc: Tests for invoice data extraction
+        methods[9]{name,sig,decorators,async,lines}:
+          extractor,()->None,pytest.fixture,false,2
+          test_extract_nip_from_text,(extractor;sample_invoice_text)->None,pytest.mark.unit|pytest.mark.asyncio,true,9
+          test_extract_invoice_number,(extractor;sample_invoice_text)->None,pytest.mark.unit|pytest.mark.asyncio,true,6
+          test_extract_dates,(extractor;sample_invoice_text)->None,pytest.mark.unit|pytest.mark.asyncio,true,8
+          test_extract_amounts,(extractor;sample_invoice_text)->None,pytest.mark.unit|pytest.mark.asyncio,true,6
+          test_extraction_confidence,(extractor;sample_invoice_text)->None,pytest.mark.unit|pytest.mark.asyncio,true,6
+          test_extract_empty_text,(extractor)->None,pytest.mark.unit|pytest.mark.asyncio,true,6
+          test_document_type_default,(extractor)->None,pytest.mark.unit|pytest.mark.asyncio,true,5
+          test_document_type_override,(extractor)->None,pytest.mark.unit|pytest.mark.asyncio,true,5
+      TestDateParsing:
+        doc: Tests for Polish date format parsing
+        methods[6]{name,sig,decorators,async,lines}:
+          extractor,()->None,pytest.fixture,false,2
+          test_parse_date_dd_mm_yyyy_dot,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_date_dd_mm_yyyy_dash,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_date_yyyy_mm_dd,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_date_polish_month,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_invalid_date,(extractor)->None,pytest.mark.unit,false,4
+      TestAmountParsing:
+        doc: Tests for Polish amount format parsing
+        methods[7]{name,sig,decorators,async,lines}:
+          extractor,()->None,pytest.fixture,false,2
+          test_parse_amount_comma_decimal,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_amount_dot_decimal,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_amount_with_spaces,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_amount_large,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_amount_empty,(extractor)->None,pytest.mark.unit,false,4
+          test_parse_amount_none,(extractor)->None,pytest.mark.unit,false,4
+      TestExtractorFactory:
+        doc: Tests for extractor factory function
+        methods[3]{name,sig,decorators,async,lines}:
+          test_get_invoice_extractor,()->None,pytest.mark.unit,false,4
+          test_get_default_extractor,()->None,pytest.mark.unit,false,4
+          test_get_unknown_extractor,()->None,pytest.mark.unit,false,4
+  tests/unit/__init__.py:
+  tests/unit/test_validators.py:
+    imports[3]: pytest,src.ocr.extractors.validate_nip,src.ocr.extractors.validate_regon
+    exports[2]: TestNIPValidation,TestREGONValidation
+    classes[2]{name,bases,decorators,props,methods}:
+      TestNIPValidation,-,-,0,10
+      TestREGONValidation,-,-,0,5
+    class_details:
+      TestNIPValidation:
+        doc: Tests for Polish NIP (tax identification number) validation
+        methods[10]{name,sig,decorators,async,lines}:
+          test_valid_nip_tomasz_sapletta,()->None,pytest.mark.unit,false,3
+          test_valid_nip_with_dashes,()->None,pytest.mark.unit,false,3
+          test_valid_nip_with_spaces,()->None,pytest.mark.unit,false,3
+          test_invalid_nip_wrong_checksum,()->None,pytest.mark.unit,false,3
+          test_invalid_nip_too_short,()->None,pytest.mark.unit,false,3
+          test_invalid_nip_too_long,()->None,pytest.mark.unit,false,3
+          test_invalid_nip_all_zeros,()->None,pytest.mark.unit,false,3
+          test_invalid_nip_letters,()->None,pytest.mark.unit,false,3
+          test_empty_nip,()->None,pytest.mark.unit,false,3
+          test_various_nips,(nip;expected)->None,pytest.mark.unit|pytest.mark.parametrize,false,3
+      TestREGONValidation:
+        doc: Tests for Polish REGON validation
+        methods[5]{name,sig,decorators,async,lines}:
+          test_valid_regon_9_digit,()->None,pytest.mark.unit,false,4
+          test_invalid_regon_wrong_checksum,()->None,pytest.mark.unit,false,3
+          test_invalid_regon_too_short,()->None,pytest.mark.unit,false,3
+          test_invalid_regon_wrong_length,()->None,pytest.mark.unit,false,3
+          test_empty_regon,()->None,pytest.mark.unit,false,3
+  tests/unit/test_integrations.py:
+    imports[15]: pytest,datetime.date,unittest.mock.AsyncMock,unittest.mock.MagicMock,unittest.mock.patch,src.integrations.config.database.ConfigDatabase,src.integrations.config.database.IntegrationProvider,src.integrations.config.database.IntegrationType,src.integrations.config.database.DatabaseType,src.integrations.accounting.base.Invoice,src.integrations.accounting.base.InvoiceItem,src.integrations.accounting.base.InvoiceType,src.integrations.accounting.base.InvoiceStatus,src.integrations.cloud.base.CloudFile,src.integrations.cloud.base.UploadResult
+    exports[4]: TestConfigDatabase,TestInvoiceModel,TestCloudFileModel,TestFactoryFunctions
+    classes[4]{name,bases,decorators,props,methods}:
+      TestConfigDatabase,-,-,0,6
+      TestInvoiceModel,-,-,0,2
+      TestCloudFileModel,-,-,0,3
+      TestFactoryFunctions,-,-,0,4
+    class_details:
+      TestConfigDatabase:
+        doc: Tests for configuration database
+        methods[6]{name,sig,decorators,async,lines}:
+          config_db,(tmp_path)->None,pytest.fixture,false,8
+          test_save_and_get_integration,(config_db)->None,pytest.mark.unit,false,19
+          test_list_integrations,(config_db)->None,pytest.mark.unit,false,27
+          test_delete_integration,(config_db)->None,pytest.mark.unit,false,15
+          test_encryption_decryption,(config_db)->None,pytest.mark.unit,false,9
+          test_sync_log,(config_db)->None,pytest.mark.unit,false,16
+      TestInvoiceModel:
+        doc: Tests for Invoice data model
+        methods[2]{name,sig,decorators,async,lines}:
+          test_invoice_item_calculation,()->None,pytest.mark.unit,false,13
+          test_invoice_creation,()->None,pytest.mark.unit,false,18
+      TestCloudFileModel:
+        doc: Tests for CloudFile data model
+        methods[3]{name,sig,decorators,async,lines}:
+          test_cloud_file_creation,()->None,pytest.mark.unit,false,13
+          test_upload_result_success,()->None,pytest.mark.unit,false,11
+          test_upload_result_failure,()->None,pytest.mark.unit,false,9
+      TestFactoryFunctions:
+        doc: Tests for integration factory functions
+        methods[4]{name,sig,decorators,async,lines}:
+          test_get_accounting_client_ifirma,()->None,pytest.mark.unit,false,12
+          test_get_cloud_client_nextcloud,()->None,pytest.mark.unit,false,15
+          test_get_cloud_client_s3,()->None,pytest.mark.unit,false,15
+          test_get_unknown_provider,()->None,pytest.mark.unit,false,7
+  tests/e2e/test_web_gui_smoke.py:
+    imports[2]: pytest,httpx.AsyncClient
+    exports[3]: test_web_serves_index_html,test_web_serves_static_js,test_web_proxies_api_health
+    functions[3]{name,sig,decorators,async,category,lines}:
+      test_web_serves_index_html,()->None,pytest.mark.e2e|pytest.mark.asyncio,true,-,6
+      test_web_serves_static_js,()->None,pytest.mark.e2e|pytest.mark.asyncio,true,-,5
+      test_web_proxies_api_health,()->None,pytest.mark.e2e|pytest.mark.asyncio,true,-,6
+    function_docs:
+      test_web_serves_index_html: checks web serves index html
+      test_web_serves_static_js: checks web serves static js
+      test_web_proxies_api_health: checks web proxies api health
+  tests/e2e/test_scenarios.py:
+    imports[6]: pytest,asyncio,pathlib.Path,httpx.AsyncClient,tests.conftest.create_test_pdf_content,tests.conftest.create_test_image_content
+    exports[5]: TestDocumentProcessingE2E,TestReportGenerationE2E,TestClarificationWorkflowE2E,TestProjectManagementE2E,TestFullBusinessScenarioE2E
+    classes[5]{name,bases,decorators,props,methods}:
+      TestDocumentProcessingE2E,-,-,0,2
+      TestReportGenerationE2E,-,-,0,1
+      TestClarificationWorkflowE2E,-,-,0,1
+      TestProjectManagementE2E,-,-,0,1
+      TestFullBusinessScenarioE2E,-,-,0,1
+    class_details:
+      TestDocumentProcessingE2E:
+        doc: E2E tests for document upload and OCR processing flow
+        methods[2]{name,sig,decorators,async,lines}:
+          test_full_document_processing_flow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.slow,true,34
+          test_expense_classification_flow,"(client:AsyncClient;sample_expense_data)->None",pytest.mark.e2e|pytest.mark.asyncio,true,37
+      TestReportGenerationE2E:
+        doc: E2E tests for report generation flow
+        methods[1]{name,sig,decorators,async,lines}:
+          test_monthly_report_generation_flow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,40
+      TestClarificationWorkflowE2E:
+        doc: E2E tests for clarification question/answer workflow
+        methods[1]{name,sig,decorators,async,lines}:
+          test_clarification_qa_flow,"(client:AsyncClient;sample_expense_data)->None",pytest.mark.e2e|pytest.mark.asyncio,true,43
+      TestProjectManagementE2E:
+        doc: E2E tests for project management flow
+        methods[1]{name,sig,decorators,async,lines}:
+          test_project_lifecycle_flow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,53
+      TestFullBusinessScenarioE2E:
+        doc: E2E tests for complete business scenarios
+        methods[1]{name,sig,decorators,async,lines}:
+          test_monthly_br_workflow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.slow,true,82
+  tests/e2e/test_integrations_e2e.py:
+    imports[9]: pytest,asyncio,datetime.date,datetime,datetime.timedelta,httpx.AsyncClient,unittest.mock.AsyncMock,unittest.mock.patch,unittest.mock.MagicMock
+    exports[5]: TestAccountingIntegrationE2E,TestCloudStorageIntegrationE2E,TestIntegrationSyncWorkflowE2E,TestIntegrationErrorHandlingE2E,TestFullIntegrationBusinessScenarioE2E
+    classes[5]{name,bases,decorators,props,methods}:
+      TestAccountingIntegrationE2E,-,-,0,2
+      TestCloudStorageIntegrationE2E,-,-,0,2
+      TestIntegrationSyncWorkflowE2E,-,-,0,3
+      TestIntegrationErrorHandlingE2E,-,-,0,4
+      TestFullIntegrationBusinessScenarioE2E,-,-,0,1
+    class_details:
+      TestAccountingIntegrationE2E:
+        doc: E2E tests for accounting system integration workflows
+        methods[2]{name,sig,decorators,async,lines}:
+          test_full_accounting_integration_setup_and_sync,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,74
+          test_multiple_accounting_integrations_workflow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,54
+      TestCloudStorageIntegrationE2E:
+        doc: E2E tests for cloud storage integration workflows
+        methods[2]{name,sig,decorators,async,lines}:
+          test_full_cloud_storage_integration_setup,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,64
+          test_all_cloud_providers_setup,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,72
+      TestIntegrationSyncWorkflowE2E:
+        doc: E2E tests for integration sync workflows
+        methods[3]{name,sig,decorators,async,lines}:
+          test_invoice_sync_workflow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,35
+          test_report_upload_workflow,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,32
+          test_bulk_sync_all_integrations,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,50
+      TestIntegrationErrorHandlingE2E:
+        doc: E2E tests for integration error handling
+        methods[4]{name,sig,decorators,async,lines}:
+          test_invalid_provider_error,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,11
+          test_duplicate_integration_id_error,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,21
+          test_wrong_integration_type_for_operation,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,23
+          test_nonexistent_integration_error,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.asyncio,true,5
+      TestFullIntegrationBusinessScenarioE2E:
+        doc: E2E tests for complete business scenarios with integrations
+        methods[1]{name,sig,decorators,async,lines}:
+          test_complete_monthly_workflow_with_integrations,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.slow,true,135
+  tests/e2e/__init__.py:
+  tests/integration/test_api.py:
+    imports[2]: pytest,httpx.AsyncClient
+    exports[7]: TestHealthEndpoints,TestProjectsAPI,TestExpensesAPI,TestDocumentsAPI,TestReportsAPI,TestClarificationsAPI,TestAuthAPI
+    classes[7]{name,bases,decorators,props,methods}:
+      TestHealthEndpoints,-,-,0,2
+      TestProjectsAPI,-,-,0,4
+      TestExpensesAPI,-,-,0,4
+      TestDocumentsAPI,-,-,0,2
+      TestReportsAPI,-,-,0,3
+      TestClarificationsAPI,-,-,0,2
+      TestAuthAPI,-,-,0,2
+    class_details:
+      TestHealthEndpoints:
+        doc: Tests for health check endpoints
+        methods[2]{name,sig,decorators,async,lines}:
+          test_api_health,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,9
+          test_root_endpoint,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,8
+      TestProjectsAPI:
+        doc: Tests for projects API endpoints
+        methods[4]{name,sig,decorators,async,lines}:
+          test_create_project,"(client:AsyncClient;sample_project_data)->None",pytest.mark.integration|pytest.mark.asyncio,true,10
+          test_get_project,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_list_projects,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_list_projects_filter_by_year,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,8
+      TestExpensesAPI:
+        doc: Tests for expenses API endpoints
+        methods[4]{name,sig,decorators,async,lines}:
+          test_get_br_categories,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,19
+          test_create_expense,"(client:AsyncClient;sample_expense_data)->None",pytest.mark.integration|pytest.mark.asyncio,true,9
+          test_list_expenses,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_list_expenses_filter_br_qualified,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,8
+      TestDocumentsAPI:
+        doc: Tests for documents API endpoints
+        methods[2]{name,sig,decorators,async,lines}:
+          test_list_documents,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_upload_document_invalid_type,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+      TestReportsAPI:
+        doc: Tests for reports API endpoints
+        methods[3]{name,sig,decorators,async,lines}:
+          test_list_monthly_reports,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_get_annual_br_summary,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,11
+          test_get_annual_ip_box_summary,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,12
+      TestClarificationsAPI:
+        doc: Tests for clarifications API endpoints
+        methods[2]{name,sig,decorators,async,lines}:
+          test_list_clarifications,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_get_pending_count,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,8
+      TestAuthAPI:
+        doc: Tests for authentication API endpoints
+        methods[2]{name,sig,decorators,async,lines}:
+          test_register_user,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,11
+          test_login_invalid_credentials,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,8
+  tests/integration/__init__.py:
+  tests/integration/test_sql_fixes.py:
+    imports[2]: pytest,httpx.AsyncClient
+    exports[6]: TestProjectsSQL,TestDocumentsSQL,TestExpensesSQL,TestReportsSQL,TestClarificationsSQL,TestAuthSQL
+    classes[6]{name,bases,decorators,props,methods}:
+      TestProjectsSQL,-,-,0,2
+      TestDocumentsSQL,-,-,0,2
+      TestExpensesSQL,-,-,0,2
+      TestReportsSQL,-,-,0,2
+      TestClarificationsSQL,-,-,0,2
+      TestAuthSQL,-,-,0,1
+    class_details:
+      TestProjectsSQL:
+        doc: Verify SQL fixes in projects router
+        methods[2]{name,sig,decorators,async,lines}:
+          test_create_project_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,31
+          test_list_projects_with_filters_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,9
+      TestDocumentsSQL:
+        doc: Verify SQL fixes in documents router
+        methods[2]{name,sig,decorators,async,lines}:
+          test_list_documents_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,5
+          test_list_documents_with_filters_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,5
+      TestExpensesSQL:
+        doc: Verify SQL fixes in expenses router
+        methods[2]{name,sig,decorators,async,lines}:
+          test_list_expenses_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,5
+          test_expenses_categories_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+      TestReportsSQL:
+        doc: Verify SQL fixes in reports router
+        methods[2]{name,sig,decorators,async,lines}:
+          test_monthly_reports_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,4
+          test_annual_br_summary_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+      TestClarificationsSQL:
+        doc: Verify SQL fixes in clarifications router
+        methods[2]{name,sig,decorators,async,lines}:
+          test_list_clarifications_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,5
+          test_pending_count_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,6
+      TestAuthSQL:
+        doc: Verify SQL fixes in auth router
+        methods[1]{name,sig,decorators,async,lines}:
+          test_register_user_sql,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,11
+  tests/integration/test_integrations_api.py:
+    imports[2]: pytest,httpx.AsyncClient
+    exports[2]: TestIntegrationsAPI,TestIntegrationSyncAPI
+    classes[2]{name,bases,decorators,props,methods}:
+      TestIntegrationsAPI,-,-,0,12
+      TestIntegrationSyncAPI,-,-,0,2
+    class_details:
+      TestIntegrationsAPI:
+        doc: Tests for integrations API endpoints
+        methods[12]{name,sig,decorators,async,lines}:
+          test_list_providers,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,19
+          test_create_integration,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,26
+          test_create_cloud_integration,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,21
+          test_list_integrations,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,7
+          test_list_integrations_by_type,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,24
+          test_get_integration,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,17
+          test_get_nonexistent_integration,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,5
+          test_update_integration,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,19
+          test_delete_integration,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,18
+          test_duplicate_integration_id,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,16
+          test_invalid_provider,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,10
+          test_get_sync_logs,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,15
+      TestIntegrationSyncAPI:
+        doc: Tests for integration sync operations
+        methods[2]{name,sig,decorators,async,lines}:
+          test_sync_invoices_invalid_type,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,18
+          test_upload_report_invalid_type,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,18
+  src/ocr/extractors.py:
+    imports[8]: re,typing.Dict,typing.Any,typing.Optional,typing.List,datetime,datetime.date,structlog
+    exports[4]: validate_nip,validate_regon,InvoiceExtractor,get_extractor
+    classes[1]{name,bases,decorators,props,methods}:
+      InvoiceExtractor,-,-,0,7
+    class_details:
+      InvoiceExtractor:
+        doc: Extract structured data from invoice text
+        methods[7]{name,sig,decorators,async,lines}:
+          extract,"(text:str;document_type:Optional[str]=None)->Dict[str, Any]",-,true,72
+          _extract_nips,"(text:str)->List[Dict[str, Any]]",-,false,21
+          _extract_pattern,"(field:str;text:str)->Optional[str]",-,false,7
+          _extract_dates,"(text:str)->List[str]",-,false,14
+          _parse_date,"(date_str:str)->Optional[date]",-,false,19
+          _parse_amount,"(amount_str:str)->Optional[float]",-,false,12
+          _extract_vendor_name,"(text:str)->Optional[str]",-,false,13
+    functions[3]{name,sig,decorators,async,category,lines}:
+      validate_nip,"(nip:str)->bool",-,false,-,21
+      validate_regon,"(regon:str)->bool",-,false,-,19
+      get_extractor,"(document_type:str='invoice')->None",-,false,-,3
+    function_docs:
+      validate_nip: validates nip
+      validate_regon: validates regon
+      get_extractor: retrieves extractor
+  src/ocr/engines.py:
+    imports[13]: os,abc.ABC,abc.abstractmethod,typing.Optional,typing.List,typing.Dict,typing.Any,dataclasses.dataclass,asyncio,pathlib.Path,numpy,PIL.Image,structlog
+    exports[6]: OCRResult,BaseOCREngine,TesseractEngine,PaddleOCREngine,EasyOCREngine,get_ocr_engine
+    classes[5]{name,bases,decorators,props,methods}:
+      OCRResult,-,dataclass,0,0
+      BaseOCREngine,ABC,-,0,4
+      TesseractEngine,BaseOCREngine,-,0,2
+      PaddleOCREngine,BaseOCREngine,-,0,3
+      EasyOCREngine,BaseOCREngine,-,0,3
+    class_details:
+      OCRResult:
+        doc: Result from OCR processing
+        fields[4]{n,t,default,factory}:
+          text,str,"-","-"
+          confidence,float,"-","-"
+          boxes,"Optional[List[Dict[str, Any]]]",None,"-"
+          raw_data,"Optional[Any]",None,"-"
+      BaseOCREngine:
+        doc: Base class for OCR engines
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(language:str='pol';use_gpu:bool=True)->None",-,false,4
+          initialize,()->None,abstractmethod,true,3
+          process,"(image:Any)->OCRResult",abstractmethod,true,3
+          _ensure_initialized,()->None,-,false,4
+      TesseractEngine:
+        doc: Tesseract OCR Engine
+        methods[2]{name,sig,decorators,async,lines}:
+          initialize,()->None,-,true,12
+          process,"(image:Any)->OCRResult",-,true,50
+      PaddleOCREngine:
+        doc: PaddleOCR Engine with GPU support
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(language:str='pol';use_gpu:bool=True)->None",-,false,3
+          initialize,()->None,-,true,21
+          process,"(image:Any)->OCRResult",-,true,35
+      EasyOCREngine:
+        doc: EasyOCR Engine
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(language:str='pol';use_gpu:bool=True)->None",-,false,3
+          initialize,()->None,-,true,17
+          process,"(image:Any)->OCRResult",-,true,37
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_ocr_engine,"(engine_name:str='paddleocr';language:str='pol';use_gpu:bool=True)->BaseOCREngine",-,true,-,23
+    function_docs:
+      get_ocr_engine: retrieves ocr engine
+  src/ocr/__init__.py:
+    imports[7]: extractors.InvoiceExtractor,extractors.validate_nip,extractors.validate_regon,extractors.get_extractor,models.ProcessingStatus,models.DocumentType,models.ExtractedInvoiceData
+    exports[3]: get_ocr_engine,preprocess_image,preprocess_pdf
+    functions[3]{name,sig,decorators,async,category,lines}:
+      get_ocr_engine,()->None,-,false,-,3
+      preprocess_image,()->None,-,false,-,3
+      preprocess_pdf,()->None,-,false,-,3
+    function_docs:
+      get_ocr_engine: retrieves ocr engine
+      preprocess_image: preprocess image
+      preprocess_pdf: preprocess pdf
+  src/ocr/preprocessing.py:
+    imports[10]: os,pathlib.Path,typing.List,typing.Optional,typing.Tuple,asyncio,numpy,PIL.Image,cv2,structlog
+    exports[5]: preprocess_image,preprocess_pdf,enhance_contrast,remove_shadows,detect_document_type
+    functions[6]{name,sig,decorators,async,category,lines}:
+      preprocess_image,"(image_path:Path;dpi:int=300;denoise:bool=True;deskew:bool=True;binarize:bool=False)->np.ndarray",-,true,-,64
+      preprocess_pdf,"(pdf_path:Path;dpi:int=300;denoise:bool=True;deskew:bool=True)->List[np.ndarray]",-,true,-,64
+      _deskew_image,"(image:Any)->np.ndarray",-,true,-,63
+      enhance_contrast,"(image:Any)->np.ndarray",-,false,-,4
+      remove_shadows,"(image:Any)->np.ndarray",-,false,-,13
+      detect_document_type,"(image:Any)->str",-,false,-,20
+    function_docs:
+      preprocess_image: preprocess image
+      preprocess_pdf: preprocess pdf
+      _deskew_image: deskew image
+      enhance_contrast: enhance contrast
+      remove_shadows: deletes shadows
+      detect_document_type: detect document type
+  src/ocr/models.py:
+    imports[8]: enum.Enum,typing.Optional,typing.List,typing.Dict,typing.Any,datetime,pydantic.BaseModel,pydantic.Field
+    exports[4]: ProcessingStatus,DocumentType,OCRResult,ExtractedInvoiceData
+    types[2]{name,kind,values,def}:
+      ProcessingStatus,enum,"PENDING=\"pending\"|PROCESSING=\"processing\"|COMPLETED=\"completed\"|FAILED=\"failed\"","-"
+      DocumentType,enum,"INVOICE=\"invoice\"|RECEIPT=\"receipt\"|CONTRACT=\"contract\"|OTHER=\"other\"","-"
+    classes[4]{name,bases,decorators,props,methods}:
+      ProcessingStatus,str|Enum,-,0,0
+      DocumentType,str|Enum,-,0,0
+      OCRResult,BaseModel,-,4,0
+      ExtractedInvoiceData,BaseModel,-,18,0
+    class_details:
+      ProcessingStatus:
+        doc: OCR processing status
+      DocumentType:
+        doc: Document types
+      OCRResult:
+        doc: OCR processing result
+        properties[4]: "text: str","confidence: float","boxes: Optional[List[Dict[str, Any]]]","raw_data: Optional[Any]"
+      ExtractedInvoiceData:
+        doc: Structured invoice data
+        properties[18]: "document_type: DocumentType","invoice_number: Optional[str]","invoice_date: Optional[str]","payment_due_date: Optional[str]","vendor_name: Optional[str]","vendor_nip: Optional[Dict[str, Any]]","buyer_nip: Optional[Dict[str, Any]]","net_amount: Optional[float]","vat_amount: Optional[float]","gross_amount: Optional[float]"
+  src/ocr/main.py:
+    imports[20]: os,uuid,asyncio,pathlib.Path,typing.Optional,typing.List,typing.Dict,typing.Any,datetime,contextlib.asynccontextmanager,structlog,fastapi.FastAPI,fastapi.UploadFile,fastapi.File,fastapi.HTTPException
+    exports[14]: UPLOAD_DIR,PROCESSED_DIR,CACHE_DIR,REDIS_URL,OCRRequest,OCRResponse,TaskStatus,lifespan,health_check,list_engines
+    const[4]{n,t,v,keys}:
+      UPLOAD_DIR,"-","Path(os.getenv(\"UPLOAD_DIR\", \"/app/uploads\"))","-"
+      PROCESSED_DIR,"-","Path(os.getenv(\"PROCESSED_DIR\", \"/app/processed\"))","-"
+      CACHE_DIR,"-","Path(os.getenv(\"CACHE_DIR\", \"/app/cache\"))","-"
+      REDIS_URL,"-","os.getenv(\"REDIS_URL\", \"redis://localhost:6379/0\")","-"
+    classes[3]{name,bases,decorators,props,methods}:
+      OCRRequest,BaseModel,-,5,0
+      OCRResponse,BaseModel,-,11,0
+      TaskStatus,BaseModel,-,4,0
+    class_details:
+      OCRRequest:
+        doc: Request model for OCR processing
+        properties[5]: "engine: str","language: str","dpi: int","extract_data: bool","document_type: Optional[str]"
+      OCRResponse:
+        doc: Response model for OCR results
+        properties[11]: "task_id: str","status: str","filename: str","created_at: datetime","completed_at: Optional[datetime]","text: Optional[str]","confidence: Optional[float]","extracted_data: Optional[Dict[str, Any]]","pages: Optional[int]","processing_time_ms: Optional[int]"
+      TaskStatus:
+        doc: Task status model
+        properties[4]: "task_id: str","status: str","progress: int","message: Optional[str]"
+    functions[7]{name,sig,decorators,async,category,lines}:
+      lifespan,"(app:FastAPI)->None",asynccontextmanager,true,-,27
+      health_check,()->None,app.get,true,-,8
+      list_engines,()->None,app.get,true,-,11
+      upload_and_process,"(background_tasks:BackgroundTasks;file:UploadFile=File(...);engine:str=Query(default='paddleocr');language:str=Query(default='pol');dpi:int=Query(default=300; ge=150; le=600);extract_data:bool=Query(default=True);...+1)->None",app.post,true,-,137
+      get_task_status,"(task_id:str)->None",app.get,true,-,13
+      get_task_result,"(task_id:str)->None",app.get,true,-,34
+      validate_nip_endpoint,"(nip:str)->None",app.post,true,-,8
+    function_docs:
+      lifespan: lifespan
+      health_check: health check
+      list_engines: list engines
+      upload_and_process: upload and process
+      get_task_status: retrieves task status
+      get_task_result: retrieves task result
+      validate_nip_endpoint: validates nip endpoint
+  src/infrastructure/__init__.py:
+    imports[6]: celery_app,tasks.process_ocr,tasks.classify_expense,tasks.generate_daily_reports,tasks.cleanup_old_files,tasks.recalculate_all_projects
+  src/infrastructure/tasks.py:
+    imports[6]: os,datetime,datetime.timedelta,pathlib.Path,celery.shared_task,structlog
+    exports[9]: UPLOAD_DIR,PROCESSED_DIR,process_ocr,update_document_ocr_result,classify_expense,generate_daily_reports,generate_monthly_report,cleanup_old_files,recalculate_all_projects
+    const[2]{n,t,v,keys}:
+      UPLOAD_DIR,"-","Path(os.getenv(\"UPLOAD_DIR\", \"/app/uploads\"))","-"
+      PROCESSED_DIR,"-","Path(os.getenv(\"PROCESSED_DIR\", \"/app/processed\"))","-"
+    functions[7]{name,sig,decorators,async,category,lines}:
+      process_ocr,"(document_id:str;file_path:str;document_type:str='invoice')->None",shared_task,false,-,47
+      update_document_ocr_result,"(document_id:str;ocr_result:dict)->None",shared_task,false,-,27
+      classify_expense,"(expense_id:str)->None",shared_task,false,-,43
+      generate_daily_reports,()->None,shared_task,false,-,21
+      generate_monthly_report,"(project_id:str;year:int;month:int)->None",shared_task,false,-,4
+      cleanup_old_files,()->None,shared_task,false,-,17
+      recalculate_all_projects,()->None,shared_task,false,-,49
+    function_docs:
+      process_ocr: processes ocr
+      update_document_ocr_result: updates document ocr result
+      classify_expense: classify expense
+      generate_daily_reports: creates daily reports
+      generate_monthly_report: creates monthly report
+      cleanup_old_files: cleanup old files
+      recalculate_all_projects: recalculate all projects
+  src/infrastructure/celery_app.py:
+    imports[3]: os,celery.Celery,celery.schedules.crontab
+    exports[1]: REDIS_URL
+    const[1]{n,t,v,keys}:
+      REDIS_URL,"-","os.getenv(\"REDIS_URL\", \"redis://localhost:6379/2\")","-"
+  src/integrations/__init__.py:
+    imports[20]: config.database.ConfigDatabase,config.database.IntegrationProvider,config.database.IntegrationType,config.database.IntegrationConfig,config.database.SyncLog,config.database.OAuthToken,config.database.get_config_db,factory.get_accounting_client,factory.get_cloud_client,factory.get_client_from_config,factory.verify_integration,factory.IntegrationManager,accounting.base.BaseAccountingClient,accounting.base.Invoice,accounting.base.InvoiceItem
+  src/integrations/factory.py:
+    imports[20]: typing.Dict,typing.Any,typing.Optional,typing.Union,config.database.ConfigDatabase,config.database.IntegrationProvider,config.database.IntegrationType,config.database.get_config_db,accounting.base.BaseAccountingClient,accounting.ifirma.IFirmaClient,accounting.fakturownia.FakturowniaClient,accounting.wfirma_infakt.WFirmaClient,accounting.wfirma_infakt.InFaktClient,cloud.base.BaseCloudStorageClient,cloud.nextcloud.NextcloudClient
+    exports[7]: ACCOUNTING_CLIENTS,CLOUD_CLIENTS,get_accounting_client,get_cloud_client,get_client_from_config,verify_integration,IntegrationManager
+    const[2]{n,t,v,keys}:
+      ACCOUNTING_CLIENTS,Dict,"{     IntegrationProvider.IFIRMA: IFirmaClient,     IntegrationProvider.FAKTUROWNIA: FakturowniaClient,     Integrati...","-"
+      CLOUD_CLIENTS,Dict,"{     IntegrationProvider.NEXTCLOUD: NextcloudClient,     IntegrationProvider.GOOGLE_DRIVE: GoogleDriveClient,     In...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      IntegrationManager,-,-,0,5
+    class_details:
+      IntegrationManager:
+        doc: High-level integration manager for B+R system.
+        methods[5]{name,sig,decorators,async,lines}:
+          __init__,"(config_db:ConfigDatabase=None)->None",-,false,3
+          sync_invoices_from_accounting,"(integration_id:str;date_from=None;date_to=None;project_id:str=None)->Dict[str, Any]",-,true,42
+          upload_report_to_cloud,"(integration_id:str;report_content:bytes;report_name:str;year:int=None;month:int=None)->Dict[str, Any]",-,true,53
+          get_active_accounting_integrations,()->list,-,false,6
+          get_active_cloud_integrations,()->list,-,false,6
+    functions[4]{name,sig,decorators,async,category,lines}:
+      get_accounting_client,"(provider:IntegrationProvider;credentials:Dict[str;Any];settings:Dict[str;Any]=None)->Optional[BaseAccountingClient]",-,false,-,23
+      get_cloud_client,"(provider:IntegrationProvider;credentials:Dict[str;Any];settings:Dict[str;Any]=None)->Optional[BaseCloudStorageClient]",-,false,-,23
+      get_client_from_config,"(integration_id:str;config_db:ConfigDatabase=None)->Optional[Union[BaseAccountingClient, BaseCloudStorageClient]]",-,false,-,38
+      verify_integration,"(integration_id:str)->bool",-,true,-,39
+    function_docs:
+      get_accounting_client: retrieves accounting client
+      get_cloud_client: retrieves cloud client
+      get_client_from_config: retrieves client from config
+      verify_integration: validates integration
+  src/api/config.py:
+    imports[4]: os,typing.List,typing.Optional,pydantic_settings.BaseSettings
+    exports[1]: Settings
+    classes[1]{name,bases,decorators,props,methods}:
+      Settings,BaseSettings,-,16,0
+    class_details:
+      Settings:
+        doc: Application settings from environment
+        properties[16]: "ENVIRONMENT: str","DEBUG: bool","SECRET_KEY: str","DATABASE_URL: str","REDIS_URL: str","OCR_SERVICE_URL: str","LLM_SERVICE_URL: str","COMPANY_NAME: str","COMPANY_NIP: str","COMPANY_REGON: str"
+  src/api/__init__.py:
+    imports[5]: main.app,config.settings,database.get_db,database.init_database,database.close_database
+  src/api/ocr_config.py:
+    imports[6]: typing.Dict,typing.List,typing.Any,typing.Optional,enum.Enum,pydantic.BaseModel
+    exports[16]: OCREngine,ExtractionStrategy,DocumentType,ENGINE_CAPABILITIES,FIELD_ENGINE_MAPPING,DOCUMENT_ENGINE_PRIORITY,CONFIDENCE_THRESHOLDS,REQUIRED_FIELDS,OCRConfig,LLMConfig
+    const[7]{n,t,v,keys}:
+      ENGINE_CAPABILITIES,Dict,"{     OCREngine.PADDLEOCR: {         \"name\": \"PaddleOCR\",         \"description\": \"Szybki i dokładny, dobry dla dokume...","-"
+      FIELD_ENGINE_MAPPING,Dict,"{     # Financial fields     \"nip\": [OCREngine.PADDLEOCR, OCREngine.DOCTR],     \"invoice_number\": [OCREngine.PADDLEOC...","-"
+      DOCUMENT_ENGINE_PRIORITY,Dict,"{     DocumentType.INVOICE: [OCREngine.PADDLEOCR, OCREngine.DOCTR, OCREngine.TESSERACT],     DocumentType.RECEIPT: [O...","-"
+      CONFIDENCE_THRESHOLDS,Dict,"{     \"high\": 0.90,     \"medium\": 0.75,     \"low\": 0.50,     \"accept_any\": 0.0 }","-"
+      REQUIRED_FIELDS,Dict,"{     DocumentType.INVOICE: [\"invoice_number\", \"total_gross\", \"nip_seller\"],     DocumentType.RECEIPT: [\"total\", \"dat...","-"
+      DEFAULT_OCR_CONFIG,"-",OCRConfig(),"-"
+      DEFAULT_LLM_CONFIG,"-",LLMConfig(),"-"
+    types[3]{name,kind,values,def}:
+      OCREngine,enum,"PADDLEOCR=\"paddleocr\"|TESSERACT=\"tesseract\"|EASYOCR=\"easyocr\"|DOCTR=\"doctr\"|SURYA=\"surya\"|TROCR=\"trocr\"","-"
+      ExtractionStrategy,enum,"SINGLE=\"single\"|FALLBACK=\"fallback\"|ENSEMBLE=\"ensemble\"|FIELD_SPECIFIC=\"field_specific\"","-"
+      DocumentType,enum,"INVOICE=\"invoice\"|RECEIPT=\"receipt\"|CONTRACT=\"contract\"|PROTOCOL=\"protocol\"|REPORT=\"report\"|BANK_STATEMENT=\"bank_statement\"|ID_DOCUMENT=\"id_document\"|MEDICAL=\"medical\"|LEGAL=\"legal\"|TECHNICAL=\"technical\"|OTHER=\"other\"","-"
+    classes[5]{name,bases,decorators,props,methods}:
+      OCREngine,str|Enum,-,0,0
+      ExtractionStrategy,str|Enum,-,0,0
+      DocumentType,str|Enum,-,0,0
+      OCRConfig,BaseModel,-,9,0
+      LLMConfig,BaseModel,-,9,0
+    class_details:
+      OCREngine:
+      ExtractionStrategy:
+      DocumentType:
+      OCRConfig:
+        doc: Configuration for OCR processing
+        properties[9]: "primary_engine: OCREngine","fallback_engines: List[OCREngine]","strategy: ExtractionStrategy","min_confidence: float","use_field_specific: bool","max_retries: int","timeout_seconds: int","language: str","use_gpu: bool"
+      LLMConfig:
+        doc: Configuration for LLM processing
+        properties[9]: "provider: str","model: str","api_base: str","api_key: Optional[str]","temperature: float","max_tokens: int","use_for_extraction: bool","use_for_classification: bool","use_for_validation: bool"
+    functions[4]{name,sig,decorators,async,category,lines}:
+      get_best_engine_for_field,"(field_name:str)->OCREngine",-,false,-,4
+      get_engines_for_document_type,"(doc_type:str)->List[OCREngine]",-,false,-,7
+      get_required_fields,"(doc_type:str)->List[str]",-,false,-,7
+      evaluate_extraction_completeness,"(extracted_data:Dict;doc_type:str)->float",-,false,-,8
+    function_docs:
+      get_best_engine_for_field: retrieves best engine for field
+      get_engines_for_document_type: retrieves engines for document type
+      get_required_fields: retrieves required fields
+      evaluate_extraction_completeness: processes extraction completeness
+  src/api/document_classifier.py:
+    imports[5]: re,typing.Dict,typing.Any,typing.Optional,typing.Tuple
+    exports[5]: DOCUMENT_PATTERNS,EXTRACTION_PATTERNS,detect_document_type,extract_document_data,classify_and_extract
+    const[2]{n,t,v,keys}:
+      DOCUMENT_PATTERNS,Dict,"-",invoice|keywords|faktura|faktura vat|invoice|numer faktury|nr faktury|data wystawienia|data sprzedaży|nabywca
+      EXTRACTION_PATTERNS,Dict,"-","invoice|invoice_number|(?:faktura|invoice)\\s*(?:vat)?\\s*(?:nr|numer|no\\.?)?[:\\s]*([A-Z0-9/\\-]+)|nr\\s*faktury[:\\s]*([A-Z0-9/\\-]+)|numer\\s*faktury[:\\s]*([A-Z0-9/\\-]+)|nip_seller|(?:sprzedawca|seller).*?nip[:\\s]*(\\d{10}|\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2})|nip[:\\s]*(\\d{10}|\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2})|nip_buyer"
+    functions[3]{name,sig,decorators,async,category,lines}:
+      detect_document_type,"(ocr_text:str)->Tuple[str, float]",-,false,-,39
+      extract_document_data,"(ocr_text:str;document_type:str)->Dict[str, Any]",-,false,-,21
+      classify_and_extract,"(ocr_text:str;initial_type:str='auto')->Dict[str, Any]",-,false,-,20
+    function_docs:
+      detect_document_type: detect document type
+      extract_document_data: parses document data
+      classify_and_extract: classify and extract
+  src/api/database.py:
+    imports[8]: typing.AsyncGenerator,contextlib.asynccontextmanager,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.ext.asyncio.create_async_engine,sqlalchemy.ext.asyncio.async_sessionmaker,sqlalchemy.orm.declarative_base,structlog,config.settings
+    exports[4]: init_database,close_database,get_db,get_db_context
+    functions[4]{name,sig,decorators,async,category,lines}:
+      init_database,()->None,-,true,-,9
+      close_database,()->None,-,true,-,4
+      get_db,"()->AsyncGenerator[AsyncSession, None]",-,true,-,11
+      get_db_context,"()->AsyncGenerator[AsyncSession, None]",asynccontextmanager,true,-,11
+    function_docs:
+      init_database: creates database
+      close_database: stops database
+      get_db: retrieves db
+      get_db_context: retrieves db context
+  src/api/main.py:
+    imports[20]: os,datetime,contextlib.asynccontextmanager,typing.Optional,structlog,fastapi.FastAPI,fastapi.Request,fastapi.middleware.cors.CORSMiddleware,fastapi.responses.JSONResponse,routers.documents,routers.expenses,routers.projects,routers.reports,routers.auth,routers.clarifications
+    exports[5]: lifespan,global_exception_handler,health_check,root,metrics
+    functions[5]{name,sig,decorators,async,category,lines}:
+      lifespan,"(app:FastAPI)->None",asynccontextmanager,true,-,17
+      global_exception_handler,"(request:Request;exc:Exception)->None",app.exception_handler,true,-,9
+      health_check,()->None,app.get,true,-,10
+      root,()->None,app.get,true,-,11
+      metrics,()->None,app.get,true,-,6
+    function_docs:
+      lifespan: lifespan
+      global_exception_handler: global exception handler
+      health_check: health check
+      root: root
+      metrics: metrics
+  src/api/routers/config.py:
+    imports[20]: json,typing.Optional,typing.List,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,pydantic.BaseModel,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,ocr_config.OCREngine,ocr_config.ExtractionStrategy,ocr_config.DocumentType,ocr_config.ENGINE_CAPABILITIES
+    exports[13]: OCREngineInfo,DocumentTypeInfo,list_ocr_engines,list_document_types,get_field_mappings,get_ocr_config,update_ocr_config,get_llm_config,update_llm_config,list_available_models
+    classes[2]{name,bases,decorators,props,methods}:
+      OCREngineInfo,BaseModel,-,10,0
+      DocumentTypeInfo,BaseModel,-,4,0
+    class_details:
+      OCREngineInfo:
+        properties[10]: "id: str","name: str","description: str","languages: List[str]","strengths: List[str]","weaknesses: List[str]","gpu_required: bool","accuracy_score: float","speed_score: float","best_for: List[str]"
+      DocumentTypeInfo:
+        properties[4]: "id: str","name: str","recommended_engines: List[str]","required_fields: List[str]"
+    functions[11]{name,sig,decorators,async,category,lines}:
+      list_ocr_engines,()->None,router.get,true,-,17
+      list_document_types,()->None,router.get,true,-,28
+      get_field_mappings,()->None,router.get,true,-,6
+      get_ocr_config,()->None,router.get,true,-,13
+      update_ocr_config,"(primary_engine:Optional[str]=None;fallback_engines:Optional[List[str]]=None;strategy:Optional[str]=None;min_confidence:Optional[float]=None;use_field_specific:Optional[bool]=None;max_retries:Optional[int]=None;...+1)->None",router.put,true,-,32
+      get_llm_config,()->None,router.get,true,-,12
+      update_llm_config,"(provider:Optional[str]=None;model:Optional[str]=None;api_base:Optional[str]=None;api_key:Optional[str]=None;temperature:Optional[float]=None;max_tokens:Optional[int]=None;...+1)->None",router.put,true,-,35
+      list_available_models,()->None,router.get,true,-,14
+      list_strategies,()->None,router.get,true,-,25
+      test_ocr_engine,"(engine:str;text_sample:str='Faktura VAT nr 123/2025')->None",router.post,true,-,12
+      test_llm_connection,()->None,router.post,true,-,22
+    function_docs:
+      list_ocr_engines: list ocr engines
+      list_document_types: list document types
+      get_field_mappings: retrieves field mappings
+      get_ocr_config: retrieves ocr config
+      update_ocr_config: updates ocr config
+      get_llm_config: retrieves llm config
+      update_llm_config: updates llm config
+      list_available_models: list available models
+      list_strategies: list strategies
+      test_ocr_engine: checks ocr engine
+      test_llm_connection: checks llm connection
+  src/api/routers/clarifications.py:
+    imports[13]: uuid,datetime,typing.Optional,typing.List,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,pydantic.BaseModel,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db
+    exports[9]: ClarificationResponse,ClarificationAnswer,ClarificationCreate,list_clarifications,get_pending_count,get_clarification,create_clarification,answer_clarification,delete_clarification
+    classes[3]{name,bases,decorators,props,methods}:
+      ClarificationResponse,BaseModel,-,9,0
+      ClarificationAnswer,BaseModel,-,1,0
+      ClarificationCreate,BaseModel,-,3,0
+    class_details:
+      ClarificationResponse:
+        properties[9]: "id: str","expense_id: str","question: str","question_type: Optional[str]","answer: Optional[str]","answered_at: Optional[datetime]","auto_generated: bool","llm_suggested_answer: Optional[str]","created_at: datetime"
+      ClarificationAnswer:
+        properties[1]: "answer: str"
+      ClarificationCreate:
+        properties[3]: "expense_id: str","question: str","question_type: Optional[str]"
+    functions[6]{name,sig,decorators,async,category,lines}:
+      list_clarifications,"(expense_id:Optional[str]=Query(default=None);unanswered_only:bool=Query(default=False);limit:int=Query(default=50; le=100);db:AsyncSession=Depends(get_db))->None",router.get,true,-,40
+      get_pending_count,"(db:AsyncSession=Depends(get_db))->None",router.get,true,-,7
+      get_clarification,"(clarification_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,26
+      create_clarification,"(clarification:ClarificationCreate;db:AsyncSession=Depends(get_db))->None",router.post,true,-,29
+      answer_clarification,"(clarification_id:str;answer:ClarificationAnswer;db:AsyncSession=Depends(get_db))->None",router.put,true,-,50
+      delete_clarification,"(clarification_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,7
+    function_docs:
+      list_clarifications: list clarifications
+      get_pending_count: retrieves pending count
+      get_clarification: retrieves clarification
+      create_clarification: creates clarification
+      answer_clarification: answer clarification
+      delete_clarification: deletes clarification
+  src/api/routers/projects.py:
+    imports[17]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
+    exports[10]: ProjectCreate,ProjectUpdate,ProjectResponse,ProjectSummary,create_project,get_project,list_projects,update_project,get_project_summary,recalculate_project_totals
+    classes[4]{name,bases,decorators,props,methods}:
+      ProjectCreate,BaseModel,-,5,0
+      ProjectUpdate,BaseModel,-,5,0
+      ProjectResponse,BaseModel,-,12,0
+      ProjectSummary,BaseModel,-,11,0
+    class_details:
+      ProjectCreate:
+        doc: Create project request
+        properties[5]: "name: str","description: Optional[str]","fiscal_year: int","start_date: Optional[date]","end_date: Optional[date]"
+      ProjectUpdate:
+        doc: Update project request
+        properties[5]: "name: Optional[str]","description: Optional[str]","status: Optional[str]","start_date: Optional[date]","end_date: Optional[date]"
+      ProjectResponse:
+        doc: Project response
+        properties[12]: "id: str","name: str","description: Optional[str]","status: str","start_date: Optional[date]","end_date: Optional[date]","fiscal_year: int","total_expenses: float","br_qualified_expenses: float","ip_qualified_expenses: float"
+      ProjectSummary:
+        doc: Project summary with B+R statistics
+        properties[11]: "id: str","name: str","fiscal_year: int","total_expenses: float","br_qualified_expenses: float","br_deduction_amount: float","ip_qualified_expenses: float","documents_count: int","pending_documents: int","needs_clarification: int"
+    functions[6]{name,sig,decorators,async,category,lines}:
+      create_project,"(project:ProjectCreate;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
+      get_project,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,30
+      list_projects,"(fiscal_year:Optional[int]=Query(default=None);status:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,44
+      update_project,"(project_id:str;project:ProjectUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,37
+      get_project_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,67
+      recalculate_project_totals,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,37
+    function_docs:
+      create_project: creates project
+      get_project: retrieves project
+      list_projects: list projects
+      update_project: updates project
+      get_project_summary: retrieves project summary
+      recalculate_project_totals: recalculate project totals
+  src/api/routers/auth.py:
+    imports[19]: datetime,datetime.timedelta,typing.Optional,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.status,fastapi.security.OAuth2PasswordBearer,fastapi.security.OAuth2PasswordRequestForm,pydantic.BaseModel,pydantic.EmailStr,passlib.context.CryptContext,jose.JWTError,jose.jwt,sqlalchemy.ext.asyncio.AsyncSession
+    exports[11]: Token,TokenData,UserCreate,UserResponse,verify_password,get_password_hash,create_access_token,get_current_user,login_for_access_token,register_user
+    classes[4]{name,bases,decorators,props,methods}:
+      Token,BaseModel,-,2,0
+      TokenData,BaseModel,-,1,0
+      UserCreate,BaseModel,-,3,0
+      UserResponse,BaseModel,-,6,0
+    class_details:
+      Token:
+        properties[2]: "access_token: str","token_type: str"
+      TokenData:
+        properties[1]: "email: Optional[str]"
+      UserCreate:
+        properties[3]: "email: EmailStr","password: str","full_name: Optional[str]"
+      UserResponse:
+        properties[6]: "id: str","email: str","full_name: Optional[str]","role: str","is_active: bool","created_at: datetime"
+    functions[7]{name,sig,decorators,async,category,lines}:
+      verify_password,"(plain_password:str;hashed_password:str)->bool",-,false,-,2
+      get_password_hash,"(password:str)->str",-,false,-,2
+      create_access_token,"(data:dict;expires_delta:Optional[timedelta]=None)->str",-,false,-,5
+      get_current_user,"(token:str=Depends(oauth2_scheme);db:AsyncSession=Depends(get_db))->dict",-,true,-,36
+      login_for_access_token,"(form_data:OAuth2PasswordRequestForm=Depends();db:AsyncSession=Depends(get_db))->None",router.post,true,-,26
+      register_user,"(user:UserCreate;db:AsyncSession=Depends(get_db))->None",router.post,true,-,41
+      get_current_user_info,"(current_user:dict=Depends(get_current_user);db:AsyncSession=Depends(get_db))->None",router.get,true,-,19
+    function_docs:
+      verify_password: validates password
+      get_password_hash: retrieves password hash
+      create_access_token: creates access token
+      get_current_user: retrieves current user
+      login_for_access_token: login for access token
+      register_user: registers user
+      get_current_user_info: retrieves current user info
+  src/api/routers/__init__.py:
+    imports[7]: documents,expenses,projects,reports,auth,clarifications,integrations
+  src/api/routers/integrations.py:
+    imports[20]: typing.Optional,typing.List,typing.Dict,typing.Any,datetime.date,datetime,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,structlog,src.integrations.config.database.get_config_db
+    exports[20]: IntegrationCreate,IntegrationUpdate,IntegrationResponse,SyncRequest,UploadReportRequest,SyncLogResponse,get_db,get_manager,list_providers,create_integration
+    classes[6]{name,bases,decorators,props,methods}:
+      IntegrationCreate,BaseModel,-,6,0
+      IntegrationUpdate,BaseModel,-,4,0
+      IntegrationResponse,BaseModel,-,8,0
+      SyncRequest,BaseModel,-,3,0
+      UploadReportRequest,BaseModel,-,3,0
+      SyncLogResponse,BaseModel,-,9,0
+    class_details:
+      IntegrationCreate:
+        doc: Create integration request
+        properties[6]: "id: str","provider: str","integration_type: str","credentials: Dict[str, Any]","settings: Optional[Dict[str, Any]]","base_url: Optional[str]"
+      IntegrationUpdate:
+        doc: Update integration request
+        properties[4]: "credentials: Optional[Dict[str, Any]]","settings: Optional[Dict[str, Any]]","base_url: Optional[str]","is_active: Optional[bool]"
+      IntegrationResponse:
+        doc: Integration response
+        properties[8]: "id: str","provider: str","integration_type: str","is_active: bool","is_verified: bool","last_sync_at: Optional[datetime]","settings: Dict[str, Any]","base_url: Optional[str]"
+      SyncRequest:
+        doc: Invoice sync request
+        properties[3]: "date_from: Optional[date]","date_to: Optional[date]","project_id: Optional[str]"
+      UploadReportRequest:
+        doc: Report upload request
+        properties[3]: "report_name: str","year: Optional[int]","month: Optional[int]"
+      SyncLogResponse:
+        doc: Sync log response
+        properties[9]: "id: int","integration_id: str","sync_type: str","status: str","items_processed: int","items_failed: int","error_message: Optional[str]","started_at: datetime","completed_at: Optional[datetime]"
+    functions[14]{name,sig,decorators,async,category,lines}:
+      get_db,()->ConfigDatabase,-,false,-,2
+      get_manager,"(db:ConfigDatabase=Depends(get_db))->IntegrationManager",-,false,-,2
+      list_providers,()->None,router.get,true,-,16
+      create_integration,"(integration:IntegrationCreate;db:ConfigDatabase=Depends(get_db))->None",router.post,true,-,39
+      list_integrations,"(integration_type:Optional[str]=Query(default=None);active_only:bool=Query(default=True);db:ConfigDatabase=Depends(get_db))->None",router.get,true,-,25
+      get_integration,"(integration_id:str;db:ConfigDatabase=Depends(get_db))->None",router.get,true,-,20
+      update_integration,"(integration_id:str;update:IntegrationUpdate;db:ConfigDatabase=Depends(get_db))->None",router.put,true,-,22
+      delete_integration,"(integration_id:str;db:ConfigDatabase=Depends(get_db))->None",router.delete,true,-,9
+      verify_integration_connection,"(integration_id:str;background_tasks:BackgroundTasks;db:ConfigDatabase=Depends(get_db))->None",router.post,true,-,19
+      sync_invoices,"(integration_id:str;sync_request:SyncRequest;background_tasks:BackgroundTasks;manager:IntegrationManager=Depends(get_manager))->None",router.post,true,-,25
+      upload_report_to_cloud,"(integration_id:str;upload_request:UploadReportRequest;manager:IntegrationManager=Depends(get_manager))->None",router.post,true,-,33
+      get_sync_logs,"(integration_id:str;limit:int=Query(default=50; le=100);db:ConfigDatabase=Depends(get_db))->None",router.get,true,-,22
+      sync_all_invoices,"(sync_request:SyncRequest;background_tasks:BackgroundTasks;manager:IntegrationManager=Depends(get_manager))->None",router.post,true,-,22
+      upload_monthly_reports,"(year:int=Query(...);month:int=Query(...; ge=1; le=12);manager:IntegrationManager=Depends(get_manager))->None",router.post,true,-,30
+    function_docs:
+      get_db: retrieves db
+      get_manager: retrieves manager
+      list_providers: list providers
+      create_integration: creates integration
+      list_integrations: list integrations
+      get_integration: retrieves integration
+      update_integration: updates integration
+      delete_integration: deletes integration
+      verify_integration_connection: validates integration connection
+      sync_invoices: sync invoices
+      upload_report_to_cloud: upload report to cloud
+      get_sync_logs: retrieves sync logs
+      sync_all_invoices: sync all invoices
+      upload_monthly_reports: upload monthly reports
+  src/api/routers/logs.py:
+    imports[9]: asyncio,subprocess,time,typing.Optional,fastapi.APIRouter,fastapi.Query,fastapi.responses.StreamingResponse,structlog,httpx
+    exports[5]: stream_docker_logs,stream_all_logs,stream_logs,get_logs_snapshot,list_services
+    functions[9]{name,sig,decorators,async,category,lines}:
+      _escape_sse,"(text:str)->str",-,false,-,2
+      _try_get_docker_client,()->None,-,false,-,6
+      _docker_httpx_client,()->httpx.AsyncClient,-,false,-,3
+      _looks_multiplexed,"(buf:bytes)->bool",-,false,-,2
+      stream_docker_logs,"(container:str;lines:int=100)->None",-,true,-,114
+      stream_all_logs,"(services:list;lines:int=50)->None",-,true,-,30
+      stream_logs,"(service:Optional[str]=Query(default=None; description='Service name (api; ocr; llm; web; postgres; redis)');lines:int=Query(default=100; ge=10; le=1000; description='Number of initial lines'))->None",router.get,true,-,47
+      get_logs_snapshot,"(service:str=Query(...; description='Service name');lines:int=Query(default=100; ge=10; le=1000))->None",router.get,true,-,74
+      list_services,()->None,router.get,true,-,14
+    function_docs:
+      _escape_sse: escape sse
+      _try_get_docker_client: try get docker client
+      _docker_httpx_client: docker httpx client
+      _looks_multiplexed: looks multiplexed
+      stream_docker_logs: stream docker logs
+      stream_all_logs: stream all logs
+      stream_logs: stream logs
+      get_logs_snapshot: retrieves logs snapshot
+      list_services: list services
+  src/api/routers/reports.py:
+    imports[17]: uuid,datetime,typing.Optional,typing.List,json,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
+    exports[10]: MonthlyReportResponse,ReportGenerateRequest,AnnualBRSummary,IPBoxSummary,generate_monthly_report,calculate_monthly_report,get_monthly_report,list_monthly_reports,get_annual_br_summary,get_annual_ip_box_summary
+    classes[4]{name,bases,decorators,props,methods}:
+      MonthlyReportResponse,BaseModel,-,17,0
+      ReportGenerateRequest,BaseModel,-,4,0
+      AnnualBRSummary,BaseModel,-,14,0
+      IPBoxSummary,BaseModel,-,11,0
+    class_details:
+      MonthlyReportResponse:
+        properties[17]: "id: str","project_id: str","fiscal_year: int","month: int","total_expenses: float","br_expenses: float","br_deduction: float","ip_expenses: float","total_revenues: float","ip_revenues: float"
+      ReportGenerateRequest:
+        properties[4]: "project_id: str","fiscal_year: int","month: int","regenerate: bool"
+      AnnualBRSummary:
+        properties[14]: "fiscal_year: int","company_name: str","company_nip: str","project_name: str","personnel_employment: float","personnel_civil: float","materials: float","equipment: float","depreciation: float","expertise: float"
+      IPBoxSummary:
+        properties[11]: "fiscal_year: int","company_name: str","company_nip: str","ip_revenues: float","nexus_a: float","nexus_b: float","nexus_c: float","nexus_d: float","nexus_ratio: float","qualified_income: float"
+    functions[6]{name,sig,decorators,async,category,lines}:
+      generate_monthly_report,"(request:ReportGenerateRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,47
+      calculate_monthly_report,"(db:AsyncSession;project_id:str;year:int;month:int)->dict",-,true,-,43
+      get_monthly_report,"(report_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,22
+      list_monthly_reports,"(project_id:Optional[str]=Query(default=None);fiscal_year:Optional[int]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,29
+      get_annual_br_summary,"(fiscal_year:int=Query(...);project_id:str=Query(default='00000000-0000-0000-0000-000000000001');db:AsyncSession=Depends(get_db))->None",router.get,true,-,55
+      get_annual_ip_box_summary,"(fiscal_year:int=Query(...);project_id:str=Query(default='00000000-0000-0000-0000-000000000001');db:AsyncSession=Depends(get_db))->None",router.get,true,-,36
+    function_docs:
+      generate_monthly_report: creates monthly report
+      calculate_monthly_report: processes monthly report
+      get_monthly_report: retrieves monthly report
+      list_monthly_reports: list monthly reports
+      get_annual_br_summary: retrieves annual br summary
+      get_annual_ip_box_summary: retrieves annual ip box summary
+  src/api/routers/documents.py:
+    imports[20]: json,uuid,datetime,typing.Optional,typing.List,pathlib.Path,httpx,aiofiles,fastapi.APIRouter,fastapi.UploadFile,fastapi.File,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks
+    exports[12]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,upload_document,process_document_ocr,get_document,list_documents,reprocess_document,delete_document,update_document
+    const[1]{n,t,v,keys}:
+      UPLOAD_DIR,"-","Path(\"/app/uploads\")","-"
+    classes[3]{name,bases,decorators,props,methods}:
+      DocumentResponse,BaseModel,-,7,0
+      DocumentUploadResponse,BaseModel,-,4,0
+      DocumentDetailResponse,BaseModel,-,10,0
+    class_details:
+      DocumentResponse:
+        doc: Document response model
+        properties[7]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","extracted_data: Optional[dict]","created_at: datetime"
+      DocumentUploadResponse:
+        doc: Upload response
+        properties[4]: "document_id: str","filename: str","status: str","message: str"
+      DocumentDetailResponse:
+        doc: Extended document response with OCR text
+        properties[10]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","ocr_text: Optional[str]","extracted_data: Optional[dict]","validation_errors: Optional[list]","created_at: datetime","updated_at: Optional[datetime]"
+    functions[8]{name,sig,decorators,async,category,lines}:
+      upload_document,"(background_tasks:BackgroundTasks;file:UploadFile=File(...);project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001');document_type:str=Query(default='invoice');db:AsyncSession=Depends(get_db))->None",router.post,true,-,68
+      process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,97
+      get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,25
+      list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,43
+      reprocess_document,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
+      delete_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,28
+      update_document,"(document_id:str;db:AsyncSession=Depends(get_db);document_type:Optional[str]=None;ocr_status:Optional[str]=None;extracted_data:Optional[dict]=None)->None",router.patch,true,-,34
+      get_document_detail,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,28
+    function_docs:
+      upload_document: upload document
+      process_document_ocr: processes document ocr
+      get_document: retrieves document
+      list_documents: list documents
+      reprocess_document: reprocess document
+      delete_document: deletes document
+      update_document: updates document
+      get_document_detail: retrieves document detail
+  src/api/routers/expenses.py:
+    imports[19]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,httpx,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession
+    exports[15]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,BRCategory,BR_CATEGORIES,get_br_categories,create_expense,get_expense,list_expenses,classify_expense_manually
+    const[1]{n,t,v,keys}:
+      BR_CATEGORIES,List,"[     BRCategory(         code=\"personnel_employment\",         name=\"Wynagrodzenia pracowników (umowa o pracę)\",     ...","-"
+    classes[4]{name,bases,decorators,props,methods}:
+      ExpenseCreate,BaseModel,-,12,0
+      ExpenseResponse,BaseModel,-,26,0
+      ExpenseClassifyRequest,BaseModel,-,7,0
+      BRCategory,BaseModel,-,5,0
+    class_details:
+      ExpenseCreate:
+        doc: Create expense request
+        properties[12]: "document_id: Optional[str]","project_id: str","invoice_number: Optional[str]","invoice_date: Optional[date]","vendor_name: Optional[str]","vendor_nip: Optional[str]","net_amount: Decimal","vat_amount: Decimal","gross_amount: Decimal","currency: str"
+      ExpenseResponse:
+        doc: Expense response
+        properties[26]: "id: str","project_id: str","document_id: Optional[str]","invoice_number: Optional[str]","invoice_date: Optional[date]","vendor_name: Optional[str]","vendor_nip: Optional[str]","net_amount: float","vat_amount: float","gross_amount: float"
+      ExpenseClassifyRequest:
+        doc: Manual classification request
+        properties[7]: "br_qualified: Optional[bool]","br_category: Optional[str]","br_qualification_reason: Optional[str]","br_deduction_rate: Optional[float]","ip_qualified: Optional[bool]","ip_category: Optional[str]","nexus_category: Optional[str]"
+      BRCategory:
+        doc: B+R expense category
+        properties[5]: "code: str","name: str","description: str","deduction_rate: float","examples: List[str]"
+    functions[10]{name,sig,decorators,async,category,lines}:
+      get_br_categories,()->None,router.get,true,-,3
+      create_expense,"(expense:ExpenseCreate;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
+      get_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,48
+      list_expenses,"(project_id:Optional[str]=Query(default=None);br_qualified:Optional[bool]=Query(default=None);ip_qualified:Optional[bool]=Query(default=None);status:Optional[str]=Query(default=None);year:Optional[int]=Query(default=None);month:Optional[int]=Query(default=None);...+1)->None",router.get,true,-,86
+      classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,49
+      trigger_auto_classification,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,17
+      classify_expense_with_llm,"(expense_id:str)->None",-,true,-,87
+      get_br_classifier_system_prompt,()->str,-,false,-,37
+      build_classification_prompt,(expense_row)->str,-,false,-,21
+      parse_llm_classification,"(response:str)->dict",-,false,-,19
+    function_docs:
+      get_br_categories: retrieves br categories
+      create_expense: creates expense
+      get_expense: retrieves expense
+      list_expenses: list expenses
+      classify_expense_manually: classify expense manually
+      trigger_auto_classification: trigger auto classification
+      classify_expense_with_llm: classify expense with llm
+      get_br_classifier_system_prompt: retrieves br classifier system prompt
+      build_classification_prompt: creates classification prompt
+      parse_llm_classification: parses llm classification
+  src/integrations/accounting/fakturownia.py:
+    imports[13]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime.date,httpx,structlog,base.BaseAccountingClient,base.Invoice,base.InvoiceItem,base.InvoiceType,base.InvoiceStatus,base.AccountingDocument
+    exports[1]: FakturowniaClient
+    classes[1]{name,bases,decorators,props,methods}:
+      FakturowniaClient,BaseAccountingClient,-,0,13
+    class_details:
+      FakturowniaClient:
+        doc: Fakturownia.pl API client.
+        methods[13]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          base_url,()->str,property,false,3
+          _get_headers,"()->Dict[str, str]",-,false,5
+          _get_params,"()->Dict[str, Any]",-,false,5
+          verify_connection,()->bool,-,true,14
+          get_invoices,"(invoice_type:InvoiceType=None;date_from:date=None;date_to:date=None;status:InvoiceStatus=None;page:int=1;per_page:int=50)->List[Invoice]",-,true,49
+          get_invoice,"(invoice_id:str)->Optional[Invoice]",-,true,19
+          get_invoice_pdf,"(invoice_id:str)->Optional[bytes]",-,true,17
+          get_expense_invoices,"(date_from:date=None;date_to:date=None;page:int=1;per_page:int=50)->List[Invoice]",-,true,41
+          _parse_invoice,"(data:Dict)->Invoice",-,false,46
+          _parse_expense,"(data:Dict)->Invoice",-,false,17
+          _map_status,"(status:str)->InvoiceStatus",-,false,10
+          _parse_date,"(date_str:str)->Optional[date]",-,false,9
+  src/integrations/accounting/base.py:
+    imports[11]: abc.ABC,abc.abstractmethod,typing.List,typing.Dict,typing.Any,typing.Optional,datetime.date,datetime,dataclasses.dataclass,enum.Enum,structlog
+    exports[6]: InvoiceType,InvoiceStatus,InvoiceItem,Invoice,AccountingDocument,BaseAccountingClient
+    types[2]{name,kind,values,def}:
+      InvoiceType,enum,"SALES=\"sales\"|PURCHASE=\"purchase\"|PROFORMA=\"proforma\"|CORRECTION=\"correction\"","-"
+      InvoiceStatus,enum,"DRAFT=\"draft\"|ISSUED=\"issued\"|SENT=\"sent\"|PAID=\"paid\"|OVERDUE=\"overdue\"|CANCELLED=\"cancelled\"","-"
+    classes[6]{name,bases,decorators,props,methods}:
+      InvoiceType,str|Enum,-,0,0
+      InvoiceStatus,str|Enum,-,0,0
+      InvoiceItem,-,dataclass,0,1
+      Invoice,-,dataclass,0,1
+      AccountingDocument,-,dataclass,0,0
+      BaseAccountingClient,ABC,-,0,9
+    class_details:
+      InvoiceType:
+        doc: Invoice types
+      InvoiceStatus:
+        doc: Invoice status
+      InvoiceItem:
+        doc: Single invoice line item
+        fields[11]{n,t,default,factory}:
+          name,str,"-","-"
+          quantity,float,"-","-"
+          unit,str,"-","-"
+          unit_price_net,float,"-","-"
+          vat_rate,float,"-","-"
+          net_amount,float,"0","-"
+          vat_amount,float,"0","-"
+          gross_amount,float,"0","-"
+          pkwiu,"Optional[str]",None,"-"
+          gtu,"Optional[str]",None,"-"
+          description,"Optional[str]",None,"-"
+        methods[1]{name,sig,decorators,async,lines}:
+          __post_init__,()->None,-,false,4
+      Invoice:
+        doc: Invoice data model
+        fields[20]{n,t,default,factory}:
+          id,str,"-","-"
+          number,str,"-","-"
+          invoice_type,InvoiceType,"-","-"
+          status,InvoiceStatus,"-","-"
+          issue_date,date,"-","-"
+          sale_date,"Optional[date]",None,"-"
+          due_date,"Optional[date]",None,"-"
+          seller_name,str,"\"\"","-"
+          seller_nip,str,"\"\"","-"
+          seller_address,str,"\"\"","-"
+          buyer_name,str,"\"\"","-"
+          buyer_nip,str,"\"\"","-"
+          buyer_address,str,"\"\"","-"
+          items,"List[InvoiceItem]",None,"-"
+          net_amount,float,"0","-"
+          vat_amount,float,"0","-"
+          gross_amount,float,"0","-"
+          currency,str,"\"PLN\"","-"
+          payment_method,str,"\"\"","-"
+          bank_account,str,"\"\"","-"
+        methods[1]{name,sig,decorators,async,lines}:
+          __post_init__,()->None,-,false,3
+      AccountingDocument:
+        doc: Generic accounting document (not just invoices)
+        fields[14]{n,t,default,factory}:
+          id,str,"-","-"
+          document_type,str,"-","-"
+          number,str,"-","-"
+          issue_date,date,"-","-"
+          counterparty_name,str,"\"\"","-"
+          counterparty_nip,str,"\"\"","-"
+          net_amount,float,"0","-"
+          vat_amount,float,"0","-"
+          gross_amount,float,"0","-"
+          currency,str,"\"PLN\"","-"
+          description,str,"\"\"","-"
+          category,str,"\"\"","-"
+          file_url,"Optional[str]",None,"-"
+          raw_data,"Optional[Dict]",None,"-"
+      BaseAccountingClient:
+        doc: Abstract base class for accounting system integrations.
+        methods[9]{name,sig,decorators,async,lines}:
+          __init__,"(credentials:Dict[str;Any];settings:Dict[str;Any]=None)->None",-,false,11
+          provider_name,()->str,property|abstractmethod,false,3
+          verify_connection,()->bool,abstractmethod,true,6
+          get_invoices,"(invoice_type:InvoiceType=None;date_from:date=None;date_to:date=None;status:InvoiceStatus=None;page:int=1;per_page:int=50)->List[Invoice]",abstractmethod,true,24
+          get_invoice,"(invoice_id:str)->Optional[Invoice]",abstractmethod,true,11
+          get_invoice_pdf,"(invoice_id:str)->Optional[bytes]",abstractmethod,true,11
+          get_expense_invoices,"(date_from:date=None;date_to:date=None;page:int=1;per_page:int=50)->List[Invoice]",-,true,15
+          get_documents,"(date_from:date=None;date_to:date=None;document_type:str=None)->List[AccountingDocument]",-,true,29
+          sync_invoices_to_br_system,"(date_from:date;date_to:date;project_id:str=None)->Dict[str, Any]",-,true,82
+  src/integrations/accounting/__init__.py:
+    imports[10]: base.BaseAccountingClient,base.Invoice,base.InvoiceItem,base.InvoiceType,base.InvoiceStatus,base.AccountingDocument,ifirma.IFirmaClient,fakturownia.FakturowniaClient,wfirma_infakt.WFirmaClient,wfirma_infakt.InFaktClient
+  src/integrations/accounting/wfirma_infakt.py:
+    imports[12]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime.date,httpx,structlog,base.BaseAccountingClient,base.Invoice,base.InvoiceItem,base.InvoiceType,base.InvoiceStatus
+    exports[2]: WFirmaClient,InFaktClient
+    classes[2]{name,bases,decorators,props,methods}:
+      WFirmaClient,BaseAccountingClient,-,0,8
+      InFaktClient,BaseAccountingClient,-,0,9
+    class_details:
+      WFirmaClient:
+        doc: wFirma.pl API client.
+        methods[8]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          _get_headers,"()->Dict[str, str]",-,false,7
+          verify_connection,()->bool,-,true,13
+          get_invoices,"(invoice_type:InvoiceType=None;date_from:date=None;date_to:date=None;status:InvoiceStatus=None;page:int=1;per_page:int=50)->List[Invoice]",-,true,61
+          get_invoice,"(invoice_id:str)->Optional[Invoice]",-,true,18
+          get_invoice_pdf,"(invoice_id:str)->Optional[bytes]",-,true,18
+          _parse_invoice,"(data:Dict;invoice_type:InvoiceType)->Invoice",-,false,33
+          _parse_date,"(date_str:str)->Optional[date]",-,false,8
+      InFaktClient:
+        doc: InFakt.pl API client.
+        methods[9]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          _get_headers,"()->Dict[str, str]",-,false,5
+          verify_connection,()->bool,-,true,13
+          get_invoices,"(invoice_type:InvoiceType=None;date_from:date=None;date_to:date=None;status:InvoiceStatus=None;page:int=1;per_page:int=50)->List[Invoice]",-,true,42
+          get_invoice,"(invoice_id:str)->Optional[Invoice]",-,true,18
+          get_invoice_pdf,"(invoice_id:str)->Optional[bytes]",-,true,17
+          _parse_invoice,"(data:Dict)->Invoice",-,false,37
+          _map_status,"(status:str)->InvoiceStatus",-,false,8
+          _parse_date,"(date_str:str)->Optional[date]",-,false,8
+  src/integrations/accounting/ifirma.py:
+    imports[15]: hashlib,typing.List,typing.Dict,typing.Any,typing.Optional,datetime.date,base64.b64encode,httpx,structlog,base.BaseAccountingClient,base.Invoice,base.InvoiceItem,base.InvoiceType,base.InvoiceStatus,base.AccountingDocument
+    exports[1]: IFirmaClient
+    classes[1]{name,bases,decorators,props,methods}:
+      IFirmaClient,BaseAccountingClient,-,0,9
+    class_details:
+      IFirmaClient:
+        doc: iFirma API client for Polish accounting software.
+        methods[9]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          _get_auth_header,"(key_type:str='faktura')->str",-,false,20
+          verify_connection,()->bool,-,true,16
+          get_invoices,"(invoice_type:InvoiceType=None;date_from:date=None;date_to:date=None;status:InvoiceStatus=None;page:int=1;per_page:int=50)->List[Invoice]",-,true,49
+          get_invoice,"(invoice_id:str)->Optional[Invoice]",-,true,21
+          get_invoice_pdf,"(invoice_id:str)->Optional[bytes]",-,true,19
+          _parse_invoice,"(data:Dict;invoice_type:InvoiceType)->Invoice",-,false,35
+          _map_status,"(status:str)->InvoiceStatus",-,false,10
+          _parse_date,"(date_str:str)->Optional[date]",-,false,9
+  src/integrations/config/__init__.py:
+    imports[8]: database.ConfigDatabase,database.IntegrationProvider,database.IntegrationType,database.IntegrationConfig,database.SyncLog,database.OAuthToken,database.DatabaseType,database.get_config_db
+  src/integrations/config/database.py:
+    imports[20]: os,typing.Optional,typing.Dict,typing.Any,typing.List,datetime,enum.Enum,contextlib.contextmanager,json,sqlalchemy.create_engine,sqlalchemy.Column,sqlalchemy.String,sqlalchemy.Text,sqlalchemy.DateTime,sqlalchemy.Boolean
+    exports[8]: DatabaseType,IntegrationType,IntegrationProvider,IntegrationConfig,SyncLog,OAuthToken,ConfigDatabase,get_config_db
+    types[3]{name,kind,values,def}:
+      DatabaseType,enum,"SQLITE=\"sqlite\"|POSTGRESQL=\"postgresql\"|MYSQL=\"mysql\"|MONGODB=\"mongodb\"","-"
+      IntegrationType,enum,"ACCOUNTING=\"accounting\"|CLOUD_STORAGE=\"cloud_storage\"|EMAIL=\"email\"|WEBHOOK=\"webhook\"","-"
+      IntegrationProvider,enum,"IFIRMA=\"ifirma\"|FAKTUROWNIA=\"fakturownia\"|WFIRMA=\"wfirma\"|INFAKT=\"infakt\"|KSEF=\"ksef\"|NEXTCLOUD=\"nextcloud\"|GOOGLE_DRIVE=\"google_drive\"|DROPBOX=\"dropbox\"|ONEDRIVE=\"onedrive\"|AWS_S3=\"aws_s3\"|MINIO=\"minio\"|SMTP=\"smtp\"|GMAIL=\"gmail\"","-"
+    classes[7]{name,bases,decorators,props,methods}:
+      DatabaseType,str|Enum,-,0,0
+      IntegrationType,str|Enum,-,0,0
+      IntegrationProvider,str|Enum,-,0,0
+      IntegrationConfig,ConfigBase,-,0,1
+      SyncLog,ConfigBase,-,0,0
+      OAuthToken,ConfigBase,-,0,0
+      ConfigDatabase,-,-,0,13
+    class_details:
+      DatabaseType:
+        doc: Supported configuration database types
+      IntegrationType:
+        doc: Types of integrations
+      IntegrationProvider:
+        doc: Supported integration providers
+      IntegrationConfig:
+        doc: Integration configuration storage
+        methods[1]{name,sig,decorators,async,lines}:
+          __repr__,()->None,-,false,2
+      SyncLog:
+        doc: Synchronization logs
+      OAuthToken:
+        doc: OAuth tokens storage
+      ConfigDatabase:
+        doc: Configuration database manager with encryption support.
+        methods[13]{name,sig,decorators,async,lines}:
+          __init__,"(db_type:DatabaseType=None;db_url:str=None;encryption_key:str=None)->None",-,false,53
+          get_session,()->Session,contextmanager,false,11
+          encrypt,"(data:str)->str",-,false,3
+          decrypt,"(encrypted_data:str)->str",-,false,3
+          save_integration,"(integration_id:str;provider:IntegrationProvider;integration_type:IntegrationType;credentials:Dict[str;Any]=None;settings:Dict[str;Any]=None;base_url:str=None)->IntegrationConfig",-,false,39
+          get_integration,"(integration_id:str)->Optional[Dict[str, Any]]",-,false,31
+          list_integrations,"(integration_type:IntegrationType=None;provider:IntegrationProvider=None;active_only:bool=True)->List[Dict[str, Any]]",-,false,33
+          delete_integration,"(integration_id:str)->bool",-,false,9
+          update_sync_status,"(integration_id:str;is_verified:bool=None;last_error:str=None)->None",-,false,15
+          save_oauth_token,"(token_id:str;integration_id:str;access_token:str;refresh_token:str=None;expires_at:datetime=None;scope:str=None)->None",-,false,23
+          get_oauth_token,"(token_id:str)->Optional[Dict[str, Any]]",-,false,17
+          log_sync,"(integration_id:str;sync_type:str;status:str;items_processed:int=0;items_failed:int=0;details:Dict=None)->int",-,false,25
+          get_sync_logs,"(integration_id:str=None;limit:int=50)->List[Dict]",-,false,29
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_config_db,()->ConfigDatabase,-,false,-,6
+    function_docs:
+      get_config_db: retrieves config db
+  src/integrations/cloud/dropbox_onedrive.py:
+    imports[11]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime,pathlib.Path,httpx,structlog,base.BaseCloudStorageClient,base.CloudFile,base.UploadResult
+    exports[2]: DropboxClient,OneDriveClient
+    classes[2]{name,bases,decorators,props,methods}:
+      DropboxClient,BaseCloudStorageClient,-,0,12
+      OneDriveClient,BaseCloudStorageClient,-,0,14
+    class_details:
+      DropboxClient:
+        doc: Dropbox API client.
+        methods[12]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          _get_headers,"()->Dict[str, str]",-,false,5
+          verify_connection,()->bool,-,true,13
+          list_files,"(folder_path:str='/';recursive:bool=False)->List[CloudFile]",-,true,44
+          upload_file,"(local_path:str;remote_path:str;overwrite:bool=True)->UploadResult",-,true,20
+          upload_bytes,"(content:bytes;remote_path:str;filename:str;mime_type:str='application/octet-stream';overwrite:bool=True)->UploadResult",-,true,51
+          download_file,"(remote_path:str;local_path:str)->bool",-,true,8
+          download_bytes,"(remote_path:str)->Optional[bytes]",-,true,22
+          delete_file,"(remote_path:str)->bool",-,true,13
+          create_folder,"(folder_path:str)->bool",-,true,13
+          get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,28
+          _parse_datetime,"(dt_str:str)->Optional[datetime]",-,false,7
+      OneDriveClient:
+        doc: Microsoft OneDrive API client.
+        methods[14]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          drive_path,()->str,property,false,5
+          _get_headers,"()->Dict[str, str]",-,false,5
+          verify_connection,()->bool,-,true,13
+          list_files,"(folder_path:str='/';recursive:bool=False)->List[CloudFile]",-,true,44
+          upload_file,"(local_path:str;remote_path:str;overwrite:bool=True)->UploadResult",-,true,20
+          upload_bytes,"(content:bytes;remote_path:str;filename:str;mime_type:str='application/octet-stream';overwrite:bool=True)->UploadResult",-,true,21
+          _simple_upload,"(path:str;content:bytes;overwrite:bool)->UploadResult",-,true,40
+          download_file,"(remote_path:str;local_path:str)->bool",-,true,8
+          download_bytes,"(remote_path:str)->Optional[bytes]",-,true,20
+          delete_file,"(remote_path:str)->bool",-,true,14
+          create_folder,"(folder_path:str)->bool",-,true,32
+          get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,31
+          _parse_datetime,"(dt_str:str)->Optional[datetime]",-,false,7
+  src/integrations/cloud/base.py:
+    imports[12]: abc.ABC,abc.abstractmethod,typing.List,typing.Dict,typing.Any,typing.Optional,typing.BinaryIO,datetime,dataclasses.dataclass,enum.Enum,pathlib.Path,structlog
+    exports[3]: CloudFile,UploadResult,BaseCloudStorageClient
+    classes[3]{name,bases,decorators,props,methods}:
+      CloudFile,-,dataclass,0,0
+      UploadResult,-,dataclass,0,0
+      BaseCloudStorageClient,ABC,-,0,15
+    class_details:
+      CloudFile:
+        doc: Cloud file metadata
+        fields[13]{n,t,default,factory}:
+          id,str,"-","-"
+          name,str,"-","-"
+          path,str,"-","-"
+          size,int,"-","-"
+          mime_type,str,"-","-"
+          created_at,"Optional[datetime]",None,"-"
+          modified_at,"Optional[datetime]",None,"-"
+          is_folder,bool,False,"-"
+          parent_id,"Optional[str]",None,"-"
+          download_url,"Optional[str]",None,"-"
+          web_url,"Optional[str]",None,"-"
+          checksum,"Optional[str]",None,"-"
+          raw_data,"Optional[Dict]",None,"-"
+      UploadResult:
+        doc: Upload operation result
+        fields[6]{n,t,default,factory}:
+          success,bool,"-","-"
+          file_id,"Optional[str]",None,"-"
+          file_path,"Optional[str]",None,"-"
+          file_url,"Optional[str]",None,"-"
+          error,"Optional[str]",None,"-"
+          raw_response,"Optional[Dict]",None,"-"
+      BaseCloudStorageClient:
+        doc: Abstract base class for cloud storage integrations.
+        methods[15]{name,sig,decorators,async,lines}:
+          __init__,"(credentials:Dict[str;Any];settings:Dict[str;Any]=None)->None",-,false,11
+          provider_name,()->str,property|abstractmethod,false,3
+          verify_connection,()->bool,abstractmethod,true,3
+          list_files,"(folder_path:str='/';recursive:bool=False)->List[CloudFile]",abstractmethod,true,7
+          upload_file,"(local_path:str;remote_path:str;overwrite:bool=True)->UploadResult",abstractmethod,true,8
+          upload_bytes,"(content:bytes;remote_path:str;filename:str;mime_type:str='application/octet-stream';overwrite:bool=True)->UploadResult",abstractmethod,true,10
+          download_file,"(remote_path:str;local_path:str)->bool",abstractmethod,true,7
+          download_bytes,"(remote_path:str)->Optional[bytes]",abstractmethod,true,6
+          delete_file,"(remote_path:str)->bool",abstractmethod,true,3
+          create_folder,"(folder_path:str)->bool",abstractmethod,true,3
+          get_file_info,"(remote_path:str)->Optional[CloudFile]",abstractmethod,true,3
+          file_exists,"(remote_path:str)->bool",-,true,4
+          ensure_folder_exists,"(folder_path:str)->bool",-,true,5
+          upload_report,"(report_content:bytes;report_name:str;report_folder:str='/BR-Reports';year:int=None;month:int=None)->UploadResult",-,true,68
+          sync_invoices_folder,"(local_folder:str;remote_folder:str='/BR-Invoices')->Dict[str, Any]",-,true,58
+  src/integrations/cloud/google_s3.py:
+    imports[13]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime,pathlib.Path,json,mimetypes,httpx,structlog,base.BaseCloudStorageClient,base.CloudFile,base.UploadResult
+    exports[2]: GoogleDriveClient,S3Client
+    classes[2]{name,bases,decorators,props,methods}:
+      GoogleDriveClient,BaseCloudStorageClient,-,0,18
+      S3Client,BaseCloudStorageClient,-,0,11
+    class_details:
+      GoogleDriveClient:
+        doc: Google Drive API client.
+        methods[18]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          _get_headers,"()->Dict[str, str]",-,false,5
+          _refresh_token_if_needed,()->None,-,true,5
+          verify_connection,()->bool,-,true,14
+          list_files,"(folder_path:str='/';recursive:bool=False)->List[CloudFile]",-,true,50
+          upload_file,"(local_path:str;remote_path:str;overwrite:bool=True)->UploadResult",-,true,24
+          upload_bytes,"(content:bytes;remote_path:str;filename:str;mime_type:str='application/octet-stream';overwrite:bool=True)->UploadResult",-,true,66
+          download_file,"(remote_path:str;local_path:str)->bool",-,true,7
+          download_bytes,"(remote_path:str)->Optional[bytes]",-,true,27
+          delete_file,"(remote_path:str)->bool",-,true,15
+          create_folder,"(folder_path:str)->bool",-,true,6
+          get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,31
+          _resolve_path_to_id,"(path:str)->Optional[str]",-,true,16
+          _find_file_by_name,"(name:str;parent_id:str)->Optional[str]",-,true,21
+          _ensure_folder_path,"(path:str)->str",-,true,15
+          _create_folder,"(name:str;parent_id:str)->str",-,true,20
+          _update_file,"(file_id:str;content:bytes;mime_type:str)->UploadResult",-,true,27
+          _parse_datetime,"(dt_str:str)->Optional[datetime]",-,false,7
+      S3Client:
+        doc: AWS S3 / MinIO compatible client.
+        methods[11]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          _get_client,()->None,-,false,14
+          verify_connection,()->bool,-,true,9
+          list_files,"(folder_path:str='/';recursive:bool=False)->List[CloudFile]",-,true,46
+          upload_file,"(local_path:str;remote_path:str;overwrite:bool=True)->UploadResult",-,true,26
+          upload_bytes,"(content:bytes;remote_path:str;filename:str;mime_type:str='application/octet-stream';overwrite:bool=True)->UploadResult",-,true,33
+          download_file,"(remote_path:str;local_path:str)->bool",-,true,10
+          download_bytes,"(remote_path:str)->Optional[bytes]",-,true,13
+          delete_file,"(remote_path:str)->bool",-,true,10
+          create_folder,"(folder_path:str)->bool",-,true,11
+          get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,19
+  src/integrations/cloud/__init__.py:
+    imports[8]: base.BaseCloudStorageClient,base.CloudFile,base.UploadResult,nextcloud.NextcloudClient,google_s3.GoogleDriveClient,google_s3.S3Client,dropbox_onedrive.DropboxClient,dropbox_onedrive.OneDriveClient
+  src/integrations/cloud/nextcloud.py:
+    imports[12]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime,pathlib.Path,xml.etree.ElementTree,httpx,structlog,base.BaseCloudStorageClient,base.CloudFile,base.UploadResult
+    exports[1]: NextcloudClient
+    classes[1]{name,bases,decorators,props,methods}:
+      NextcloudClient,BaseCloudStorageClient,-,0,13
+    class_details:
+      NextcloudClient:
+        doc: Nextcloud client using WebDAV protocol.
+        methods[13]{name,sig,decorators,async,lines}:
+          provider_name,()->str,property,false,2
+          webdav_url,()->str,property,false,4
+          _get_auth,()->tuple,-,false,5
+          verify_connection,()->bool,-,true,15
+          list_files,"(folder_path:str='/';recursive:bool=False)->List[CloudFile]",-,true,42
+          upload_file,"(local_path:str;remote_path:str;overwrite:bool=True)->UploadResult",-,true,21
+          upload_bytes,"(content:bytes;remote_path:str;filename:str;mime_type:str='application/octet-stream';overwrite:bool=True)->UploadResult",-,true,45
+          download_file,"(remote_path:str;local_path:str)->bool",-,true,12
+          download_bytes,"(remote_path:str)->Optional[bytes]",-,true,22
+          delete_file,"(remote_path:str)->bool",-,true,16
+          create_folder,"(folder_path:str)->bool",-,true,17
+          get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,35
+          _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
+  web/static/js/app.js:
+    exports[68]: loadExpenses,loadSyncLogs,getUrlParam,testConnections,generateMonthlyReport,updateProviderOptions,retryOcr,showExpenseDetails,saveIntegration,setUrlParam
+    const[4]{n,t,v,keys}:
+      API_BASE,"-","-","-"
+      PROJECT_ID,"-","-","-"
+      PROVIDER_CONFIGS,"-","-","-"
+      LOG_SERVICES,"-","-","-"
+    functions[68]{name,sig,decorators,async,category,lines}:
+      getPageFromUrl,()->None,-,false,-,4
+      getUrlParam,(key)->None,-,false,-,4
+      setUrlParam,(key;value)->None,-,false,-,14
+      setPageInUrl,(page)->None,-,false,-,3
+      navigateTo,(page)->None,-,false,-,26
+      apiCall,(endpoint)->None,-,true,-,13
+      loadDashboard,()->None,-,true,-,16
+      setupUploadListeners,()->None,-,false,-,13
+      handleFiles,(files)->None,-,false,-,1
+      uploadFile,(file)->None,-,true,-,29
+      pollDocumentStatus,(docId;itemId)->None,-,true,-,16
+      loadRecentDocuments,()->None,-,true,-,22
+      getDocTypeName,(type)->None,-,false,-,4
+      deleteDocument,(docId)->None,-,true,-,10
+      retryOcr,(docId)->None,-,true,-,7
+      showDocumentDetail,(docId)->None,-,true,-,69
+      getFieldLabel,(field)->None,-,false,-,13
+      toggleEditMode,()->None,-,false,-,9
+      saveExtractedData,(docId)->None,-,true,-,23
+      createExpenseFromDoc,(docId)->None,-,true,-,40
+      closeDocumentModal,()->None,-,false,-,7
+      approveDocument,(docId)->None,-,true,-,8
+      loadExpenses,()->None,-,true,-,20
+      showExpenseDetails,(id)->None,-,true,-,20
+      classifyExpense,(id)->None,-,true,-,11
+      reclassifyWithLLM,(id)->None,-,true,-,4
+      loadReports,()->None,-,true,-,22
+      generateMonthlyReport,()->None,-,true,-,7
+      generateAllReports,()->None,-,true,-,7
+      loadClarifications,()->None,-,true,-,14
+      answerClarification,(id)->None,-,true,-,6
+      saveProjectSettings,()->None,-,false,-,6
+      formatCurrency,(amount)->None,-,false,-,1
+      getStatusLabel,(s)->None,-,false,-,1
+      getCategoryName,(c)->None,-,false,-,1
+      showToast,(msg)->None,-,false,-,1
+      loadIntegrations,()->None,-,true,-,33
+      renderIntegrationCard,(integration)->None,-,false,-,26
+      loadSyncLogs,()->None,-,true,-,28
+      showAddIntegrationModal,()->None,-,false,-,10
+      closeIntegrationModal,()->None,-,false,-,3
+      updateProviderOptions,()->None,-,false,-,14
+      updateCredentialFields,()->None,-,false,-,19
+      saveIntegration,(event)->None,-,true,-,36
+      verifyIntegration,(id)->None,-,true,-,16
+      syncInvoices,(integrationId)->None,-,true,-,17
+      syncAllInvoices,()->None,-,true,-,17
+      uploadReport,(integrationId)->None,-,true,-,25
+      uploadAllReports,()->None,-,true,-,16
+      deleteIntegration,(id)->None,-,true,-,11
+      loadAIConfig,()->None,-,true,-,38
+      loadOCREngines,()->None,-,true,-,22
+      loadDocumentTypes,()->None,-,true,-,19
+      saveAIConfig,()->None,-,true,-,28
+      testConnections,()->None,-,true,-,26
+      updateModelList,()->None,-,false,-,28
+      initLogStreams,()->None,-,false,-,5
+      startLogStreamForPage,(service)->None,-,false,-,40
+      switchLogTab,(service)->None,-,false,-,15
+      copyLogs,(service)->None,-,false,-,13
+      clearAllLogs,()->None,-,false,-,6
+      reconnectAllLogs,()->None,-,false,-,10
+      stopAllLogStreams,()->None,-,false,-,8
+      isGlobalLogsOpen,()->None,-,false,-,4
+      toggleGlobalLogs,()->None,-,false,-,16
+      switchGlobalLogTab,(service)->None,-,false,-,11
+      clearGlobalLogs,()->None,-,false,-,6
+      startLogStreamFor,(service)->None,-,false,-,39
+    function_docs:
+      getPageFromUrl: retrieves page from url
+      getUrlParam: retrieves url param
+      setUrlParam: updates url param
+      setPageInUrl: updates page in url
+      navigateTo: navigate to
+      apiCall: api call
+      loadDashboard: retrieves dashboard
+      setupUploadListeners: initializes upload listeners
+      handleFiles: handles files
+      uploadFile: upload file
+      pollDocumentStatus: poll document status
+      loadRecentDocuments: retrieves recent documents
+      getDocTypeName: retrieves doc type name
+      deleteDocument: deletes document
+      retryOcr: retry ocr
+      showDocumentDetail: show document detail
+      getFieldLabel: retrieves field label
+      toggleEditMode: toggle edit mode
+      saveExtractedData: caches extracted data
+      createExpenseFromDoc: creates expense from doc
+      closeDocumentModal: stops document modal
+      approveDocument: approve document
+      loadExpenses: retrieves expenses
+      showExpenseDetails: show expense details
+      classifyExpense: classify expense
+      reclassifyWithLLM: reclassify with llm
+      loadReports: retrieves reports
+      generateMonthlyReport: creates monthly report
+      generateAllReports: creates all reports
+      loadClarifications: retrieves clarifications
+      answerClarification: answer clarification
+      saveProjectSettings: caches project settings
+      formatCurrency: formats currency
+      getStatusLabel: retrieves status label
+      getCategoryName: retrieves category name
+      showToast: show toast
+      loadIntegrations: retrieves integrations
+      renderIntegrationCard: formats integration card
+      loadSyncLogs: retrieves sync logs
+      showAddIntegrationModal: show add integration modal
+      closeIntegrationModal: stops integration modal
+      updateProviderOptions: updates provider options
+      updateCredentialFields: updates credential fields
+      saveIntegration: caches integration
+      verifyIntegration: validates integration
+      syncInvoices: sync invoices
+      syncAllInvoices: sync all invoices
+      uploadReport: upload report
+      uploadAllReports: upload all reports
+      deleteIntegration: deletes integration
+      loadAIConfig: retrieves ai config
+      loadOCREngines: retrieves ocr engines
+      loadDocumentTypes: retrieves document types
+      saveAIConfig: caches ai config
+      testConnections: checks connections
+      updateModelList: updates model list
+      initLogStreams: creates log streams
+      startLogStreamForPage: starts log stream for page
+      switchLogTab: switch log tab
+      copyLogs: copy logs
+      clearAllLogs: deletes all logs
+      reconnectAllLogs: reconnect all logs
+      stopAllLogStreams: stops all log streams
+      isGlobalLogsOpen: is global logs open
+      toggleGlobalLogs: toggle global logs
+      switchGlobalLogTab: switch global log tab
+      clearGlobalLogs: deletes global logs
+      startLogStreamFor: starts log stream for

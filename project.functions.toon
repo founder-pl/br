@@ -1,0 +1,643 @@
+project: br
+generated: "2026-01-13T10:47:44.412302"
+modules[54]{path,lang,items}:
+  tests/conftest.py,python,20
+  tests/__init__.py,python,0
+  tests/unit/test_extractors.py,python,25
+  tests/unit/__init__.py,python,0
+  tests/unit/test_validators.py,python,15
+  tests/unit/test_integrations.py,python,15
+  tests/e2e/test_web_gui_smoke.py,python,3
+  tests/e2e/test_scenarios.py,python,6
+  tests/e2e/test_integrations_e2e.py,python,12
+  tests/e2e/__init__.py,python,0
+  tests/integration/test_api.py,python,19
+  tests/integration/__init__.py,python,0
+  tests/integration/test_sql_fixes.py,python,11
+  tests/integration/test_integrations_api.py,python,14
+  src/ocr/extractors.py,python,10
+  src/ocr/engines.py,python,13
+  src/ocr/__init__.py,python,3
+  src/ocr/preprocessing.py,python,6
+  src/ocr/models.py,python,0
+  src/ocr/main.py,python,7
+  src/infrastructure/__init__.py,python,0
+  src/infrastructure/tasks.py,python,7
+  src/infrastructure/celery_app.py,python,0
+  src/integrations/__init__.py,python,0
+  src/integrations/factory.py,python,9
+  src/api/config.py,python,0
+  src/api/__init__.py,python,0
+  src/api/ocr_config.py,python,4
+  src/api/document_classifier.py,python,3
+  src/api/database.py,python,4
+  src/api/main.py,python,5
+  src/api/routers/config.py,python,11
+  src/api/routers/clarifications.py,python,6
+  src/api/routers/projects.py,python,6
+  src/api/routers/auth.py,python,7
+  src/api/routers/__init__.py,python,0
+  src/api/routers/integrations.py,python,14
+  src/api/routers/logs.py,python,9
+  src/api/routers/reports.py,python,6
+  src/api/routers/documents.py,python,8
+  src/api/routers/expenses.py,python,10
+  src/integrations/accounting/fakturownia.py,python,13
+  src/integrations/accounting/base.py,python,11
+  src/integrations/accounting/__init__.py,python,0
+  src/integrations/accounting/wfirma_infakt.py,python,17
+  src/integrations/accounting/ifirma.py,python,9
+  src/integrations/config/__init__.py,python,0
+  src/integrations/config/database.py,python,15
+  src/integrations/cloud/dropbox_onedrive.py,python,26
+  src/integrations/cloud/base.py,python,15
+  src/integrations/cloud/google_s3.py,python,29
+  src/integrations/cloud/__init__.py,python,0
+  src/integrations/cloud/nextcloud.py,python,13
+  web/static/js/app.js,javascript,68
+
+function_details:
+  tests/conftest.py:
+    functions[20]{name,kind,sig,loc,async,lines,cc,does}:
+      event_loop,function,() -> None,68-72,false,5,1,Create event loop for async tests
+      db_session,function,"() -> AsyncGenerator[AsyncSession, None]",76-80,true,5,1,Create a fresh database session for each test
+      client,function,"(db_session:AsyncSession) -> AsyncGenerator[AsyncClient, None]",84-96,true,13,1,Create async HTTP client for API tests
+      sample_project_data,function,() -> None,104-112,false,9,1,Sample project data
+      sample_expense_data,function,() -> None,116-129,false,14,1,Sample expense data
+      sample_document_data,function,() -> None,133-140,false,8,1,Sample document metadata
+      sample_invoice_text,function,() -> None,144-168,false,25,1,Sample OCR text from invoice
+      sample_nip_valid,function,() -> None,172-177,false,6,1,Valid Polish NIP numbers for testing
+      sample_nip_invalid,function,() -> None,181-188,false,8,1,Invalid Polish NIP numbers for testing
+      mock_ocr_result,function,() -> None,196-211,false,16,1,Mock OCR processing result
+      mock_llm_classification,function,() -> None,215-227,false,13,1,Mock LLM classification result
+      create_test_pdf_content,function,() -> bytes,234-257,false,24,1,Create minimal valid PDF content for testing
+      create_test_image_content,function,() -> bytes,260-273,false,14,1,Create minimal valid PNG content for testing
+      sample_accounting_integration,function,() -> None,281-299,false,19,1,Sample accounting integration configuration
+      sample_cloud_integration,function,() -> None,303-318,false,16,1,Sample cloud storage integration configuration
+      sample_invoice_from_api,function,() -> None,322-355,false,34,1,Sample invoice data as returned from accounting API
+      sample_cloud_file,function,() -> None,359-370,false,12,1,Sample cloud file metadata
+      all_accounting_providers,function,() -> None,374-406,false,33,1,All supported accounting providers with sample credentials
+      all_cloud_providers,function,() -> None,410-463,false,54,1,All supported cloud storage providers with sample credentials
+      temp_config_db,function,(tmp_path) -> None,471-480,false,10,1,Create temporary config database for testing
+  tests/unit/test_extractors.py:
+    functions[25]{name,kind,sig,loc,async,lines,cc,does}:
+      TestInvoiceExtractor.extractor,method,() -> None,13-14,false,2,1,extractor
+      TestInvoiceExtractor.test_extract_nip_from_text,method,"(extractor, sample_invoice_text) -> None",18-26,true,9,3,Test NIP extraction from invoice text
+      TestInvoiceExtractor.test_extract_invoice_number,method,"(extractor, sample_invoice_text) -> None",30-35,true,6,1,Test invoice number extraction
+      TestInvoiceExtractor.test_extract_dates,method,"(extractor, sample_invoice_text) -> None",39-46,true,8,2,Test date extraction from invoice
+      TestInvoiceExtractor.test_extract_amounts,method,"(extractor, sample_invoice_text) -> None",50-55,true,6,2,Test amount extraction from invoice
+      TestInvoiceExtractor.test_extraction_confidence,method,"(extractor, sample_invoice_text) -> None",59-64,true,6,1,Test extraction confidence score
+      TestInvoiceExtractor.test_extract_empty_text,method,(extractor) -> None,68-73,true,6,1,Test extraction from empty text
+      TestInvoiceExtractor.test_document_type_default,method,(extractor) -> None,77-81,true,5,1,Test default document type
+      TestInvoiceExtractor.test_document_type_override,method,(extractor) -> None,85-89,true,5,1,Test document type override
+      TestDateParsing.extractor,method,() -> None,96-97,false,2,1,extractor
+      TestDateParsing.test_parse_date_dd_mm_yyyy_dot,method,(extractor) -> None,100-103,false,4,1,Test parsing DD.MM.YYYY format
+      TestDateParsing.test_parse_date_dd_mm_yyyy_dash,method,(extractor) -> None,106-109,false,4,1,Test parsing DD-MM-YYYY format
+      TestDateParsing.test_parse_date_yyyy_mm_dd,method,(extractor) -> None,112-115,false,4,1,Test parsing YYYY-MM-DD format
+      TestDateParsing.test_parse_date_polish_month,method,(extractor) -> None,118-121,false,4,1,Test parsing date with Polish month name
+      TestDateParsing.test_parse_invalid_date,method,(extractor) -> None,124-127,false,4,1,Test parsing invalid date
+      TestAmountParsing.extractor,method,() -> None,134-135,false,2,1,extractor
+      TestAmountParsing.test_parse_amount_comma_decimal,method,(extractor) -> None,138-141,false,4,1,Test parsing amount with comma decimal
+      TestAmountParsing.test_parse_amount_dot_decimal,method,(extractor) -> None,144-147,false,4,1,Test parsing amount with dot decimal
+      TestAmountParsing.test_parse_amount_with_spaces,method,(extractor) -> None,150-153,false,4,1,Test parsing amount with thousand separator spaces
+      TestAmountParsing.test_parse_amount_large,method,(extractor) -> None,156-159,false,4,1,Test parsing large amount
+      TestAmountParsing.test_parse_amount_empty,method,(extractor) -> None,162-165,false,4,1,Test parsing empty amount
+      TestAmountParsing.test_parse_amount_none,method,(extractor) -> None,168-171,false,4,1,Test parsing None amount
+      TestExtractorFactory.test_get_invoice_extractor,method,() -> None,178-181,false,4,1,Test getting invoice extractor
+      TestExtractorFactory.test_get_default_extractor,method,() -> None,184-187,false,4,1,Test getting default extractor
+      TestExtractorFactory.test_get_unknown_extractor,method,() -> None,190-193,false,4,1,Test getting unknown extractor type falls back to invoice
+  tests/unit/test_validators.py:
+    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
+      TestNIPValidation.test_valid_nip_tomasz_sapletta,method,() -> None,12-14,false,3,1,Test valid NIP - Tomasz Sapletta
+      TestNIPValidation.test_valid_nip_with_dashes,method,() -> None,17-19,false,3,1,Test valid NIP with dashes
+      TestNIPValidation.test_valid_nip_with_spaces,method,() -> None,22-24,false,3,1,Test valid NIP with spaces
+      TestNIPValidation.test_invalid_nip_wrong_checksum,method,() -> None,27-29,false,3,1,Test invalid NIP - wrong checksum
+      TestNIPValidation.test_invalid_nip_too_short,method,() -> None,32-34,false,3,1,Test invalid NIP - too short
+      TestNIPValidation.test_invalid_nip_too_long,method,() -> None,37-39,false,3,1,Test invalid NIP - too long
+      TestNIPValidation.test_invalid_nip_all_zeros,method,() -> None,42-44,false,3,1,Test invalid NIP - all zeros
+      TestNIPValidation.test_invalid_nip_letters,method,() -> None,47-49,false,3,1,Test invalid NIP - contains letters
+      TestNIPValidation.test_empty_nip,method,() -> None,52-54,false,3,1,Test empty NIP
+      TestNIPValidation.test_various_nips,method,"(nip, expected) -> None",64-66,false,3,1,Parametrized test for various NIPs
+      TestREGONValidation.test_valid_regon_9_digit,method,() -> None,73-76,false,4,1,Test valid 9-digit REGON
+      TestREGONValidation.test_invalid_regon_wrong_checksum,method,() -> None,79-81,false,3,1,Test invalid REGON - wrong checksum
+      TestREGONValidation.test_invalid_regon_too_short,method,() -> None,84-86,false,3,1,Test invalid REGON - too short
+      TestREGONValidation.test_invalid_regon_wrong_length,method,() -> None,89-91,false,3,1,Test invalid REGON - wrong length (not 9 or 14)
+      TestREGONValidation.test_empty_regon,method,() -> None,94-96,false,3,1,Test empty REGON
+  tests/unit/test_integrations.py:
+    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
+      TestConfigDatabase.config_db,method,(tmp_path) -> None,19-26,false,8,1,Create temporary config database
+      TestConfigDatabase.test_save_and_get_integration,method,(config_db) -> None,29-47,false,19,1,Test saving and retrieving integration
+      TestConfigDatabase.test_list_integrations,method,(config_db) -> None,50-76,false,27,1,Test listing integrations
+      TestConfigDatabase.test_delete_integration,method,(config_db) -> None,79-93,false,15,1,Test deleting integration
+      TestConfigDatabase.test_encryption_decryption,method,(config_db) -> None,96-104,false,9,1,Test credential encryption/decryption
+      TestConfigDatabase.test_sync_log,method,(config_db) -> None,107-122,false,16,1,Test sync logging
+      TestInvoiceModel.test_invoice_item_calculation,method,() -> None,129-141,false,13,1,Test invoice item amount calculation
+      TestInvoiceModel.test_invoice_creation,method,() -> None,144-161,false,18,1,Test Invoice model creation
+      TestCloudFileModel.test_cloud_file_creation,method,() -> None,168-180,false,13,1,Test CloudFile model creation
+      TestCloudFileModel.test_upload_result_success,method,() -> None,183-193,false,11,1,Test UploadResult success
+      TestCloudFileModel.test_upload_result_failure,method,() -> None,196-204,false,9,1,Test UploadResult failure
+      TestFactoryFunctions.test_get_accounting_client_ifirma,method,() -> None,211-222,false,12,1,Test creating iFirma client
+      TestFactoryFunctions.test_get_cloud_client_nextcloud,method,() -> None,225-239,false,15,1,Test creating Nextcloud client
+      TestFactoryFunctions.test_get_cloud_client_s3,method,() -> None,242-256,false,15,1,Test creating S3 client
+      TestFactoryFunctions.test_get_unknown_provider,method,() -> None,259-265,false,7,1,Test handling unknown provider
+  tests/e2e/test_web_gui_smoke.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      test_web_serves_index_html,function,() -> None,12-17,true,6,1,checks web serves index html
+      test_web_serves_static_js,function,() -> None,22-26,true,5,1,checks web serves static js
+      test_web_proxies_api_health,function,() -> None,31-36,true,6,1,checks web proxies api health
+  tests/e2e/test_scenarios.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      TestDocumentProcessingE2E.test_full_document_processing_flow,method,"(client:AsyncClient) -> None",19-52,true,34,4,"Full E2E test: Upload document -> OCR -> Create expense -> Classify -> Report"
+      TestDocumentProcessingE2E.test_expense_classification_flow,method,"(client:AsyncClient, sample_expense_data) -> None",56-92,true,37,1,"E2E test: Create expense -> Auto-classify -> Manual override -> Verify"
+      TestReportGenerationE2E.test_monthly_report_generation_flow,method,"(client:AsyncClient) -> None",100-139,true,40,1,"E2E test: Generate monthly report -> Verify data -> Check summary"
+      TestClarificationWorkflowE2E.test_clarification_qa_flow,method,"(client:AsyncClient, sample_expense_data) -> None",147-189,true,43,1,"E2E test: Create expense -> Create clarification -> Answer -> Verify resolved"
+      TestProjectManagementE2E.test_project_lifecycle_flow,method,"(client:AsyncClient) -> None",197-249,true,53,1,"E2E test: Create project -> Add expenses -> Update totals -> Get summary"
+      TestFullBusinessScenarioE2E.test_monthly_br_workflow,method,"(client:AsyncClient) -> None",258-339,true,82,3,"Full monthly B+R workflow:"
+  tests/e2e/test_integrations_e2e.py:
+    functions[12]{name,kind,sig,loc,async,lines,cc,does}:
+      TestAccountingIntegrationE2E.test_full_accounting_integration_setup_and_sync,method,"(client:AsyncClient) -> None",17-90,true,74,3,"Full E2E test: Setup accounting integration -> Verify -> Sync invoices -> Check..."
+      TestAccountingIntegrationE2E.test_multiple_accounting_integrations_workflow,method,"(client:AsyncClient) -> None",94-147,true,54,9,"E2E test: Setup multiple accounting integrations and manage them"
+      TestCloudStorageIntegrationE2E.test_full_cloud_storage_integration_setup,method,"(client:AsyncClient) -> None",155-218,true,64,4,"Full E2E test: Setup cloud storage -> Verify -> Upload report -> Check logs"
+      TestCloudStorageIntegrationE2E.test_all_cloud_providers_setup,method,"(client:AsyncClient) -> None",222-293,true,72,5,"E2E test: Setup all supported cloud storage providers"
+      TestIntegrationSyncWorkflowE2E.test_invoice_sync_workflow,method,"(client:AsyncClient) -> None",301-335,true,35,1,"E2E test: Setup integration -> Trigger sync -> Check logs -> Verify data"
+      TestIntegrationSyncWorkflowE2E.test_report_upload_workflow,method,"(client:AsyncClient) -> None",339-370,true,32,1,"E2E test: Setup cloud integration -> Upload report -> Check logs"
+      TestIntegrationSyncWorkflowE2E.test_bulk_sync_all_integrations,method,"(client:AsyncClient) -> None",374-423,true,50,3,"E2E test: Setup multiple integrations -> Sync all -> Upload all reports"
+      TestIntegrationErrorHandlingE2E.test_invalid_provider_error,method,"(client:AsyncClient) -> None",431-441,true,11,1,Test error handling for invalid provider
+      TestIntegrationErrorHandlingE2E.test_duplicate_integration_id_error,method,"(client:AsyncClient) -> None",445-465,true,21,1,Test error handling for duplicate integration ID
+      TestIntegrationErrorHandlingE2E.test_wrong_integration_type_for_operation,method,"(client:AsyncClient) -> None",469-491,true,23,1,Test error handling when using wrong integration type for operation
+      TestIntegrationErrorHandlingE2E.test_nonexistent_integration_error,method,"(client:AsyncClient) -> None",495-499,true,5,1,Test error handling for nonexistent integration
+      TestFullIntegrationBusinessScenarioE2E.test_complete_monthly_workflow_with_integrations,method,"(client:AsyncClient) -> None",508-642,true,135,4,"Complete monthly B+R workflow with integrations:"
+  tests/integration/test_api.py:
+    functions[19]{name,kind,sig,loc,async,lines,cc,does}:
+      TestHealthEndpoints.test_api_health,method,"(client:AsyncClient) -> None",13-21,true,9,1,Test API health endpoint
+      TestHealthEndpoints.test_root_endpoint,method,"(client:AsyncClient) -> None",25-32,true,8,1,Test root endpoint
+      TestProjectsAPI.test_create_project,method,"(client:AsyncClient, sample_project_data) -> None",40-49,true,10,1,Test creating a new project
+      TestProjectsAPI.test_get_project,method,"(client:AsyncClient) -> None",53-59,true,7,1,Test getting default project
+      TestProjectsAPI.test_list_projects,method,"(client:AsyncClient) -> None",63-69,true,7,1,Test listing projects
+      TestProjectsAPI.test_list_projects_filter_by_year,method,"(client:AsyncClient) -> None",73-80,true,8,2,Test listing projects filtered by fiscal year
+      TestExpensesAPI.test_get_br_categories,method,"(client:AsyncClient) -> None",88-106,true,19,3,Test getting B+R expense categories
+      TestExpensesAPI.test_create_expense,method,"(client:AsyncClient, sample_expense_data) -> None",110-118,true,9,1,Test creating an expense
+      TestExpensesAPI.test_list_expenses,method,"(client:AsyncClient) -> None",122-128,true,7,1,Test listing expenses
+      TestExpensesAPI.test_list_expenses_filter_br_qualified,method,"(client:AsyncClient) -> None",132-139,true,8,2,Test listing expenses filtered by B+R qualification
+      TestDocumentsAPI.test_list_documents,method,"(client:AsyncClient) -> None",147-153,true,7,1,Test listing documents
+      TestDocumentsAPI.test_upload_document_invalid_type,method,"(client:AsyncClient) -> None",157-163,true,7,1,Test uploading document with invalid type
+      TestReportsAPI.test_list_monthly_reports,method,"(client:AsyncClient) -> None",171-177,true,7,1,Test listing monthly reports
+      TestReportsAPI.test_get_annual_br_summary,method,"(client:AsyncClient) -> None",181-191,true,11,1,Test getting annual B+R summary
+      TestReportsAPI.test_get_annual_ip_box_summary,method,"(client:AsyncClient) -> None",195-206,true,12,1,Test getting annual IP Box summary
+      TestClarificationsAPI.test_list_clarifications,method,"(client:AsyncClient) -> None",214-220,true,7,1,Test listing clarifications
+      TestClarificationsAPI.test_get_pending_count,method,"(client:AsyncClient) -> None",224-231,true,8,1,Test getting pending clarifications count
+      TestAuthAPI.test_register_user,method,"(client:AsyncClient) -> None",239-249,true,11,1,Test user registration
+      TestAuthAPI.test_login_invalid_credentials,method,"(client:AsyncClient) -> None",253-260,true,8,1,Test login with invalid credentials
+  tests/integration/test_sql_fixes.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      TestProjectsSQL.test_create_project_sql,method,"(client:AsyncClient) -> None",14-44,true,31,1,Test that project creation uses text() correctly
+      TestProjectsSQL.test_list_projects_with_filters_sql,method,"(client:AsyncClient) -> None",48-56,true,9,1,Test that list projects with filters uses text() correctly
+      TestDocumentsSQL.test_list_documents_sql,method,"(client:AsyncClient) -> None",64-68,true,5,1,Test that list documents uses text() correctly
+      TestDocumentsSQL.test_list_documents_with_filters_sql,method,"(client:AsyncClient) -> None",72-76,true,5,1,Test that list documents with filters uses text() correctly
+      TestExpensesSQL.test_list_expenses_sql,method,"(client:AsyncClient) -> None",84-88,true,5,1,Test that list expenses uses text() correctly
+      TestExpensesSQL.test_expenses_categories_sql,method,"(client:AsyncClient) -> None",92-98,true,7,1,Test that expenses categories endpoint works
+      TestReportsSQL.test_monthly_reports_sql,method,"(client:AsyncClient) -> None",106-109,true,4,1,Test that monthly reports uses text() correctly
+      TestReportsSQL.test_annual_br_summary_sql,method,"(client:AsyncClient) -> None",113-119,true,7,1,Test that annual B+R summary uses text() correctly
+      TestClarificationsSQL.test_list_clarifications_sql,method,"(client:AsyncClient) -> None",127-131,true,5,1,Test that list clarifications uses text() correctly
+      TestClarificationsSQL.test_pending_count_sql,method,"(client:AsyncClient) -> None",135-140,true,6,1,Test that pending count uses text() correctly
+      TestAuthSQL.test_register_user_sql,method,"(client:AsyncClient) -> None",148-158,true,11,1,Test that user registration uses text() correctly
+  tests/integration/test_integrations_api.py:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+      TestIntegrationsAPI.test_list_providers,method,"(client:AsyncClient) -> None",13-31,true,19,3,Test listing available providers
+      TestIntegrationsAPI.test_create_integration,method,"(client:AsyncClient) -> None",35-60,true,26,1,Test creating a new integration
+      TestIntegrationsAPI.test_create_cloud_integration,method,"(client:AsyncClient) -> None",64-84,true,21,1,Test creating cloud storage integration
+      TestIntegrationsAPI.test_list_integrations,method,"(client:AsyncClient) -> None",88-94,true,7,1,Test listing integrations
+      TestIntegrationsAPI.test_list_integrations_by_type,method,"(client:AsyncClient) -> None",98-121,true,24,2,Test listing integrations filtered by type
+      TestIntegrationsAPI.test_get_integration,method,"(client:AsyncClient) -> None",125-141,true,17,1,Test getting single integration
+      TestIntegrationsAPI.test_get_nonexistent_integration,method,"(client:AsyncClient) -> None",145-149,true,5,1,Test getting non-existent integration
+      TestIntegrationsAPI.test_update_integration,method,"(client:AsyncClient) -> None",153-171,true,19,1,Test updating integration
+      TestIntegrationsAPI.test_delete_integration,method,"(client:AsyncClient) -> None",175-192,true,18,1,Test deleting integration
+      TestIntegrationsAPI.test_duplicate_integration_id,method,"(client:AsyncClient) -> None",196-211,true,16,1,Test creating integration with duplicate ID
+      TestIntegrationsAPI.test_invalid_provider,method,"(client:AsyncClient) -> None",215-224,true,10,1,Test creating integration with invalid provider
+      TestIntegrationsAPI.test_get_sync_logs,method,"(client:AsyncClient) -> None",228-242,true,15,1,Test getting sync logs
+      TestIntegrationSyncAPI.test_sync_invoices_invalid_type,method,"(client:AsyncClient) -> None",250-267,true,18,1,Test syncing invoices with non-accounting integration
+      TestIntegrationSyncAPI.test_upload_report_invalid_type,method,"(client:AsyncClient) -> None",271-288,true,18,1,Test uploading report to non-cloud integration
+  src/ocr/extractors.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      validate_nip,function,"(nip:str) -> bool",13-33,false,21,6,Validate Polish NIP (tax identification number).
+      validate_regon,function,"(regon:str) -> bool",36-54,false,19,8,Validate Polish REGON (business registry number).
+      get_extractor,function,"(document_type:str='invoice') -> None",269-271,false,3,1,Factory function to get appropriate extractor.
+      InvoiceExtractor.extract,method,"(text:str, document_type:Optional[str]=None) -> Dict[str, Any]",103-174,true,72,15,Extract structured data from invoice text.
+      InvoiceExtractor._extract_nips,method,"(text:str) -> List[Dict[str, Any]]",176-196,false,21,5,Extract and validate all NIP numbers.
+      InvoiceExtractor._extract_pattern,method,"(field:str, text:str) -> Optional[str]",198-204,false,7,3,Extract first match for a field pattern.
+      InvoiceExtractor._extract_dates,method,"(text:str) -> List[str]",206-219,false,14,5,Extract and parse all dates from text.
+      InvoiceExtractor._parse_date,method,"(date_str:str) -> Optional[date]",221-239,false,19,7,Parse various Polish date formats.
+      InvoiceExtractor._parse_amount,method,"(amount_str:str) -> Optional[float]",241-252,false,12,4,Parse Polish amount format to float.
+      InvoiceExtractor._extract_vendor_name,method,"(text:str) -> Optional[str]",254-266,false,13,5,Extract vendor name using heuristics.
+  src/ocr/engines.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      get_ocr_engine,function,"(engine_name:str='paddleocr', language:str='pol', use_gpu:bool=True) -> BaseOCREngine",277-299,true,23,2,Factory function to get OCR engine instance (async)
+      BaseOCREngine.__init__,method,"(language:str='pol', use_gpu:bool=True) -> None",30-33,false,4,1,creates
+      BaseOCREngine.initialize,method,() -> None,36-38,true,3,1,Initialize the OCR engine
+      BaseOCREngine.process,method,"(image:Any) -> OCRResult",41-43,true,3,1,Process an image and return OCR result
+      BaseOCREngine._ensure_initialized,method,() -> None,45-48,false,4,2,Ensure engine is initialized
+      TesseractEngine.initialize,method,() -> None,63-74,true,12,2,Initialize Tesseract
+      TesseractEngine.process,method,"(image:Any) -> OCRResult",76-125,true,50,5,Process image with Tesseract
+      PaddleOCREngine.__init__,method,"(language:str='pol', use_gpu:bool=True) -> None",141-143,false,3,1,creates
+      PaddleOCREngine.initialize,method,() -> None,145-165,true,21,2,Initialize PaddleOCR
+      PaddleOCREngine.process,method,"(image:Any) -> OCRResult",167-201,true,35,7,Process image with PaddleOCR
+      EasyOCREngine.__init__,method,"(language:str='pol', use_gpu:bool=True) -> None",216-218,false,3,1,creates
+      EasyOCREngine.initialize,method,() -> None,220-236,true,17,2,Initialize EasyOCR
+      EasyOCREngine.process,method,"(image:Any) -> OCRResult",238-274,true,37,4,Process image with EasyOCR
+  src/ocr/__init__.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      get_ocr_engine,function,() -> None,8-10,false,3,1,retrieves ocr engine
+      preprocess_image,function,() -> None,13-15,false,3,1,preprocess image
+      preprocess_pdf,function,() -> None,18-20,false,3,1,preprocess pdf
+  src/ocr/preprocessing.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      preprocess_image,function,"(image_path:Path, dpi:int=300, denoise:bool=True, deskew:bool=True, binarize:bool=False) -> np.ndarray",18-81,true,64,7,Preprocess an image for optimal OCR results.
+      preprocess_pdf,function,"(pdf_path:Path, dpi:int=300, denoise:bool=True, deskew:bool=True) -> List[np.ndarray]",84-147,true,64,7,Convert PDF pages to preprocessed images.
+      _deskew_image,function,"(image:Any) -> np.ndarray",150-212,true,63,9,Detect and correct image skew (rotation).
+      enhance_contrast,function,"(image:Any) -> np.ndarray",215-218,false,4,1,Enhance image contrast using CLAHE
+      remove_shadows,function,"(image:Any) -> np.ndarray",221-233,false,13,1,Remove shadows from document image
+      detect_document_type,function,"(image:Any) -> str",236-255,false,20,3,Attempt to detect document type based on visual features.
+  src/ocr/main.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      lifespan,function,"(app:FastAPI) -> None",86-112,true,27,1,Application lifespan manager
+      health_check,function,() -> None,141-148,true,8,1,Health check endpoint
+      list_engines,function,() -> None,152-162,true,11,1,List available OCR engines
+      upload_and_process,function,"(background_tasks:BackgroundTasks, file:UploadFile=File(...), engine:str=Query(default='paddleocr'), language:str=Query(default='pol'), dpi:int=Query(default=300, ge=150, le=600), extract_data:bool=Query(default=True), document_type:Optional[str]=Query(default=None)) -> None",166-302,true,137,8,Upload and process a document with OCR.
+      get_task_status,function,"(task_id:str) -> None",306-318,true,13,2,Get the status of an OCR task
+      get_task_result,function,"(task_id:str) -> None",322-355,true,34,5,Get the result of a completed OCR task
+      validate_nip_endpoint,function,"(nip:str) -> None",359-366,true,8,3,Validate Polish NIP number
+  src/infrastructure/tasks.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      process_ocr,function,"(document_id:str, file_path:str, document_type:str='invoice') -> None",19-65,false,47,3,Process document with OCR.
+      update_document_ocr_result,function,"(document_id:str, ocr_result:dict) -> None",69-95,false,27,1,Update document with OCR results in database
+      classify_expense,function,"(expense_id:str) -> None",99-141,false,43,3,Classify expense using LLM.
+      generate_daily_reports,function,() -> None,145-165,false,21,1,Generate daily reports for all active projects
+      generate_monthly_report,function,"(project_id:str, year:int, month:int) -> None",169-172,false,4,1,Generate monthly report for a project
+      cleanup_old_files,function,() -> None,176-192,false,17,6,Clean up old uploaded and processed files
+      recalculate_all_projects,function,() -> None,196-244,false,49,1,Recalculate totals for all active projects
+  src/integrations/factory.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      get_accounting_client,function,"(provider:IntegrationProvider, credentials:Dict[str,Any], settings:Dict[str,Any]=None) -> Optional[BaseAccountingClient]",43-65,false,23,2,Create accounting client for specified provider.
+      get_cloud_client,function,"(provider:IntegrationProvider, credentials:Dict[str,Any], settings:Dict[str,Any]=None) -> Optional[BaseCloudStorageClient]",68-90,false,23,2,Create cloud storage client for specified provider.
+      get_client_from_config,function,"(integration_id:str, config_db:ConfigDatabase=None) -> Optional[Union[BaseAccountingClient, BaseCloudStorageClient]]",93-130,false,38,6,Create client from stored configuration.
+      verify_integration,function,"(integration_id:str) -> bool",133-171,true,39,4,Verify integration connection.
+      IntegrationManager.__init__,method,"(config_db:ConfigDatabase=None) -> None",180-182,false,3,2,creates
+      IntegrationManager.sync_invoices_from_accounting,method,"(integration_id:str, date_from=None, date_to=None, project_id:str=None) -> Dict[str, Any]",184-225,true,42,5,Sync invoices from accounting system to B+R database.
+      IntegrationManager.upload_report_to_cloud,method,"(integration_id:str, report_content:bytes, report_name:str, year:int=None, month:int=None) -> Dict[str, Any]",227-279,true,53,6,Upload B+R report to cloud storage.
+      IntegrationManager.get_active_accounting_integrations,method,() -> list,281-286,false,6,1,Get list of active accounting integrations
+      IntegrationManager.get_active_cloud_integrations,method,() -> list,288-293,false,6,1,Get list of active cloud storage integrations
+  src/api/ocr_config.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      get_best_engine_for_field,function,"(field_name:str) -> OCREngine",198-201,false,4,2,Get the best OCR engine for a specific field type
+      get_engines_for_document_type,function,"(doc_type:str) -> List[OCREngine]",204-210,false,7,2,Get ordered list of recommended engines for a document type
+      get_required_fields,function,"(doc_type:str) -> List[str]",213-219,false,7,2,Get list of required fields for a document type
+      evaluate_extraction_completeness,function,"(extracted_data:Dict, doc_type:str) -> float",222-229,false,8,5,Calculate how complete the extraction is (0.0 to 1.0)
+  src/api/document_classifier.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      detect_document_type,function,"(ocr_text:str) -> Tuple[str, float]",152-190,false,39,9,Detect document type from OCR text.
+      extract_document_data,function,"(ocr_text:str, document_type:str) -> Dict[str, Any]",193-213,false,21,6,Extract structured data from OCR text based on document type.
+      classify_and_extract,function,"(ocr_text:str, initial_type:str='auto') -> Dict[str, Any]",216-235,false,20,3,Main function to classify document and extract data.
+  src/api/database.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      init_database,function,() -> None,37-45,true,9,1,Initialize database connection
+      close_database,function,() -> None,48-51,true,4,1,Close database connection
+      get_db,function,"() -> AsyncGenerator[AsyncSession, None]",54-64,true,11,2,Dependency for getting database session
+      get_db_context,function,"() -> AsyncGenerator[AsyncSession, None]",68-78,true,11,2,Context manager for database session
+  src/api/main.py:
+    functions[5]{name,kind,sig,loc,async,lines,cc,does}:
+      lifespan,function,"(app:FastAPI) -> None",31-47,true,17,1,Application lifespan manager
+      global_exception_handler,function,"(request:Request, exc:Exception) -> None",87-95,true,9,1,global exception handler
+      health_check,function,() -> None,112-121,true,10,1,Health check endpoint
+      root,function,() -> None,126-136,true,11,1,Root endpoint with API info
+      metrics,function,() -> None,141-146,true,6,1,Basic metrics endpoint
+  src/api/routers/config.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      list_ocr_engines,function,() -> None,49-65,true,17,2,List all available OCR engines with their capabilities
+      list_document_types,function,() -> None,69-96,true,28,3,List all document types with their configurations
+      get_field_mappings,function,() -> None,100-105,true,6,3,Get field to engine mappings
+      get_ocr_config,function,() -> None,109-121,true,13,2,Get current OCR configuration
+      update_ocr_config,function,"(primary_engine:Optional[str]=None, fallback_engines:Optional[List[str]]=None, strategy:Optional[str]=None, min_confidence:Optional[float]=None, use_field_specific:Optional[bool]=None, max_retries:Optional[int]=None, language:Optional[str]=None, use_gpu:Optional[bool]=None) -> None",125-156,true,32,10,Update OCR configuration
+      get_llm_config,function,() -> None,160-171,true,12,1,Get current LLM configuration
+      update_llm_config,function,"(provider:Optional[str]=None, model:Optional[str]=None, api_base:Optional[str]=None, api_key:Optional[str]=None, temperature:Optional[float]=None, max_tokens:Optional[int]=None, use_for_extraction:Optional[bool]=None, use_for_classification:Optional[bool]=None) -> None",175-209,true,35,10,Update LLM configuration
+      list_available_models,function,() -> None,213-226,true,14,1,List available LLM models
+      list_strategies,function,() -> None,230-254,true,25,1,List available extraction strategies
+      test_ocr_engine,function,"(engine:str, text_sample:str='Faktura VAT nr 123/2025') -> None",258-269,true,12,2,Test OCR engine availability
+      test_llm_connection,function,() -> None,273-294,true,22,4,Test LLM connection
+  src/api/routers/clarifications.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      list_clarifications,function,"(expense_id:Optional[str]=Query(default=None), unanswered_only:bool=Query(default=False), limit:int=Query(default=50, le=100), db:AsyncSession=Depends(get_db)) -> None",43-82,true,40,5,List clarification questions
+      get_pending_count,function,"(db:AsyncSession=Depends(get_db)) -> None",86-92,true,7,2,Get count of unanswered clarifications
+      get_clarification,function,"(clarification_id:str, db:AsyncSession=Depends(get_db)) -> None",96-121,true,26,3,Get clarification details
+      create_clarification,function,"(clarification:ClarificationCreate, db:AsyncSession=Depends(get_db)) -> None",125-153,true,29,1,Create a new clarification question
+      answer_clarification,function,"(clarification_id:str, answer:ClarificationAnswer, db:AsyncSession=Depends(get_db)) -> None",157-206,true,50,4,Answer a clarification question
+      delete_clarification,function,"(clarification_id:str, db:AsyncSession=Depends(get_db)) -> None",210-216,true,7,1,Delete a clarification question
+  src/api/routers/projects.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      create_project,function,"(project:ProjectCreate, db:AsyncSession=Depends(get_db)) -> None",81-105,true,25,1,Create a new B+R project
+      get_project,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",109-138,true,30,5,Get project details
+      list_projects,function,"(fiscal_year:Optional[int]=Query(default=None), status:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",142-185,true,44,7,List all projects
+      update_project,function,"(project_id:str, project:ProjectUpdate, db:AsyncSession=Depends(get_db)) -> None",189-225,true,37,7,Update project details
+      get_project_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",229-295,true,67,16,Get detailed project summary with B+R statistics
+      recalculate_project_totals,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",299-335,true,37,4,Recalculate project expense totals
+  src/api/routers/auth.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      verify_password,function,"(plain_password:str, hashed_password:str) -> bool",53-54,false,2,1,validates password
+      get_password_hash,function,"(password:str) -> str",57-58,false,2,1,retrieves password hash
+      create_access_token,function,"(data:dict, expires_delta:Optional[timedelta]=None) -> str",61-65,false,5,2,creates access token
+      get_current_user,function,"(token:str=Depends(oauth2_scheme), db:AsyncSession=Depends(get_db)) -> dict",68-103,true,36,5,retrieves current user
+      login_for_access_token,function,"(form_data:OAuth2PasswordRequestForm=Depends(), db:AsyncSession=Depends(get_db)) -> None",107-132,true,26,4,OAuth2 compatible token login
+      register_user,function,"(user:UserCreate, db:AsyncSession=Depends(get_db)) -> None",136-176,true,41,2,Register a new user
+      get_current_user_info,function,"(current_user:dict=Depends(get_current_user), db:AsyncSession=Depends(get_db)) -> None",180-198,true,19,1,Get current user info
+  src/api/routers/integrations.py:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+      get_db,function,() -> ConfigDatabase,105-106,false,2,1,retrieves db
+      get_manager,function,"(db:ConfigDatabase=Depends(get_db)) -> IntegrationManager",109-110,false,2,1,retrieves manager
+      list_providers,function,() -> None,118-133,true,16,1,List available integration providers
+      create_integration,function,"(integration:IntegrationCreate, db:ConfigDatabase=Depends(get_db)) -> None",137-175,true,39,3,Create a new integration
+      list_integrations,function,"(integration_type:Optional[str]=Query(default=None), active_only:bool=Query(default=True), db:ConfigDatabase=Depends(get_db)) -> None",179-203,true,25,3,List all integrations
+      get_integration,function,"(integration_id:str, db:ConfigDatabase=Depends(get_db)) -> None",207-226,true,20,2,Get integration details
+      update_integration,function,"(integration_id:str, update:IntegrationUpdate, db:ConfigDatabase=Depends(get_db)) -> None",230-251,true,22,4,Update integration configuration
+      delete_integration,function,"(integration_id:str, db:ConfigDatabase=Depends(get_db)) -> None",255-263,true,9,2,Delete integration
+      verify_integration_connection,function,"(integration_id:str, background_tasks:BackgroundTasks, db:ConfigDatabase=Depends(get_db)) -> None",267-285,true,19,3,Verify integration connection
+      sync_invoices,function,"(integration_id:str, sync_request:SyncRequest, background_tasks:BackgroundTasks, manager:IntegrationManager=Depends(get_manager)) -> None",293-317,true,25,3,Sync invoices from accounting system to B+R database
+      upload_report_to_cloud,function,"(integration_id:str, upload_request:UploadReportRequest, manager:IntegrationManager=Depends(get_manager)) -> None",321-353,true,33,5,Upload generated report to cloud storage
+      get_sync_logs,function,"(integration_id:str, limit:int=Query(default=50, le=100), db:ConfigDatabase=Depends(get_db)) -> None",361-382,true,22,2,Get sync logs for integration
+      sync_all_invoices,function,"(sync_request:SyncRequest, background_tasks:BackgroundTasks, manager:IntegrationManager=Depends(get_manager)) -> None",390-411,true,22,2,Sync invoices from all active accounting integrations
+      upload_monthly_reports,function,"(year:int=Query(...), month:int=Query(..., ge=1, le=12), manager:IntegrationManager=Depends(get_manager)) -> None",415-444,true,30,3,Upload monthly reports to all active cloud storage integrations
+  src/api/routers/logs.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      _escape_sse,function,"(text:str) -> str",18-19,false,2,1,escape sse
+      _try_get_docker_client,function,() -> None,22-27,false,6,2,try get docker client
+      _docker_httpx_client,function,() -> httpx.AsyncClient,30-32,false,3,1,docker httpx client
+      _looks_multiplexed,function,"(buf:bytes) -> bool",35-36,false,2,3,looks multiplexed
+      stream_docker_logs,function,"(container:str, lines:int=100) -> None",39-152,true,114,29,Stream Docker container logs via SSE
+      stream_all_logs,function,"(services:list, lines:int=50) -> None",155-184,true,30,6,Stream logs from multiple Docker containers
+      stream_logs,function,"(service:Optional[str]=Query(default=None, description='Service name (api, ocr, llm, web, postgres, redis)'), lines:int=Query(default=100, ge=10, le=1000, description='Number of initial lines')) -> None",188-234,true,47,3,Stream real-time logs via Server-Sent Events (SSE).
+      get_logs_snapshot,function,"(service:str=Query(..., description='Service name'), lines:int=Query(default=100, ge=10, le=1000)) -> None",238-311,true,74,14,Get a snapshot of recent logs (non-streaming)
+      list_services,function,() -> None,315-328,true,14,1,List available services for log streaming
+  src/api/routers/reports.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      generate_monthly_report,function,"(request:ReportGenerateRequest, db:AsyncSession=Depends(get_db)) -> None",81-127,true,47,5,Generate or regenerate monthly B+R report
+      calculate_monthly_report,function,"(db:AsyncSession, project_id:str, year:int, month:int) -> dict",130-172,true,43,7,processes monthly report
+      get_monthly_report,function,"(report_id:str, db:AsyncSession=Depends(get_db)) -> None",176-197,true,22,11,retrieves monthly report
+      list_monthly_reports,function,"(project_id:Optional[str]=Query(default=None), fiscal_year:Optional[int]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",201-229,true,29,13,list monthly reports
+      get_annual_br_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",233-287,true,55,9,retrieves annual br summary
+      get_annual_ip_box_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",291-326,true,36,6,retrieves annual ip box summary
+  src/api/routers/documents.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      upload_document,function,"(background_tasks:BackgroundTasks, file:UploadFile=File(...), project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001'), document_type:str=Query(default='invoice'), db:AsyncSession=Depends(get_db)) -> None",53-120,true,68,2,Upload a document for OCR processing.
+      process_document_ocr,function,"(doc_id:str, file_path:str, document_type:str) -> None",123-219,true,97,3,Background task to process document with OCR service
+      get_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",223-247,true,25,2,Get document details
+      list_documents,function,"(project_id:Optional[str]=Query(default=None), status:Optional[str]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",251-293,true,43,4,List documents with optional filtering
+      reprocess_document,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",297-321,true,25,2,Reprocess document with OCR
+      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",325-352,true,28,4,Delete a document
+      update_document,function,"(document_id:str, db:AsyncSession=Depends(get_db), document_type:Optional[str]=None, ocr_status:Optional[str]=None, extracted_data:Optional[dict]=None) -> None",356-389,true,34,5,Update document fields
+      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",407-434,true,28,2,Get full document details including OCR text
+  src/api/routers/expenses.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      get_br_categories,function,() -> None,168-170,true,3,1,Get list of B+R expense categories according to art.
+      create_expense,function,"(expense:ExpenseCreate, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",174-213,true,40,1,Create a new expense record
+      get_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",217-264,true,48,10,Get expense details
+      list_expenses,function,"(project_id:Optional[str]=Query(default=None), br_qualified:Optional[bool]=Query(default=None), ip_qualified:Optional[bool]=Query(default=None), status:Optional[str]=Query(default=None), year:Optional[int]=Query(default=None), month:Optional[int]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0)) -> None",268-353,true,86,16,List expenses with filtering
+      classify_expense_manually,function,"(expense_id:str, classification:ExpenseClassifyRequest, db:AsyncSession=Depends(get_db)) -> None",357-405,true,49,9,Manually classify expense for B+R or IP Box
+      trigger_auto_classification,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",409-425,true,17,2,Trigger automatic LLM classification
+      classify_expense_with_llm,function,"(expense_id:str) -> None",428-514,true,87,4,Background task to classify expense using LLM
+      get_br_classifier_system_prompt,function,() -> str,517-553,false,37,1,System prompt for B+R expense classifier
+      build_classification_prompt,function,(expense_row) -> str,556-576,false,21,8,Build prompt for expense classification
+      parse_llm_classification,function,"(response:str) -> dict",579-597,false,19,4,Parse LLM response to classification dict
+  src/integrations/accounting/fakturownia.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      FakturowniaClient.provider_name,method,() -> str,29-30,false,2,1,provider name
+      FakturowniaClient.base_url,method,() -> str,33-35,false,3,1,base url
+      FakturowniaClient._get_headers,method,"() -> Dict[str, str]",37-41,false,5,1,retrieves headers
+      FakturowniaClient._get_params,method,"() -> Dict[str, Any]",43-47,false,5,1,Add API token to params
+      FakturowniaClient.verify_connection,method,() -> bool,49-62,true,14,2,Verify Fakturownia connection
+      FakturowniaClient.get_invoices,method,"(invoice_type:InvoiceType=None, date_from:date=None, date_to:date=None, status:InvoiceStatus=None, page:int=1, per_page:int=50) -> List[Invoice]",64-112,true,49,8,Fetch invoices from Fakturownia
+      FakturowniaClient.get_invoice,method,"(invoice_id:str) -> Optional[Invoice]",114-132,true,19,3,Get single invoice
+      FakturowniaClient.get_invoice_pdf,method,"(invoice_id:str) -> Optional[bytes]",134-150,true,17,3,Download invoice PDF
+      FakturowniaClient.get_expense_invoices,method,"(date_from:date=None, date_to:date=None, page:int=1, per_page:int=50) -> List[Invoice]",152-192,true,41,6,Get expense documents from Fakturownia
+      FakturowniaClient._parse_invoice,method,"(data:Dict) -> Invoice",194-239,false,46,6,Parse Fakturownia invoice response
+      FakturowniaClient._parse_expense,method,"(data:Dict) -> Invoice",241-257,false,17,1,Parse Fakturownia expense response
+      FakturowniaClient._map_status,method,"(status:str) -> InvoiceStatus",259-268,false,10,1,Map Fakturownia status
+      FakturowniaClient._parse_date,method,"(date_str:str) -> Optional[date]",270-278,false,9,3,Parse date string
+  src/integrations/accounting/base.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      InvoiceItem.__post_init__,method,() -> None,51-54,false,4,1,creates init
+      Invoice.__post_init__,method,() -> None,100-102,false,3,2,creates init
+      BaseAccountingClient.__init__,method,"(credentials:Dict[str,Any], settings:Dict[str,Any]=None) -> None",134-144,false,11,2,Initialize accounting client.
+      BaseAccountingClient.provider_name,method,() -> str,148-150,false,3,1,Provider name identifier
+      BaseAccountingClient.verify_connection,method,() -> bool,153-158,true,6,1,Verify that credentials work and connection is valid.
+      BaseAccountingClient.get_invoices,method,"(invoice_type:InvoiceType=None, date_from:date=None, date_to:date=None, status:InvoiceStatus=None, page:int=1, per_page:int=50) -> List[Invoice]",161-184,true,24,1,Fetch invoices from accounting system.
+      BaseAccountingClient.get_invoice,method,"(invoice_id:str) -> Optional[Invoice]",187-197,true,11,1,Get single invoice by ID.
+      BaseAccountingClient.get_invoice_pdf,method,"(invoice_id:str) -> Optional[bytes]",200-210,true,11,1,Download invoice PDF.
+      BaseAccountingClient.get_expense_invoices,method,"(date_from:date=None, date_to:date=None, page:int=1, per_page:int=50) -> List[Invoice]",212-226,true,15,1,Get purchase/expense invoices (for B+R tracking)
+      BaseAccountingClient.get_documents,method,"(date_from:date=None, date_to:date=None, document_type:str=None) -> List[AccountingDocument]",228-256,true,29,4,"Get all accounting documents (invoices, receipts, etc.)"
+      BaseAccountingClient.sync_invoices_to_br_system,method,"(date_from:date, date_to:date, project_id:str=None) -> Dict[str, Any]",258-339,true,82,6,Sync invoices from accounting system to B+R system.
+  src/integrations/accounting/wfirma_infakt.py:
+    functions[17]{name,kind,sig,loc,async,lines,cc,does}:
+      WFirmaClient.provider_name,method,() -> str,31-32,false,2,1,provider name
+      WFirmaClient._get_headers,method,"() -> Dict[str, str]",34-40,false,7,1,retrieves headers
+      WFirmaClient.verify_connection,method,() -> bool,42-54,true,13,2,Verify wFirma connection
+      WFirmaClient.get_invoices,method,"(invoice_type:InvoiceType=None, date_from:date=None, date_to:date=None, status:InvoiceStatus=None, page:int=1, per_page:int=50) -> List[Invoice]",56-116,true,61,9,Fetch invoices from wFirma
+      WFirmaClient.get_invoice,method,"(invoice_id:str) -> Optional[Invoice]",118-135,true,18,3,Get single invoice
+      WFirmaClient.get_invoice_pdf,method,"(invoice_id:str) -> Optional[bytes]",137-154,true,18,3,Download invoice PDF
+      WFirmaClient._parse_invoice,method,"(data:Dict, invoice_type:InvoiceType) -> Invoice",156-188,false,33,2,Parse wFirma response
+      WFirmaClient._parse_date,method,"(date_str:str) -> Optional[date]",190-197,false,8,3,parses date
+      InFaktClient.provider_name,method,() -> str,211-212,false,2,1,provider name
+      InFaktClient._get_headers,method,"() -> Dict[str, str]",214-218,false,5,1,retrieves headers
+      InFaktClient.verify_connection,method,() -> bool,220-232,true,13,2,Verify InFakt connection
+      InFaktClient.get_invoices,method,"(invoice_type:InvoiceType=None, date_from:date=None, date_to:date=None, status:InvoiceStatus=None, page:int=1, per_page:int=50) -> List[Invoice]",234-275,true,42,6,Fetch invoices from InFakt
+      InFaktClient.get_invoice,method,"(invoice_id:str) -> Optional[Invoice]",277-294,true,18,3,Get single invoice
+      InFaktClient.get_invoice_pdf,method,"(invoice_id:str) -> Optional[bytes]",296-312,true,17,3,Download invoice PDF
+      InFaktClient._parse_invoice,method,"(data:Dict) -> Invoice",314-350,false,37,2,Parse InFakt response
+      InFaktClient._map_status,method,"(status:str) -> InvoiceStatus",352-359,false,8,1,converts status
+      InFaktClient._parse_date,method,"(date_str:str) -> Optional[date]",361-368,false,8,3,parses date
+  src/integrations/accounting/ifirma.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      IFirmaClient.provider_name,method,() -> str,38-39,false,2,1,provider name
+      IFirmaClient._get_auth_header,method,"(key_type:str='faktura') -> str",41-60,false,20,2,Generate HMAC authentication header for iFirma API.
+      IFirmaClient.verify_connection,method,() -> bool,62-77,true,16,2,Verify iFirma connection
+      IFirmaClient.get_invoices,method,"(invoice_type:InvoiceType=None, date_from:date=None, date_to:date=None, status:InvoiceStatus=None, page:int=1, per_page:int=50) -> List[Invoice]",79-127,true,49,8,Fetch invoices from iFirma
+      IFirmaClient.get_invoice,method,"(invoice_id:str) -> Optional[Invoice]",129-149,true,21,3,Get single invoice
+      IFirmaClient.get_invoice_pdf,method,"(invoice_id:str) -> Optional[bytes]",151-169,true,19,3,Download invoice PDF
+      IFirmaClient._parse_invoice,method,"(data:Dict, invoice_type:InvoiceType) -> Invoice",171-205,false,35,2,Parse iFirma response to Invoice model
+      IFirmaClient._map_status,method,"(status:str) -> InvoiceStatus",207-216,false,10,1,Map iFirma status to InvoiceStatus
+      IFirmaClient._parse_date,method,"(date_str:str) -> Optional[date]",218-226,false,9,3,Parse date string
+  src/integrations/config/database.py:
+    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
+      get_config_db,function,() -> ConfigDatabase,459-464,false,6,2,Get or create config database instance
+      IntegrationConfig.__repr__,method,() -> None,90-91,false,2,1,repr
+      ConfigDatabase.__init__,method,"(db_type:DatabaseType=None, db_url:str=None, encryption_key:str=None) -> None",137-189,false,53,8,Initialize config database.
+      ConfigDatabase.get_session,method,() -> Session,192-202,false,11,2,Get database session context manager
+      ConfigDatabase.encrypt,method,"(data:str) -> str",204-206,false,3,1,Encrypt sensitive data
+      ConfigDatabase.decrypt,method,"(encrypted_data:str) -> str",208-210,false,3,1,Decrypt sensitive data
+      ConfigDatabase.save_integration,method,"(integration_id:str, provider:IntegrationProvider, integration_type:IntegrationType, credentials:Dict[str,Any]=None, settings:Dict[str,Any]=None, base_url:str=None, api_version:str=None) -> IntegrationConfig",216-254,false,39,6,Save or update integration configuration
+      ConfigDatabase.get_integration,method,"(integration_id:str) -> Optional[Dict[str, Any]]",256-286,false,31,5,Get integration configuration with decrypted credentials
+      ConfigDatabase.list_integrations,method,"(integration_type:IntegrationType=None, provider:IntegrationProvider=None, active_only:bool=True) -> List[Dict[str, Any]]",288-320,false,33,5,List integrations with optional filtering
+      ConfigDatabase.delete_integration,method,"(integration_id:str) -> bool",322-330,false,9,2,Delete integration configuration
+      ConfigDatabase.update_sync_status,method,"(integration_id:str, is_verified:bool=None, last_error:str=None) -> None",332-346,false,15,4,Update integration sync status
+      ConfigDatabase.save_oauth_token,method,"(token_id:str, integration_id:str, access_token:str, refresh_token:str=None, expires_at:datetime=None, scope:str=None) -> None",352-374,false,23,3,Save OAuth token
+      ConfigDatabase.get_oauth_token,method,"(token_id:str) -> Optional[Dict[str, Any]]",376-392,false,17,3,Get OAuth token with decrypted values
+      ConfigDatabase.log_sync,method,"(integration_id:str, sync_type:str, status:str, items_processed:int=0, items_failed:int=0, details:Dict=None, error_message:str=None) -> int",398-422,false,25,3,Log synchronization activity
+      ConfigDatabase.get_sync_logs,method,"(integration_id:str=None, limit:int=50) -> List[Dict]",424-452,false,29,3,Get sync logs
+  src/integrations/cloud/dropbox_onedrive.py:
+    functions[26]{name,kind,sig,loc,async,lines,cc,does}:
+      DropboxClient.provider_name,method,() -> str,31-32,false,2,1,provider name
+      DropboxClient._get_headers,method,"() -> Dict[str, str]",34-38,false,5,1,retrieves headers
+      DropboxClient.verify_connection,method,() -> bool,40-52,true,13,2,Verify Dropbox connection
+      DropboxClient.list_files,method,"(folder_path:str='/', recursive:bool=False) -> List[CloudFile]",54-97,true,44,6,List files in Dropbox folder
+      DropboxClient.upload_file,method,"(local_path:str, remote_path:str, overwrite:bool=True) -> UploadResult",99-118,true,20,2,Upload file to Dropbox
+      DropboxClient.upload_bytes,method,"(content:bytes, remote_path:str, filename:str, mime_type:str='application/octet-stream', overwrite:bool=True) -> UploadResult",120-170,true,51,5,Upload bytes to Dropbox
+      DropboxClient.download_file,method,"(remote_path:str, local_path:str) -> bool",172-179,true,8,2,Download file from Dropbox
+      DropboxClient.download_bytes,method,"(remote_path:str) -> Optional[bytes]",181-202,true,22,3,Download file content as bytes
+      DropboxClient.delete_file,method,"(remote_path:str) -> bool",204-216,true,13,2,Delete file from Dropbox
+      DropboxClient.create_folder,method,"(folder_path:str) -> bool",218-230,true,13,2,Create folder in Dropbox
+      DropboxClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",232-259,true,28,4,Get file metadata
+      DropboxClient._parse_datetime,method,"(dt_str:str) -> Optional[datetime]",261-267,false,7,3,parses datetime
+      OneDriveClient.provider_name,method,() -> str,287-288,false,2,1,provider name
+      OneDriveClient.drive_path,method,() -> str,291-295,false,5,2,drive path
+      OneDriveClient._get_headers,method,"() -> Dict[str, str]",297-301,false,5,1,retrieves headers
+      OneDriveClient.verify_connection,method,() -> bool,303-315,true,13,2,Verify OneDrive connection
+      OneDriveClient.list_files,method,"(folder_path:str='/', recursive:bool=False) -> List[CloudFile]",317-360,true,44,6,List files in OneDrive folder
+      OneDriveClient.upload_file,method,"(local_path:str, remote_path:str, overwrite:bool=True) -> UploadResult",362-381,true,20,2,Upload file to OneDrive
+      OneDriveClient.upload_bytes,method,"(content:bytes, remote_path:str, filename:str, mime_type:str='application/octet-stream', overwrite:bool=True) -> UploadResult",383-403,true,21,3,Upload bytes to OneDrive
+      OneDriveClient._simple_upload,method,"(path:str, content:bytes, overwrite:bool) -> UploadResult",405-444,true,40,4,Simple upload for files <= 4MB
+      OneDriveClient.download_file,method,"(remote_path:str, local_path:str) -> bool",446-453,true,8,2,Download file from OneDrive
+      OneDriveClient.download_bytes,method,"(remote_path:str) -> Optional[bytes]",455-474,true,20,3,Download file content as bytes
+      OneDriveClient.delete_file,method,"(remote_path:str) -> bool",476-489,true,14,2,Delete file from OneDrive
+      OneDriveClient.create_folder,method,"(folder_path:str) -> bool",491-522,true,32,5,Create folder in OneDrive
+      OneDriveClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",524-554,true,31,3,Get file metadata
+      OneDriveClient._parse_datetime,method,"(dt_str:str) -> Optional[datetime]",556-562,false,7,3,parses datetime
+  src/integrations/cloud/base.py:
+    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
+      BaseCloudStorageClient.__init__,method,"(credentials:Dict[str,Any], settings:Dict[str,Any]=None) -> None",54-64,false,11,2,Initialize cloud storage client.
+      BaseCloudStorageClient.provider_name,method,() -> str,68-70,false,3,1,Provider name identifier
+      BaseCloudStorageClient.verify_connection,method,() -> bool,73-75,true,3,1,Verify connection is working
+      BaseCloudStorageClient.list_files,method,"(folder_path:str='/', recursive:bool=False) -> List[CloudFile]",78-84,true,7,1,List files in a folder
+      BaseCloudStorageClient.upload_file,method,"(local_path:str, remote_path:str, overwrite:bool=True) -> UploadResult",87-94,true,8,1,Upload a file to cloud storage
+      BaseCloudStorageClient.upload_bytes,method,"(content:bytes, remote_path:str, filename:str, mime_type:str='application/octet-stream', overwrite:bool=True) -> UploadResult",97-106,true,10,1,Upload bytes directly to cloud storage
+      BaseCloudStorageClient.download_file,method,"(remote_path:str, local_path:str) -> bool",109-115,true,7,1,Download a file from cloud storage
+      BaseCloudStorageClient.download_bytes,method,"(remote_path:str) -> Optional[bytes]",118-123,true,6,1,Download file content as bytes
+      BaseCloudStorageClient.delete_file,method,"(remote_path:str) -> bool",126-128,true,3,1,Delete a file
+      BaseCloudStorageClient.create_folder,method,"(folder_path:str) -> bool",131-133,true,3,1,Create a folder
+      BaseCloudStorageClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",136-138,true,3,1,Get file metadata
+      BaseCloudStorageClient.file_exists,method,"(remote_path:str) -> bool",140-143,true,4,1,Check if file exists
+      BaseCloudStorageClient.ensure_folder_exists,method,"(folder_path:str) -> bool",145-149,true,5,2,Create folder if it doesn't exist
+      BaseCloudStorageClient.upload_report,method,"(report_content:bytes, report_name:str, report_folder:str='/BR-Reports', year:int=None, month:int=None) -> UploadResult",151-218,true,68,7,Upload B+R report to cloud storage with organized structure.
+      BaseCloudStorageClient.sync_invoices_folder,method,"(local_folder:str, remote_folder:str='/BR-Invoices') -> Dict[str, Any]",220-277,true,58,7,Sync local invoices folder to cloud.
+  src/integrations/cloud/google_s3.py:
+    functions[29]{name,kind,sig,loc,async,lines,cc,does}:
+      GoogleDriveClient.provider_name,method,() -> str,36-37,false,2,1,provider name
+      GoogleDriveClient._get_headers,method,"() -> Dict[str, str]",39-43,false,5,1,retrieves headers
+      GoogleDriveClient._refresh_token_if_needed,method,() -> None,45-49,true,5,1,Refresh access token if expired
+      GoogleDriveClient.verify_connection,method,() -> bool,51-64,true,14,2,Verify Google Drive connection
+      GoogleDriveClient.list_files,method,"(folder_path:str='/', recursive:bool=False) -> List[CloudFile]",66-115,true,50,7,List files in Google Drive folder
+      GoogleDriveClient.upload_file,method,"(local_path:str, remote_path:str, overwrite:bool=True) -> UploadResult",117-140,true,24,3,Upload file to Google Drive
+      GoogleDriveClient.upload_bytes,method,"(content:bytes, remote_path:str, filename:str, mime_type:str='application/octet-stream', overwrite:bool=True) -> UploadResult",142-207,true,66,5,Upload bytes to Google Drive
+      GoogleDriveClient.download_file,method,"(remote_path:str, local_path:str) -> bool",209-215,true,7,2,download file
+      GoogleDriveClient.download_bytes,method,"(remote_path:str) -> Optional[bytes]",217-243,true,27,7,Download file by ID or path
+      GoogleDriveClient.delete_file,method,"(remote_path:str) -> bool",245-259,true,15,3,deletes file
+      GoogleDriveClient.create_folder,method,"(folder_path:str) -> bool",261-266,true,6,2,creates folder
+      GoogleDriveClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",268-298,true,31,4,retrieves file info
+      GoogleDriveClient._resolve_path_to_id,method,"(path:str) -> Optional[str]",300-315,true,16,6,Resolve path like /folder/subfolder/file to Google Drive ID
+      GoogleDriveClient._find_file_by_name,method,"(name:str, parent_id:str) -> Optional[str]",317-337,true,21,4,Find file ID by name in parent folder
+      GoogleDriveClient._ensure_folder_path,method,"(path:str) -> str",339-353,true,15,5,"Ensure folder path exists, create if needed, return final folder ID"
+      GoogleDriveClient._create_folder,method,"(name:str, parent_id:str) -> str",355-374,true,20,2,Create a folder and return its ID
+      GoogleDriveClient._update_file,method,"(file_id:str, content:bytes, mime_type:str) -> UploadResult",376-402,true,27,3,Update existing file content
+      GoogleDriveClient._parse_datetime,method,"(dt_str:str) -> Optional[datetime]",404-410,false,7,3,parses datetime
+      S3Client.provider_name,method,() -> str,428-429,false,2,2,provider name
+      S3Client._get_client,method,() -> None,431-444,false,14,2,Get boto3 S3 client
+      S3Client.verify_connection,method,() -> bool,446-454,true,9,2,Verify S3 connection
+      S3Client.list_files,method,"(folder_path:str='/', recursive:bool=False) -> List[CloudFile]",456-501,true,46,6,List files in S3 bucket
+      S3Client.upload_file,method,"(local_path:str, remote_path:str, overwrite:bool=True) -> UploadResult",503-528,true,26,3,Upload file to S3
+      S3Client.upload_bytes,method,"(content:bytes, remote_path:str, filename:str, mime_type:str='application/octet-stream', overwrite:bool=True) -> UploadResult",530-562,true,33,2,Upload bytes to S3
+      S3Client.download_file,method,"(remote_path:str, local_path:str) -> bool",564-573,true,10,2,download file
+      S3Client.download_bytes,method,"(remote_path:str) -> Optional[bytes]",575-587,true,13,2,download bytes
+      S3Client.delete_file,method,"(remote_path:str) -> bool",589-598,true,10,2,deletes file
+      S3Client.create_folder,method,"(folder_path:str) -> bool",600-610,true,11,2,"S3 doesn't have real folders, but we can create a placeholder"
+      S3Client.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",612-630,true,19,2,retrieves file info
+  src/integrations/cloud/nextcloud.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      NextcloudClient.provider_name,method,() -> str,31-32,false,2,1,provider name
+      NextcloudClient.webdav_url,method,() -> str,35-38,false,4,1,webdav url
+      NextcloudClient._get_auth,method,() -> tuple,40-44,false,5,1,retrieves auth
+      NextcloudClient.verify_connection,method,() -> bool,46-60,true,15,2,Verify Nextcloud connection
+      NextcloudClient.list_files,method,"(folder_path:str='/', recursive:bool=False) -> List[CloudFile]",62-103,true,42,4,List files using PROPFIND
+      NextcloudClient.upload_file,method,"(local_path:str, remote_path:str, overwrite:bool=True) -> UploadResult",105-125,true,21,2,Upload file to Nextcloud
+      NextcloudClient.upload_bytes,method,"(content:bytes, remote_path:str, filename:str, mime_type:str='application/octet-stream', overwrite:bool=True) -> UploadResult",127-171,true,45,6,Upload bytes to Nextcloud
+      NextcloudClient.download_file,method,"(remote_path:str, local_path:str) -> bool",173-184,true,12,2,Download file from Nextcloud
+      NextcloudClient.download_bytes,method,"(remote_path:str) -> Optional[bytes]",186-207,true,22,3,Download file content as bytes
+      NextcloudClient.delete_file,method,"(remote_path:str) -> bool",209-224,true,16,2,Delete file from Nextcloud
+      NextcloudClient.create_folder,method,"(folder_path:str) -> bool",226-242,true,17,2,Create folder in Nextcloud
+      NextcloudClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",244-278,true,35,4,Get file metadata
+      NextcloudClient._parse_propfind_response,method,"(xml_text:str, base_path:str) -> List[CloudFile]",280-349,false,70,14,Parse WebDAV PROPFIND response
+  web/static/js/app.js:
+    functions[68]{name,kind,sig,loc,async,lines,cc,does}:
+      getPageFromUrl,function,() -> None,11-14,false,4,1,retrieves page from url
+      getUrlParam,function,(key) -> None,16-19,false,4,1,retrieves url param
+      setUrlParam,function,"(key, value) -> None",21-34,false,14,1,updates url param
+      setPageInUrl,function,(page) -> None,36-38,false,3,1,updates page in url
+      navigateTo,function,(page) -> None,40-65,false,26,1,navigate to
+      apiCall,function,(endpoint) -> None,68-80,true,13,1,api call
+      loadDashboard,function,() -> None,83-98,true,16,1,retrieves dashboard
+      setupUploadListeners,function,() -> None,101-113,false,13,1,initializes upload listeners
+      handleFiles,function,(files) -> None,115-115,false,1,1,handles files
+      uploadFile,function,(file) -> None,117-145,true,29,1,upload file
+      pollDocumentStatus,function,"(docId, itemId) -> None",147-162,true,16,1,poll document status
+      loadRecentDocuments,function,() -> None,164-185,true,22,1,retrieves recent documents
+      getDocTypeName,function,(type) -> None,187-190,false,4,1,retrieves doc type name
+      deleteDocument,function,(docId) -> None,192-201,true,10,1,deletes document
+      retryOcr,function,(docId) -> None,203-209,true,7,1,retry ocr
+      showDocumentDetail,function,(docId) -> None,213-281,true,69,1,show document detail
+      getFieldLabel,function,(field) -> None,283-295,false,13,1,retrieves field label
+      toggleEditMode,function,() -> None,297-305,false,9,1,toggle edit mode
+      saveExtractedData,function,(docId) -> None,307-329,true,23,1,caches extracted data
+      createExpenseFromDoc,function,(docId) -> None,331-370,true,40,1,creates expense from doc
+      closeDocumentModal,function,() -> None,372-378,false,7,1,stops document modal
+      approveDocument,function,(docId) -> None,380-387,true,8,1,approve document
+      loadExpenses,function,() -> None,390-409,true,20,1,retrieves expenses
+      showExpenseDetails,function,(id) -> None,411-430,true,20,1,show expense details
+      classifyExpense,function,(id) -> None,432-442,true,11,1,classify expense
+      reclassifyWithLLM,function,(id) -> None,444-447,true,4,1,reclassify with llm
+      loadReports,function,() -> None,450-471,true,22,1,retrieves reports
+      generateMonthlyReport,function,() -> None,473-479,true,7,1,creates monthly report
+      generateAllReports,function,() -> None,481-487,true,7,1,creates all reports
+      loadClarifications,function,() -> None,490-503,true,14,1,retrieves clarifications
+      answerClarification,function,(id) -> None,505-510,true,6,1,answer clarification
+      saveProjectSettings,function,() -> None,515-520,false,6,1,caches project settings
+      formatCurrency,function,(amount) -> None,523-523,false,1,1,formats currency
+      getStatusLabel,function,(s) -> None,524-524,false,1,1,retrieves status label
+      getCategoryName,function,(c) -> None,525-525,false,1,1,retrieves category name
+      showToast,function,(msg) -> None,526-526,false,1,1,show toast
+      loadIntegrations,function,() -> None,637-669,true,33,1,retrieves integrations
+      renderIntegrationCard,function,(integration) -> None,671-696,false,26,1,formats integration card
+      loadSyncLogs,function,() -> None,698-725,true,28,1,retrieves sync logs
+      showAddIntegrationModal,function,() -> None,727-736,false,10,1,show add integration modal
+      closeIntegrationModal,function,() -> None,738-740,false,3,1,stops integration modal
+      updateProviderOptions,function,() -> None,742-755,false,14,1,updates provider options
+      updateCredentialFields,function,() -> None,757-775,false,19,1,updates credential fields
+      saveIntegration,function,(event) -> None,777-812,true,36,1,caches integration
+      verifyIntegration,function,(id) -> None,814-829,true,16,1,validates integration
+      syncInvoices,function,(integrationId) -> None,831-847,true,17,1,sync invoices
+      syncAllInvoices,function,() -> None,849-865,true,17,1,sync all invoices
+      uploadReport,function,(integrationId) -> None,867-891,true,25,1,upload report
+      uploadAllReports,function,() -> None,893-908,true,16,1,upload all reports
+      deleteIntegration,function,(id) -> None,910-920,true,11,1,deletes integration
+      loadAIConfig,function,() -> None,923-960,true,38,1,retrieves ai config
+      loadOCREngines,function,() -> None,962-983,true,22,1,retrieves ocr engines
+      loadDocumentTypes,function,() -> None,985-1003,true,19,1,retrieves document types
+      saveAIConfig,function,() -> None,1005-1032,true,28,1,caches ai config
+      testConnections,function,() -> None,1034-1059,true,26,1,checks connections
+      updateModelList,function,() -> None,1061-1088,false,28,1,updates model list
+      initLogStreams,function,() -> None,1094-1098,false,5,1,creates log streams
+      startLogStreamForPage,function,(service) -> None,1100-1139,false,40,1,starts log stream for page
+      switchLogTab,function,(service) -> None,1141-1155,false,15,1,switch log tab
+      copyLogs,function,(service) -> None,1157-1169,false,13,1,copy logs
+      clearAllLogs,function,() -> None,1171-1176,false,6,1,deletes all logs
+      reconnectAllLogs,function,() -> None,1178-1187,false,10,1,reconnect all logs
+      stopAllLogStreams,function,() -> None,1189-1196,false,8,1,stops all log streams
+      isGlobalLogsOpen,function,() -> None,1199-1202,false,4,1,is global logs open
+      toggleGlobalLogs,function,() -> None,1204-1219,false,16,1,toggle global logs
+      switchGlobalLogTab,function,(service) -> None,1221-1231,false,11,1,switch global log tab
+      clearGlobalLogs,function,() -> None,1233-1238,false,6,1,deletes global logs
+      startLogStreamFor,function,(service) -> None,1241-1279,false,39,1,starts log stream for

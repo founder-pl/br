@@ -208,6 +208,8 @@ async function retryOcr(docId) {
     } catch (e) { showToast('Błąd uruchamiania OCR', 'error'); }
 }
 
+let currentDocData = null;
+
 async function showDocumentDetail(docId, options = {}) {
     const { updateUrl = true } = options;
     try {
@@ -215,7 +217,12 @@ async function showDocumentDetail(docId, options = {}) {
             setUrlParam('doc', docId, true);
         }
         const doc = await apiCall(`/documents/${docId}/detail`);
+        currentDocData = doc;
         const modal = document.getElementById('document-modal');
+        
+        const editableFields = ['invoice_number', 'invoice_date', 'gross_amount', 'net_amount', 'vat_amount', 'vendor_name', 'vendor_nip', 'description'];
+        const extractedData = doc.extracted_data || {};
+        
         document.getElementById('document-modal-content').innerHTML = `
             <div class="doc-detail-header">
                 <h3>📄 ${doc.filename}</h3>
@@ -226,19 +233,34 @@ async function showDocumentDetail(docId, options = {}) {
                 <p><strong>Pewność OCR:</strong> ${doc.ocr_confidence ? (doc.ocr_confidence * 100).toFixed(1) + '%' : '-'}</p>
                 <p><strong>Data dodania:</strong> ${new Date(doc.created_at).toLocaleString('pl-PL')}</p>
             </div>
-            ${doc.extracted_data && Object.keys(doc.extracted_data).length > 0 ? `
-                <div class="doc-detail-section">
-                    <h4>Wyodrębnione dane</h4>
-                    <div class="extracted-data">
-                        ${Object.entries(doc.extracted_data)
-                            .filter(([k]) => !k.startsWith('_'))
-                            .map(([k, v]) => `<div class="data-row"><span class="data-key">${k}:</span> <span class="data-value">${v}</span></div>`).join('')}
+            <div class="doc-detail-section">
+                <h4>Wyodrębnione dane <button class="btn btn-sm" onclick="toggleEditMode()">✏️ Edytuj</button></h4>
+                <div class="extracted-data" id="extracted-data-view">
+                    ${Object.entries(extractedData)
+                        .filter(([k]) => !k.startsWith('_'))
+                        .map(([k, v]) => `<div class="data-row"><span class="data-key">${k}:</span> <span class="data-value">${v}</span></div>`).join('') || '<p class="empty-state">Brak danych</p>'}
+                </div>
+                <div class="extracted-data-edit" id="extracted-data-edit" style="display:none;">
+                    <div class="edit-grid">
+                        ${editableFields.map(field => `
+                            <div class="edit-field">
+                                <label>${getFieldLabel(field)}</label>
+                                <input type="${field.includes('date') ? 'date' : field.includes('amount') ? 'number' : 'text'}" 
+                                       id="edit-${field}" 
+                                       value="${extractedData[field] || ''}"
+                                       ${field.includes('amount') ? 'step="0.01"' : ''}>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="edit-actions">
+                        <button class="btn btn-primary" onclick="saveExtractedData('${docId}')">💾 Zapisz</button>
+                        <button class="btn btn-secondary" onclick="toggleEditMode()">Anuluj</button>
                     </div>
                 </div>
-            ` : ''}
+            </div>
             ${doc.ocr_text ? `
-                <div class="doc-detail-section">
-                    <h4>Tekst OCR</h4>
+                <div class="doc-detail-section collapsible">
+                    <h4 onclick="this.parentElement.classList.toggle('collapsed')">Tekst OCR ▼</h4>
                     <pre class="ocr-text">${doc.ocr_text}</pre>
                 </div>
             ` : ''}
@@ -250,12 +272,101 @@ async function showDocumentDetail(docId, options = {}) {
             ` : ''}
             <div class="doc-detail-actions">
                 <button class="btn btn-primary" onclick="retryOcr('${docId}'); closeDocumentModal();">🔄 Powtórz OCR</button>
-                <button class="btn btn-success" onclick="approveDocument('${docId}')">✅ Zatwierdź</button>
+                <button class="btn btn-success" onclick="createExpenseFromDoc('${docId}')">💰 Utwórz wydatek</button>
                 <button class="btn btn-danger" onclick="deleteDocument('${docId}'); closeDocumentModal();">🗑️ Usuń</button>
             </div>
         `;
         modal.classList.add('active');
     } catch (e) { showToast('Błąd ładowania szczegółów', 'error'); }
+}
+
+function getFieldLabel(field) {
+    const labels = {
+        'invoice_number': 'Nr faktury',
+        'invoice_date': 'Data faktury',
+        'gross_amount': 'Kwota brutto',
+        'net_amount': 'Kwota netto',
+        'vat_amount': 'Kwota VAT',
+        'vendor_name': 'Nazwa sprzedawcy',
+        'vendor_nip': 'NIP sprzedawcy',
+        'description': 'Opis'
+    };
+    return labels[field] || field;
+}
+
+function toggleEditMode() {
+    const view = document.getElementById('extracted-data-view');
+    const edit = document.getElementById('extracted-data-edit');
+    if (view && edit) {
+        const isEditing = edit.style.display !== 'none';
+        view.style.display = isEditing ? 'block' : 'none';
+        edit.style.display = isEditing ? 'none' : 'block';
+    }
+}
+
+async function saveExtractedData(docId) {
+    const fields = ['invoice_number', 'invoice_date', 'gross_amount', 'net_amount', 'vat_amount', 'vendor_name', 'vendor_nip', 'description'];
+    const extractedData = { ...(currentDocData?.extracted_data || {}) };
+    
+    fields.forEach(field => {
+        const input = document.getElementById(`edit-${field}`);
+        if (input && input.value) {
+            extractedData[field] = field.includes('amount') ? parseFloat(input.value) : input.value;
+        }
+    });
+    
+    try {
+        await fetch(`${API_BASE}/documents/${docId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ extracted_data: extractedData })
+        });
+        showToast('Dane zapisane', 'success');
+        showDocumentDetail(docId, { updateUrl: false });
+    } catch (e) {
+        showToast('Błąd zapisywania', 'error');
+    }
+}
+
+async function createExpenseFromDoc(docId) {
+    if (!currentDocData) return;
+    const data = currentDocData.extracted_data || {};
+    
+    const grossAmount = parseFloat(data.gross_amount || data.total_gross || 0);
+    const netAmount = parseFloat(data.net_amount || grossAmount * 0.81); // assume 23% VAT if not specified
+    const vatAmount = parseFloat(data.vat_amount || (grossAmount - netAmount));
+    
+    try {
+        const response = await fetch(`${API_BASE}/expenses`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: PROJECT_ID,
+                document_id: docId,
+                invoice_number: data.invoice_number || null,
+                invoice_date: data.invoice_date || null,
+                vendor_name: data.vendor_name || null,
+                vendor_nip: data.vendor_nip || null,
+                gross_amount: grossAmount,
+                net_amount: netAmount,
+                vat_amount: vatAmount,
+                currency: 'PLN',
+                description: data.description || `Faktura ${data.invoice_number || currentDocData.filename}`,
+                expense_category: 'other'
+            })
+        });
+        
+        if (response.ok) {
+            showToast('Wydatek utworzony', 'success');
+            closeDocumentModal();
+            navigateTo('expenses');
+        } else {
+            const err = await response.json();
+            showToast(`Błąd: ${err.detail || 'Nie udało się utworzyć wydatku'}`, 'error');
+        }
+    } catch (e) {
+        showToast('Błąd tworzenia wydatku', 'error');
+    }
 }
 
 function closeDocumentModal(options = {}) {
