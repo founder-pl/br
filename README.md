@@ -60,8 +60,8 @@ System automatyzacji dokumentacji B+R i IP Box dla Polskich firm
 
 ```bash
 # Klonuj repozytorium
-git clone <repo-url>
-cd br-system
+git clone https://github.com/founder-pl/br
+cd br
 
 # Utwórz plik konfiguracji
 cp .env.example .env
