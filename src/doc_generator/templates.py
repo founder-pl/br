@@ -101,7 +101,7 @@ class TemplateRegistry:
                     description="Podstawowe informacje o projekcie"
                 ),
                 TemplateDataRequirement(
-                    source_name="contractors",
+                    source_name="workers",
                     required_params=["project_id"],
                     description="Zespół projektowy"
                 ),
@@ -136,10 +136,10 @@ class TemplateRegistry:
 
 ## 3. ZESPÓŁ BADAWCZY
 
-| Imię i nazwisko | Rola | Typ umowy | Zaangażowanie B+R |
-|-----------------|------|-----------|-------------------|
-{% for contractor in contractors %}
-| {{contractor.name}} | {{contractor.role}} | {{contractor.contract_type}} | {{contractor.br_percentage}}% |
+| Imię i nazwisko | Rola | Stawka | Godziny B+R |
+|-----------------|------|--------|-------------|
+{% for worker in workers %}
+| {{worker.name}} | {{worker.role}} | {{worker.hourly_rate}} zł/h | {{worker.total_hours}} h |
 {% endfor %}
 
 ## 4. KOSZTY PROJEKTOWE
@@ -524,9 +524,9 @@ Użyj profesjonalnego języka. Wszystkie kwoty w PLN z formatowaniem."""
                     description="Informacje o projekcie"
                 ),
                 TemplateDataRequirement(
-                    source_name="contractors",
+                    source_name="workers",
                     required_params=["project_id"],
-                    description="Dane wykonawców"
+                    description="Dane pracowników"
                 )
             ],
             template_content="""# UMOWA O ŚWIADCZENIE USŁUG BADAWCZO-ROZWOJOWYCH

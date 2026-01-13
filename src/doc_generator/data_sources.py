@@ -217,14 +217,15 @@ class DataSourceRegistry:
         self.register(SQLDataSource(
             name="project_info",
             query_template="""
-                SELECT id, name, code, description, start_date, end_date, 
-                       status, budget, technical_problem, hypothesis
+                SELECT id, name, description, start_date, end_date, 
+                       status, fiscal_year, metadata
                 FROM read_models.projects
-                WHERE id = :project_id OR :project_id IS NULL
+                WHERE id = :project_id
                 ORDER BY created_at DESC
+                LIMIT 1
             """,
             description="Informacje o projektach B+R",
-            params_schema={"project_id": "UUID projektu (opcjonalny)"}
+            params_schema={"project_id": "UUID projektu"}
         ))
         
         self.register(SQLDataSource(
@@ -232,21 +233,17 @@ class DataSourceRegistry:
             query_template="""
                 SELECT 
                     e.id, e.description, e.gross_amount, e.net_amount, e.currency,
-                    e.category, e.br_qualified, e.vendor_name, e.vendor_nip,
+                    e.br_category as category, e.br_qualified, e.vendor_name, e.vendor_nip,
                     e.invoice_number, e.invoice_date, e.justification,
                     d.filename as document_filename, d.id as document_id
                 FROM read_models.expenses e
                 LEFT JOIN read_models.documents d ON e.document_id = d.id
                 WHERE e.project_id = :project_id
-                  AND (:year IS NULL OR EXTRACT(YEAR FROM e.invoice_date) = :year)
-                  AND (:month IS NULL OR EXTRACT(MONTH FROM e.invoice_date) = :month)
                 ORDER BY e.invoice_date ASC
             """,
-            description="Zestawienie wydatków projektu z możliwością filtrowania po roku/miesiącu",
+            description="Zestawienie wydatków projektu",
             params_schema={
-                "project_id": "UUID projektu",
-                "year": "Rok (opcjonalny)",
-                "month": "Miesiąc 1-12 (opcjonalny)"
+                "project_id": "UUID projektu"
             }
         ))
         
@@ -254,42 +251,38 @@ class DataSourceRegistry:
             name="expenses_by_category",
             query_template="""
                 SELECT 
-                    category,
+                    br_category as category,
                     COUNT(*) as count,
                     SUM(gross_amount) as total_gross,
                     SUM(net_amount) as total_net,
                     SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END) as qualified_amount
                 FROM read_models.expenses
                 WHERE project_id = :project_id
-                  AND (:year IS NULL OR EXTRACT(YEAR FROM invoice_date) = :year)
-                GROUP BY category
+                GROUP BY br_category
                 ORDER BY total_gross DESC
             """,
             description="Wydatki pogrupowane według kategorii",
-            params_schema={"project_id": "UUID projektu", "year": "Rok (opcjonalny)"}
+            params_schema={"project_id": "UUID projektu"}
         ))
         
         self.register(SQLDataSource(
             name="timesheet_summary",
             query_template="""
                 SELECT 
-                    worker_name, 
-                    EXTRACT(YEAR FROM work_date) as year,
-                    EXTRACT(MONTH FROM work_date) as month,
-                    SUM(hours) as total_hours,
-                    STRING_AGG(DISTINCT task_description, '; ') as tasks
-                FROM read_models.timesheets
-                WHERE project_id = :project_id
-                  AND (:year IS NULL OR EXTRACT(YEAR FROM work_date) = :year)
-                  AND (:month IS NULL OR EXTRACT(MONTH FROM work_date) = :month)
-                GROUP BY worker_name, EXTRACT(YEAR FROM work_date), EXTRACT(MONTH FROM work_date)
+                    w.name as worker_name, 
+                    EXTRACT(YEAR FROM t.work_date) as year,
+                    EXTRACT(MONTH FROM t.work_date) as month,
+                    SUM(t.hours) as total_hours,
+                    STRING_AGG(DISTINCT t.description, '; ') as tasks
+                FROM read_models.timesheet_entries t
+                JOIN read_models.workers w ON t.worker_id = w.id
+                WHERE t.project_id = :project_id
+                GROUP BY w.name, EXTRACT(YEAR FROM t.work_date), EXTRACT(MONTH FROM t.work_date)
                 ORDER BY year, month, worker_name
             """,
             description="Zestawienie godzin pracy (miesięczne) dla projektu",
             params_schema={
-                "project_id": "UUID projektu",
-                "year": "Rok (opcjonalny)",
-                "month": "Miesiąc (opcjonalny)"
+                "project_id": "UUID projektu"
             }
         ))
         
@@ -297,47 +290,49 @@ class DataSourceRegistry:
             name="timesheet_monthly_breakdown",
             query_template="""
                 SELECT 
-                    EXTRACT(YEAR FROM work_date) as year,
-                    EXTRACT(MONTH FROM work_date) as month,
-                    worker_name,
-                    SUM(hours) as hours,
-                    COUNT(DISTINCT work_date) as days_worked
-                FROM read_models.timesheets
-                WHERE project_id = :project_id
-                  AND (:year IS NULL OR EXTRACT(YEAR FROM work_date) = :year)
-                GROUP BY EXTRACT(YEAR FROM work_date), EXTRACT(MONTH FROM work_date), worker_name
+                    EXTRACT(YEAR FROM t.work_date) as year,
+                    EXTRACT(MONTH FROM t.work_date) as month,
+                    w.name as worker_name,
+                    SUM(t.hours) as hours,
+                    COUNT(DISTINCT t.work_date) as days_worked
+                FROM read_models.timesheet_entries t
+                JOIN read_models.workers w ON t.worker_id = w.id
+                WHERE t.project_id = :project_id
+                GROUP BY EXTRACT(YEAR FROM t.work_date), EXTRACT(MONTH FROM t.work_date), w.name
                 ORDER BY year, month, worker_name
             """,
             description="Rozbicie godzin pracy na miesiące i pracowników",
-            params_schema={"project_id": "UUID projektu", "year": "Rok (opcjonalny)"}
+            params_schema={"project_id": "UUID projektu"}
         ))
         
         self.register(SQLDataSource(
             name="revenues",
             query_template="""
                 SELECT 
-                    id, description, amount, currency, source,
-                    ip_box_qualified, ip_type, revenue_date,
-                    document_id
+                    id, description, gross_amount, currency,
+                    ip_box_qualified, ip_classification, invoice_date,
+                    document_id, client_name, client_nip
                 FROM read_models.revenues
                 WHERE project_id = :project_id
-                  AND (:year IS NULL OR EXTRACT(YEAR FROM revenue_date) = :year)
-                ORDER BY revenue_date ASC
+                ORDER BY invoice_date ASC
             """,
             description="Przychody z projektu (IP Box)",
-            params_schema={"project_id": "UUID projektu", "year": "Rok (opcjonalny)"}
+            params_schema={"project_id": "UUID projektu"}
         ))
         
         self.register(SQLDataSource(
-            name="contractors",
+            name="workers",
             query_template="""
                 SELECT 
-                    id, name, nip, role, contract_type,
-                    hourly_rate, monthly_rate, br_percentage
-                FROM read_models.contractors
-                WHERE project_id = :project_id
+                    w.id, w.name, w.role, w.hourly_rate, w.is_active,
+                    SUM(t.hours) as total_hours
+                FROM read_models.workers w
+                LEFT JOIN read_models.timesheet_entries t ON t.worker_id = w.id AND t.project_id = :project_id
+                WHERE w.is_active = true
+                GROUP BY w.id, w.name, w.role, w.hourly_rate, w.is_active
+                HAVING SUM(t.hours) > 0 OR :project_id IS NULL
             """,
-            description="Wykonawcy/podwykonawcy projektu",
+            description="Pracownicy projektu",
             params_schema={"project_id": "UUID projektu"}
         ))
         
