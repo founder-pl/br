@@ -1,12 +1,12 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T15:05:52.236865
+generated: 2026-01-13T15:32:04.488976
 stats:
-  files: 89
-  lines: 27887
-  languages[2]: python:87,javascript:2
+  files: 90
+  lines: 28176
+  languages[2]: python:88,javascript:2
 
-modules[89]{path,lang,lines,kb}:
+modules[90]{path,lang,lines,kb}:
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
   tests/test_documentation_validation.py,python,501,22.7
@@ -26,6 +26,7 @@ modules[89]{path,lang,lines,kb}:
   tests/integration/__init__.py,python,1,0.0
   tests/integration/test_sql_fixes.py,python,122,5.7
   tests/integration/test_integrations_api.py,python,220,9.9
+  tests/integration/test_git_timesheet.py,python,137,6.1
   src/ocr/extractors.py,python,223,9.6
   src/ocr/engines.py,python,233,8.3
   src/ocr/__init__.py,python,26,0.9
@@ -56,7 +57,7 @@ modules[89]{path,lang,lines,kb}:
   src/api/routers/git_timesheet.py,python,395,15.2
   src/api/routers/reports.py,python,285,13.3
   src/api/routers/documents.py,python,665,29.8
-  src/api/routers/expenses.py,python,1089,46.7
+  src/api/routers/expenses.py,python,1090,46.7
   src/api/cqrs/commands.py,python,276,12.2
   src/api/cqrs/events.py,python,220,9.3
   src/api/cqrs/__init__.py,python,46,1.1
@@ -74,7 +75,7 @@ modules[89]{path,lang,lines,kb}:
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
   web/static/js/markdown-renderer.js,javascript,136,5.4
-  web/static/js/app.js,javascript,2654,131.2
+  web/static/js/app.js,javascript,2755,136.6
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -618,6 +619,27 @@ module_details:
         methods[2]{name,sig,decorators,async,lines}:
           test_sync_invoices_invalid_type,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,18
           test_upload_report_invalid_type,"(client:AsyncClient)->None",pytest.mark.integration|pytest.mark.asyncio,true,18
+  tests/integration/test_git_timesheet.py:
+    imports[4]: pytest,httpx.AsyncClient,httpx.ASGITransport,src.api.main.app
+    exports[2]: TestGitTimesheetAPI,TestGitTimesheetPathMapping
+    classes[2]{name,bases,decorators,props,methods}:
+      TestGitTimesheetAPI,-,-,0,7
+      TestGitTimesheetPathMapping,-,-,0,1
+    class_details:
+      TestGitTimesheetAPI:
+        doc: Test Git Timesheet API endpoints
+        methods[7]{name,sig,decorators,async,lines}:
+          test_scan_repos_valid_path,()->None,pytest.mark.asyncio,true,21
+          test_scan_repos_invalid_path,()->None,pytest.mark.asyncio,true,14
+          test_scan_repos_max_depth_validation,()->None,pytest.mark.asyncio,true,22
+          test_scan_repos_missing_folder_path,()->None,pytest.mark.asyncio,true,11
+          test_commits_endpoint_empty_repos,()->None,pytest.mark.asyncio,true,15
+          test_commits_endpoint_with_filters,()->None,pytest.mark.asyncio,true,18
+          test_generate_timesheet_validation,()->None,pytest.mark.asyncio,true,16
+      TestGitTimesheetPathMapping:
+        doc: Test path mapping between host and container
+        methods[1]{name,sig,decorators,async,lines}:
+          test_host_path_mapping,()->None,pytest.mark.asyncio,true,18
   src/ocr/extractors.py:
     imports[8]: re,typing.Dict,typing.Any,typing.Optional,typing.List,datetime,datetime.date,structlog
     exports[4]: validate_nip,validate_regon,InvoiceExtractor,get_extractor
@@ -1401,7 +1423,7 @@ module_details:
       classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,68
       trigger_auto_classification,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,17
       update_expense_status,"(expense_id:str;status_update:ExpenseStatusUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,24
-      delete_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,16
+      delete_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,17
       generate_expense_documentation,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,67
       generate_project_documentation_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,164
       list_revenues,"(project_id:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,47
@@ -2006,7 +2028,7 @@ module_details:
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[145]: deleteExpense,checkGitTimesheetReady,getPageFromUrl,saveTimesheet,loadExpenses,toggleExpenseSelection,deleteIntegration,syncAllInvoices,generateGitTimesheet,clearSelection
+    exports[148]: generateExpenseDoc,loadDashboardModules,updateGitProjectMapping,convertToRevenue,downloadPdf,initLogStreams,getStatusLabel,saveAIConfig,toggleSelectAll,syncInvoices
     const[7]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
@@ -2015,12 +2037,12 @@ module_details:
       TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[145]{name,sig,decorators,async,category,lines}:
+    functions[148]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
       getUrlParam,(key)->None,-,false,-,4
       setUrlParam,(key;value)->None,-,false,-,14
       setPageInUrl,(page)->None,-,false,-,3
-      navigateTo,(page)->None,-,false,-,27
+      navigateTo,(page)->None,-,false,-,28
       apiCall,(endpoint)->None,-,true,-,13
       getDashboardLayout,()->None,-,false,-,4
       saveDashboardLayout,()->None,-,false,-,3
@@ -2031,7 +2053,7 @@ module_details:
       resetDashboardConfig,()->None,-,false,-,6
       renderDashboard,()->None,-,false,-,26
       loadDashboard,()->None,-,true,-,4
-      loadDashboardModules,()->None,-,true,-,39
+      loadDashboardModules,()->None,-,true,-,40
       loadRecentDocsModule,(container)->None,-,true,-,15
       loadCategoryModule,(container;summary)->None,-,false,-,8
       loadTopVendorsModule,(container)->None,-,true,-,15
@@ -2061,7 +2083,7 @@ module_details:
       viewProjectExpenses,(projectId)->None,-,false,-,7
       loadProjectsForFilter,()->None,-,true,-,19
       getProjectName,(projectId)->None,-,false,-,4
-      loadExpenses,()->None,-,true,-,87
+      loadExpenses,()->None,-,true,-,112
       classifyRevenue,(revenueId;ipQualified)->None,-,true,-,12
       showRevenueDetails,(revenueId)->None,-,true,-,4
       deleteRevenue,(revenueId)->None,-,true,-,4
@@ -2075,8 +2097,9 @@ module_details:
       showExpenseDetails,(id)->None,-,true,-,34
       classifyExpense,(id)->None,-,true,-,11
       reclassifyWithLLM,(id)->None,-,true,-,4
-      loadReports,()->None,-,true,-,62
+      loadReports,()->None,-,true,-,63
       loadMonthlyDetails,(year)->None,-,true,-,52
+      viewMonthExpenses,(year;month)->None,-,false,-,18
       showMonthDetails,(year;month)->None,-,true,-,70
       regenerateMonthReport,(year;month)->None,-,true,-,13
       regenerateAllMonthlyReports,()->None,-,true,-,20
@@ -2152,15 +2175,17 @@ module_details:
       switchGlobalLogTab,(service)->None,-,false,-,11
       clearGlobalLogs,()->None,-,false,-,6
       startLogStreamFor,(service)->None,-,false,-,39
+      initGitTimesheet,()->None,-,true,-,15
       scanGitRepos,()->None,-,true,-,52
       displayGitAuthors,(authors)->None,-,false,-,34
       toggleGitAuthor,(authorName)->None,-,false,-,8
       selectAllGitAuthors,(select)->None,-,false,-,10
-      displayGitRepoMapping,()->None,-,true,-,57
+      displayGitRepoMapping,()->None,-,true,-,73
+      selectAllReposForProject,(projectId)->None,-,false,-,31
       updateGitProjectMapping,(repoPath;projectId)->None,-,false,-,4
       checkGitTimesheetReady,()->None,-,false,-,7
       loadGitCommits,()->None,-,true,-,77
-      generateGitTimesheet,()->None,-,true,-,71
+      generateGitTimesheet,()->None,-,true,-,81
     function_docs:
       getPageFromUrl: retrieves page from url
       getUrlParam: retrieves url param
@@ -2223,6 +2248,7 @@ module_details:
       reclassifyWithLLM: reclassify with llm
       loadReports: retrieves reports
       loadMonthlyDetails: retrieves monthly details
+      viewMonthExpenses: view month expenses
       showMonthDetails: show month details
       regenerateMonthReport: regenerate month report
       regenerateAllMonthlyReports: regenerate all monthly reports
@@ -2298,11 +2324,13 @@ module_details:
       switchGlobalLogTab: switch global log tab
       clearGlobalLogs: deletes global logs
       startLogStreamFor: starts log stream for
+      initGitTimesheet: creates git timesheet
       scanGitRepos: scan git repos
       displayGitAuthors: logs git authors
       toggleGitAuthor: toggle git author
       selectAllGitAuthors: retrieves all git authors
       displayGitRepoMapping: logs git repo mapping
+      selectAllReposForProject: retrieves all repos for project
       updateGitProjectMapping: updates git project mapping
       checkGitTimesheetReady: checks git timesheet ready
       loadGitCommits: retrieves git commits

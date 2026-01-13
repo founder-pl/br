@@ -2781,6 +2781,44 @@ function clearGlobalLogs() {
     });
 }
 
+function copyGlobalLogs() {
+    const activeTab = document.querySelector('.global-log-tab.active');
+    const service = activeTab ? activeTab.dataset.service : 'api';
+    const el = document.getElementById(`global-log-output-${service}`);
+    if (el && el.textContent) {
+        navigator.clipboard.writeText(el.textContent).then(() => {
+            showToast(`Logi ${service.toUpperCase()} skopiowane do schowka`, 'success');
+        }).catch(err => {
+            console.error('Failed to copy logs:', err);
+            showToast('Błąd kopiowania logów', 'error');
+        });
+    } else {
+        showToast('Brak logów do skopiowania', 'warning');
+    }
+}
+
+function downloadGlobalLogs() {
+    const activeTab = document.querySelector('.global-log-tab.active');
+    const service = activeTab ? activeTab.dataset.service : 'api';
+    const el = document.getElementById(`global-log-output-${service}`);
+    if (el && el.textContent) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `logs_${service}_${timestamp}.txt`;
+        const blob = new Blob([el.textContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`Logi ${service.toUpperCase()} pobrane jako ${filename}`, 'success');
+    } else {
+        showToast('Brak logów do pobrania', 'warning');
+    }
+}
+
 // mirror streams into overlay panels
 function startLogStreamFor(service) {
     if (logStreams[service]) {

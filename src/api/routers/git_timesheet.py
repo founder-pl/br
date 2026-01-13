@@ -394,6 +394,9 @@ async def generate_timesheet_from_commits(
         description = "\n".join(commit_descriptions)
         
         try:
+            # Convert work_date string to date object for asyncpg
+            work_date_obj = date.fromisoformat(entry["work_date"])
+            
             await db.execute(
                 text("""
                     INSERT INTO read_models.timesheet_entries 
@@ -405,7 +408,7 @@ async def generate_timesheet_from_commits(
                 {
                     "project_id": entry["project_id"],
                     "worker_id": entry["worker_id"],
-                    "work_date": entry["work_date"],
+                    "work_date": work_date_obj,
                     "time_slot": entry["time_slot"],
                     "hours": entry["hours"],
                     "description": description
@@ -414,6 +417,8 @@ async def generate_timesheet_from_commits(
             entries_created += 1
         except Exception as e:
             logger.error("Failed to save timesheet entry", entry=entry, error=str(e))
+    
+    await db.commit()
     
     return {
         "status": "success",

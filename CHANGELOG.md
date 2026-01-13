@@ -16,6 +16,19 @@ Wszystkie istotne zmiany w projekcie System B+R.
 - **Tworzenie wydatków z dokumentów** - przycisk "Utwórz wydatek"
 - **Kopiowanie/pobieranie dokumentacji B+R** (markdown)
 - **Kopiowanie logów** na stronie /logs
+- **Filtrowanie wydatków po roku/miesiącu**
+  - Selecty rok/miesiąc w nagłówku /expenses
+  - Dynamiczny tytuł strony z wybranym okresem
+  - Synchronizacja z URL (?year=2026&month=1)
+- **Przycisk szczegółów miesiąca** z tabeli raportów (💰)
+- **Git Timesheet - ulepszenia**
+  - Select pracownika w nagłówku strony
+  - Checkbox "zaznacz wszystkie" w nagłówku kolumny projektu
+  - Inicjalizacja ładowania workerów
+  - Rozbudowane logowanie console.log
+- **Testy git-timesheet** (8 testów integracyjnych)
+  - scan, commits, generate-timesheet endpoints
+  - Walidacja path mapping
 
 ### Naprawione
 - **SQL bug w dashboard**: COUNT(*) → SUM(gross_amount) dla total_expenses
@@ -24,10 +37,13 @@ Wszystkie istotne zmiany w projekcie System B+R.
 - **Test regex**: Art. → [Aa]rt. dla legal_compliance
 - **TypeError w uploadFile**: lazy initialization event listeners
 - **UnboundLocalError w logs.py**: inicjalizacja process = None
+- **Usuwanie wydatków**: dodano brakujący db.commit()
+- **Dashboard null check**: clarification-badge element
 
 ### Zmienione
 - Refaktoryzacja loadDashboard() na system modułowy
 - Ulepszony UI dla modalu dokumentu z sekcją edycji
+- Wszystkie testy przechodzą: **148 passed**
 
 ## [2026-01-12] - URL State Management i Logi
 
