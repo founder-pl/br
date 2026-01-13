@@ -13,6 +13,33 @@ function getPageFromUrl() {
     return params.get('page') || 'dashboard';
 }
 
+async function processAllExpensesForYear() {
+    const year = parseInt(document.getElementById('report-year')?.value || currentFiscalYear);
+    const confirmed = await openConfirmModal({
+        title: 'Przetwórz wszystkie wydatki',
+        message: `Uruchomić automatyczne przetwarzanie (walidacja, uzupełnienie danych, waluty, kategorie, uzasadnienia) dla roku ${year}?`,
+        confirmText: 'Przetwórz'
+    });
+    if (!confirmed) return;
+    
+    try {
+        showToast('Przetwarzanie wydatków...', 'info');
+        await apiCall('/expenses/process-all', {
+            method: 'POST',
+            body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: year })
+        });
+        showToast('Przetwarzanie zakończone', 'success');
+        loadReports();
+        loadDashboard();
+        const expensesPage = document.getElementById('page-expenses');
+        if (expensesPage && expensesPage.classList.contains('active')) {
+            loadExpenses();
+        }
+    } catch (e) {
+        showToast('Błąd przetwarzania', 'error');
+    }
+}
+
 function getUrlParam(key) {
     const params = new URLSearchParams(window.location.search);
     return params.get(key);
@@ -480,6 +507,28 @@ async function retryOcr(docId) {
 
 let currentDocData = null;
 
+function normalizeExtractedData(raw) {
+    if (!raw || typeof raw !== 'object') return {};
+    const nested = raw.extracted_data;
+    if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+        const { extracted_data, ...rest } = raw;
+        return { ...rest, ...nested };
+    }
+    return raw;
+}
+
+function formatExtractedValue(v) {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'object') {
+        try {
+            return JSON.stringify(v);
+        } catch (e) {
+            return String(v);
+        }
+    }
+    return String(v);
+}
+
 async function showDocumentDetail(docId, options = {}) {
     const { updateUrl = true } = options;
     try {
@@ -491,7 +540,7 @@ async function showDocumentDetail(docId, options = {}) {
         const modal = document.getElementById('document-modal');
         
         const editableFields = ['invoice_number', 'invoice_date', 'gross_amount', 'net_amount', 'vat_amount', 'vendor_name', 'vendor_nip', 'description'];
-        const extractedData = doc.extracted_data || {};
+        const extractedData = normalizeExtractedData(doc.extracted_data || {});
         
         document.getElementById('document-modal-content').innerHTML = `
             <div class="doc-detail-header">
@@ -519,7 +568,7 @@ async function showDocumentDetail(docId, options = {}) {
                 <div class="extracted-data" id="extracted-data-view">
                     ${Object.entries(extractedData)
                         .filter(([k]) => !k.startsWith('_'))
-                        .map(([k, v]) => `<div class="data-row"><span class="data-key">${k}:</span> <span class="data-value">${v}</span></div>`).join('') || '<p class="empty-state">Brak danych</p>'}
+                        .map(([k, v]) => `<div class="data-row"><span class="data-key">${k}:</span> <span class="data-value">${formatExtractedValue(v)}</span></div>`).join('') || '<p class="empty-state">Brak danych</p>'}
                 </div>
                 <div class="extracted-data-edit" id="extracted-data-edit" style="display:none;">
                     <div class="edit-grid">
@@ -591,19 +640,21 @@ function toggleEditMode() {
 
 async function saveExtractedData(docId) {
     const fields = ['invoice_number', 'invoice_date', 'gross_amount', 'net_amount', 'vat_amount', 'vendor_name', 'vendor_nip', 'description'];
-    const extractedData = { ...(currentDocData?.extracted_data || {}) };
+    const extractedData = { ...normalizeExtractedData(currentDocData?.extracted_data || {}) };
     
     fields.forEach(field => {
         const input = document.getElementById(`edit-${field}`);
-        if (input && input.value) {
-            extractedData[field] = field.includes('amount') ? parseFloat(input.value) : input.value;
+        if (!input) return;
+        if (field.includes('amount')) {
+            extractedData[field] = input.value === '' ? null : parseFloat(input.value);
+        } else {
+            extractedData[field] = input.value === '' ? null : input.value;
         }
     });
     
     try {
-        await fetch(`${API_BASE}/documents/${docId}`, {
+        await apiCall(`/documents/${docId}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ extracted_data: extractedData })
         });
         showToast('Dane zapisane', 'success');
@@ -1385,17 +1436,20 @@ async function regenerateMonthReport(year, month) {
         showToast(`Regenerowanie raportu ${month}/${year}...`, 'info');
         await apiCall('/reports/monthly/generate', { 
             method: 'POST', 
-            body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: year, month: month, regenerate: true }) 
+            body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: year, month: month, regenerate: true, preprocess: true }) 
         });
-        showToast('Raport zregenerowany', 'success');
-        loadReports();
-    } catch (e) {
-        showToast('Błąd regenerowania', 'error');
-    }
+        showToast('Zregenerowano', 'success');
+        loadReports(); loadDashboard();
+    } catch (e) { showToast('Błąd regenerowania raportu', 'error'); }
 }
 
 async function regenerateAllMonthlyReports() {
-    if (!confirm('Czy na pewno chcesz zregenerować raporty dla wszystkich miesięcy?')) return;
+    const confirmed = await openConfirmModal({
+        title: 'Regeneruj raporty',
+        message: 'Czy na pewno chcesz zregenerować raporty dla wszystkich miesięcy?',
+        confirmText: 'Regeneruj'
+    });
+    if (!confirmed) return;
     
     const year = document.getElementById('report-year').value;
     showToast('Regenerowanie wszystkich raportów...', 'info');
@@ -1405,7 +1459,7 @@ async function regenerateAllMonthlyReports() {
         try {
             await apiCall('/reports/monthly/generate', { 
                 method: 'POST', 
-                body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: parseInt(year), month: m, regenerate: true }) 
+                body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: parseInt(year), month: m, regenerate: true, preprocess: true }) 
             });
             success++;
         } catch (e) { errors++; }
@@ -1419,13 +1473,13 @@ async function generateMonthlyReport() {
     const year = document.getElementById('report-year').value;
     const month = prompt('Miesiąc (1-12):');
     if (!month || month < 1 || month > 12) { showToast('Nieprawidłowy miesiąc', 'error'); return; }
-    try { await apiCall('/reports/monthly/generate', { method: 'POST', body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: parseInt(year), month: parseInt(month), regenerate: true }) }); showToast('Wygenerowano', 'success'); loadReports(); }
+    try { await apiCall('/reports/monthly/generate', { method: 'POST', body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: parseInt(year), month: parseInt(month), regenerate: true, preprocess: true }) }); showToast('Wygenerowano', 'success'); loadReports(); }
     catch (e) { showToast('Błąd', 'error'); }
 }
 
 async function generateAllReports() {
     for (let m = 1; m <= new Date().getMonth() + 1; m++) {
-        try { await apiCall('/reports/monthly/generate', { method: 'POST', body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: currentFiscalYear, month: m, regenerate: false }) }); }
+        try { await apiCall('/reports/monthly/generate', { method: 'POST', body: JSON.stringify({ project_id: PROJECT_ID, fiscal_year: currentFiscalYear, month: m, regenerate: false, preprocess: true }) }); }
         catch (e) { console.error(e); }
     }
     showToast('Wygenerowano raporty', 'success'); loadDashboard();
@@ -1582,7 +1636,7 @@ async function fillFieldsWithLLM(docId) {
             method: 'POST',
             body: JSON.stringify({
                 ocr_text: currentDocData.ocr_text,
-                current_data: currentDocData.extracted_data || {}
+                current_data: normalizeExtractedData(currentDocData.extracted_data || {})
             })
         });
         

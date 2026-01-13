@@ -17,6 +17,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..validators.expense_pipeline import get_validation_pipeline
+from ..validators import InvoiceValidator, CurrencyConverter
 from ..services.expense_categorizer import get_expense_categorizer
 from ..services.audit_trail import get_audit_service, AuditEventType
 
@@ -34,6 +35,8 @@ class ExpenseService:
         self.db = db
         self.pipeline = get_validation_pipeline()
         self.categorizer = get_expense_categorizer()
+        self.invoice_validator = InvoiceValidator()
+        self.currency_converter = CurrencyConverter()
     
     async def get_expense(self, expense_id: str) -> Optional[Dict[str, Any]]:
         """Get expense by ID."""
@@ -321,6 +324,271 @@ class ExpenseService:
             "is_br_qualified": result.is_br_qualified,
             "reason": result.reason,
             "applied": apply and result.is_br_qualified
+        }
+
+    async def process_all(
+        self,
+        project_id: str,
+        year: Optional[int] = None,
+        month: Optional[int] = None
+    ) -> Dict[str, Any]:
+        conditions = ["e.project_id = :project_id"]
+        params: Dict[str, Any] = {"project_id": project_id}
+
+        if year:
+            conditions.append("EXTRACT(YEAR FROM e.invoice_date) = :year")
+            params["year"] = year
+        if month:
+            conditions.append("EXTRACT(MONTH FROM e.invoice_date) = :month")
+            params["month"] = month
+
+        where_clause = " AND ".join(conditions)
+
+        project_result = await self.db.execute(
+            text("SELECT name, description FROM read_models.projects WHERE id = :id"),
+            {"id": project_id}
+        )
+        project_row = project_result.fetchone()
+        project_name = project_row[0] if project_row else "Projekt B+R"
+        project_desc = project_row[1] if project_row else None
+
+        result = await self.db.execute(
+            text(f"""
+                SELECT e.id, e.document_id, e.invoice_number, e.invoice_date,
+                       e.vendor_name, e.vendor_nip,
+                       e.net_amount, e.vat_amount, e.gross_amount, e.currency,
+                       e.description, e.expense_category,
+                       e.br_category, e.br_qualified, e.br_qualification_reason,
+                       e.br_deduction_rate, e.manual_override
+                FROM read_models.expenses e
+                WHERE {where_clause}
+            """),
+            params
+        )
+        rows = result.fetchall()
+
+        from ..services.justification_generator import (
+            get_justification_generator, ExpenseContext, ProjectContext
+        )
+
+        generator = get_justification_generator()
+        project_ctx = ProjectContext(name=project_name, description=project_desc)
+
+        doc_cache: Dict[str, Dict[str, Any]] = {}
+
+        updated_count = 0
+        invoice_fixed = 0
+        vendor_filled = 0
+        description_filled = 0
+        currencies_converted = 0
+        categorized = 0
+        justifications_generated = 0
+
+        for row in rows:
+            (
+                expense_id,
+                document_id,
+                invoice_number,
+                invoice_date,
+                vendor_name,
+                vendor_nip,
+                net_amount,
+                vat_amount,
+                gross_amount,
+                currency,
+                description,
+                expense_category,
+                br_category,
+                br_qualified,
+                br_reason,
+                br_rate,
+                manual_override,
+            ) = row
+
+            updates = []
+            upd_params: Dict[str, Any] = {"id": str(expense_id)}
+
+            extracted_data: Dict[str, Any] = {}
+            ocr_text: Optional[str] = None
+            if document_id:
+                doc_id_str = str(document_id)
+                if doc_id_str not in doc_cache:
+                    doc_res = await self.db.execute(
+                        text("SELECT extracted_data, ocr_text FROM read_models.documents WHERE id = :id"),
+                        {"id": doc_id_str}
+                    )
+                    doc_row = doc_res.fetchone()
+                    doc_cache[doc_id_str] = {
+                        "extracted_data": doc_row[0] if doc_row else None,
+                        "ocr_text": doc_row[1] if doc_row else None,
+                    }
+                cached = doc_cache.get(doc_id_str) or {}
+                extracted_data = cached.get("extracted_data") or {}
+                ocr_text = cached.get("ocr_text")
+
+            if not manual_override:
+                extracted_invoice = extracted_data.get("invoice_number")
+                if (not invoice_number) or self.invoice_validator.is_generic(invoice_number):
+                    if extracted_invoice and not self.invoice_validator.is_generic(str(extracted_invoice)):
+                        updates.append("invoice_number = :invoice_number")
+                        upd_params["invoice_number"] = str(extracted_invoice)
+                        invoice_fixed += 1
+
+                extracted_date = extracted_data.get("invoice_date")
+                if (not invoice_date) and extracted_date:
+                    try:
+                        updates.append("invoice_date = :invoice_date")
+                        upd_params["invoice_date"] = date.fromisoformat(str(extracted_date).split('T')[0])
+                    except Exception:
+                        pass
+
+            def _normalize_nip(val: Any) -> Optional[str]:
+                if val is None:
+                    return None
+                if isinstance(val, list) and val:
+                    val = val[0]
+                if isinstance(val, dict):
+                    val = val.get("cleaned") or val.get("raw")
+                s = str(val).strip()
+                digits = "".join(ch for ch in s if ch.isdigit())
+                return digits or None
+
+            extracted_vendor = extracted_data.get("vendor_name")
+            extracted_nip = extracted_data.get("vendor_nip")
+
+            if (not vendor_name) or str(vendor_name).lower() in ("none", "null", ""):
+                if extracted_vendor:
+                    updates.append("vendor_name = :vendor_name")
+                    upd_params["vendor_name"] = str(extracted_vendor)
+                    vendor_filled += 1
+
+            normalized_nip = _normalize_nip(extracted_nip)
+            if (not vendor_nip) and normalized_nip:
+                updates.append("vendor_nip = :vendor_nip")
+                upd_params["vendor_nip"] = normalized_nip
+
+            if not description:
+                extracted_desc = extracted_data.get("description")
+                if extracted_desc:
+                    updates.append("description = :description")
+                    upd_params["description"] = str(extracted_desc)
+                    description_filled += 1
+                elif ocr_text:
+                    updates.append("description = :description")
+                    upd_params["description"] = str(ocr_text)[:200]
+                    description_filled += 1
+
+            eff_invoice_date = invoice_date
+            if "invoice_date" in upd_params:
+                eff_invoice_date = upd_params["invoice_date"]
+
+            eff_currency = (currency or "PLN").upper().strip() if currency else "PLN"
+            if eff_currency != "PLN" and gross_amount and eff_invoice_date:
+                try:
+                    gross_pln = await self.currency_converter.convert_to_pln(
+                        Decimal(str(gross_amount)),
+                        eff_currency,
+                        eff_invoice_date
+                    )
+                    net_pln = await self.currency_converter.convert_to_pln(
+                        Decimal(str(net_amount or 0)),
+                        eff_currency,
+                        eff_invoice_date
+                    )
+                    vat_pln = await self.currency_converter.convert_to_pln(
+                        Decimal(str(vat_amount or 0)),
+                        eff_currency,
+                        eff_invoice_date
+                    )
+
+                    updates.extend([
+                        "gross_amount = :gross_amount",
+                        "net_amount = :net_amount",
+                        "vat_amount = :vat_amount",
+                        "currency = :currency",
+                    ])
+                    upd_params["gross_amount"] = float(gross_pln)
+                    upd_params["net_amount"] = float(net_pln)
+                    upd_params["vat_amount"] = float(vat_pln)
+                    upd_params["currency"] = "PLN"
+                    currencies_converted += 1
+                except Exception:
+                    pass
+
+            effective_vendor = upd_params.get("vendor_name") or vendor_name
+            effective_desc = upd_params.get("description") or description or expense_category or ocr_text or ""
+            effective_amount = float(upd_params.get("gross_amount") or gross_amount or 0)
+
+            if not manual_override:
+                cat_result = self.categorizer.categorize(
+                    str(effective_desc),
+                    str(effective_vendor) if effective_vendor else None,
+                    effective_amount
+                )
+
+                if cat_result.category and (br_category != cat_result.category.value):
+                    updates.extend([
+                        "br_category = :br_category",
+                        "br_qualified = :br_qualified",
+                        "br_deduction_rate = :br_deduction_rate",
+                        "status = 'classified'",
+                    ])
+                    upd_params["br_category"] = cat_result.category.value
+                    upd_params["br_qualified"] = bool(cat_result.is_br_qualified)
+                    upd_params["br_deduction_rate"] = float(cat_result.deduction_rate)
+                    categorized += 1
+
+                if (not br_reason) and cat_result.reason:
+                    updates.append("br_qualification_reason = :br_qualification_reason")
+                    upd_params["br_qualification_reason"] = cat_result.reason
+
+            eff_br_qualified = upd_params.get("br_qualified") if "br_qualified" in upd_params else br_qualified
+            eff_reason = upd_params.get("br_qualification_reason") if "br_qualification_reason" in upd_params else br_reason
+
+            if not manual_override and eff_br_qualified:
+                if (not eff_reason) or (len(str(eff_reason)) < 50) or ("Wydatek związany" in str(eff_reason)):
+                    try:
+                        expense_ctx = ExpenseContext(
+                            invoice_number=upd_params.get("invoice_number") or invoice_number or "brak",
+                            invoice_date=str(eff_invoice_date) if eff_invoice_date else None,
+                            amount=effective_amount,
+                            currency=upd_params.get("currency") or eff_currency or "PLN",
+                            vendor_name=effective_vendor,
+                            vendor_nip=upd_params.get("vendor_nip") or vendor_nip,
+                            category=upd_params.get("br_category") or br_category,
+                            description=str(effective_desc)[:500],
+                            ocr_text=ocr_text,
+                        )
+                        just_res = await generator.generate_justification(expense_ctx, project_ctx)
+                        if just_res and just_res.justification:
+                            updates.append("br_qualification_reason = :br_qualification_reason")
+                            upd_params["br_qualification_reason"] = just_res.justification
+                            justifications_generated += 1
+                    except Exception:
+                        pass
+
+            if updates:
+                updates.append("updated_at = NOW()")
+                await self.db.execute(
+                    text(f"UPDATE read_models.expenses SET {', '.join(updates)} WHERE id = :id"),
+                    upd_params
+                )
+                updated_count += 1
+
+        await self.db.commit()
+
+        return {
+            "project_id": project_id,
+            "year": year,
+            "month": month,
+            "total_expenses": len(rows),
+            "updated": updated_count,
+            "invoice_fixed": invoice_fixed,
+            "vendor_filled": vendor_filled,
+            "description_filled": description_filled,
+            "currencies_converted": currencies_converted,
+            "categorized": categorized,
+            "justifications_generated": justifications_generated,
         }
     
     async def get_summary(

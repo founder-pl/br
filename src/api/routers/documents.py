@@ -594,6 +594,10 @@ async def update_document(
         params["status"] = ocr_status
     
     if extracted_data is not None:
+        if isinstance(extracted_data, dict) and isinstance(extracted_data.get('extracted_data'), dict):
+            nested = extracted_data.get('extracted_data') or {}
+            extracted_data = {k: v for k, v in extracted_data.items() if k != 'extracted_data'}
+            extracted_data.update(nested)
         updates.append("extracted_data = CAST(:data AS jsonb)")
         params["data"] = json.dumps(extracted_data)
     
@@ -735,6 +739,12 @@ async def get_document_detail(document_id: str, db: AsyncSession = Depends(get_d
     if not row:
         raise HTTPException(status_code=404, detail="Document not found")
     
+    extracted = row[6]
+    if isinstance(extracted, dict) and isinstance(extracted.get('extracted_data'), dict):
+        nested = extracted.get('extracted_data') or {}
+        extracted = {k: v for k, v in extracted.items() if k != 'extracted_data'}
+        extracted.update(nested)
+
     return DocumentDetailResponse(
         id=str(row[0]),
         filename=row[1],
@@ -742,7 +752,7 @@ async def get_document_detail(document_id: str, db: AsyncSession = Depends(get_d
         ocr_status=row[3],
         ocr_confidence=row[4],
         ocr_text=row[5],
-        extracted_data=row[6],
+        extracted_data=extracted,
         validation_errors=row[7],
         created_at=row[8],
         updated_at=row[9]

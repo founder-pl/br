@@ -14,6 +14,7 @@ import structlog
 
 from ..database import get_db
 from ..config import settings
+from ..services.expense_service import get_expense_service
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -44,6 +45,7 @@ class ReportGenerateRequest(BaseModel):
     fiscal_year: int
     month: int = Field(ge=1, le=12)
     regenerate: bool = False
+    preprocess: bool = False
 
 
 class AnnualBRSummary(BaseModel):
@@ -83,6 +85,14 @@ async def generate_monthly_report(
     db: AsyncSession = Depends(get_db)
 ):
     """Generate or regenerate monthly B+R report"""
+    if request.preprocess:
+        service = get_expense_service(db)
+        await service.process_all(
+            project_id=request.project_id,
+            year=request.fiscal_year,
+            month=request.month
+        )
+
     existing = await db.execute(
         text("""SELECT id FROM read_models.monthly_reports 
         WHERE project_id = :project_id AND fiscal_year = :year AND month = :month"""),

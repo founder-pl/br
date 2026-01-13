@@ -16,6 +16,7 @@ import structlog
 from ..database import get_db
 from ..config import settings
 from ..validators import InvoiceValidator, CurrencyConverter
+from ..services.expense_service import get_expense_service
 
 logger = structlog.get_logger()
 
@@ -99,6 +100,12 @@ class ExpenseClassifyRequest(BaseModel):
     nexus_category: Optional[str] = None
 
 
+class ProcessAllRequest(BaseModel):
+    project_id: str = "00000000-0000-0000-0000-000000000001"
+    fiscal_year: Optional[int] = None
+    month: Optional[int] = Field(default=None, ge=1, le=12)
+
+
 class BRCategory(BaseModel):
     """B+R expense category"""
     code: str
@@ -173,6 +180,20 @@ BR_CATEGORIES = [
 async def get_br_categories():
     """Get list of B+R expense categories according to art. 26e PIT"""
     return BR_CATEGORIES
+
+
+@router.post("/process-all")
+async def process_all_expenses(
+    request: ProcessAllRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    service = get_expense_service(db)
+    result = await service.process_all(
+        project_id=request.project_id,
+        year=request.fiscal_year,
+        month=request.month
+    )
+    return {"status": "processed", **result}
 
 
 @router.post("/", response_model=ExpenseResponse)
