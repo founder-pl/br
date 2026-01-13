@@ -81,6 +81,10 @@ make up-gpu  # z GPU
 make up      # bez GPU
 ```
 
+
+![img_3.png](img_3.png)
+
+
 ### Dostęp
 
 - **Web Interface**: http://localhost
