@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .routers import documents, expenses, projects, reports, auth, clarifications, integrations, logs, config, timesheet, git_timesheet
-from ..doc_generator.router import router as doc_generator_router
+from src.doc_generator.router import router as doc_generator_router
 from .database import init_database, close_database
 from .config import settings
 

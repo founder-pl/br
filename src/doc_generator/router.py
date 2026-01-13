@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 import structlog
 
-from ..api.database import get_db
+from src.api.database import get_db
 from .engine import get_doc_engine, DocumentEngine
 from .templates import DocumentCategory, TimeScope
 

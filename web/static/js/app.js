@@ -139,7 +139,8 @@ function navigateTo(page, options = {}) {
                       projects: loadProjects, expenses: () => { initExpenseFilters(); loadProjectsForFilter(); loadExpenses(); },
                       reports: loadReports, clarifications: loadClarifications, timesheet: initTimesheet,
                       integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig,
-                      'git-timesheet': initGitTimesheet };
+                      'git-timesheet': initGitTimesheet, 'doc-generator': loadDocTemplates,
+                      'doc-annotations': loadDocAnnotations };
     if (loaders[page]) loaders[page]();
     
     // Stop log streams when leaving logs page
@@ -3599,3 +3600,460 @@ async function generateGitTimesheet() {
         showToast('Błąd generowania harmonogramu', 'error');
     }
 }
+
+// ==================== DOCUMENT GENERATOR ====================
+let docTemplatesCache = [];
+let currentDocCategory = '';
+
+async function loadDocTemplates() {
+    try {
+        const result = await apiCall('/doc-generator/templates');
+        docTemplatesCache = result.templates || [];
+        renderDocTemplates();
+        
+        // Load filter options
+        const filterResult = await apiCall('/doc-generator/filter-options');
+        
+        const projectSelect = document.getElementById('docgen-project-filter');
+        if (projectSelect && filterResult.projects) {
+            const currentVal = projectSelect.value;
+            projectSelect.innerHTML = '<option value="">-- Wszystkie projekty --</option>';
+            filterResult.projects.forEach(p => {
+                projectSelect.innerHTML += `<option value="${p.id}">${p.name || p.code}</option>`;
+            });
+            projectSelect.value = currentVal || PROJECT_ID;
+        }
+        
+        const yearSelect = document.getElementById('docgen-year-filter');
+        if (yearSelect && filterResult.years) {
+            const currentYear = yearSelect.value;
+            yearSelect.innerHTML = '<option value="">-- Rok --</option>';
+            filterResult.years.forEach(y => {
+                yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+            });
+            yearSelect.value = currentYear || new Date().getFullYear();
+        }
+    } catch (e) {
+        console.error('Error loading doc templates:', e);
+        showToast('Błąd ładowania szablonów', 'error');
+    }
+}
+
+function filterDocTemplates(category) {
+    currentDocCategory = category;
+    document.querySelectorAll('.docgen-categories .category-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
+    });
+    renderDocTemplates();
+}
+
+function renderDocTemplates() {
+    const container = document.getElementById('docgen-templates');
+    if (!container) return;
+    
+    let templates = docTemplatesCache;
+    if (currentDocCategory) {
+        templates = templates.filter(t => t.category === currentDocCategory);
+    }
+    
+    if (templates.length === 0) {
+        container.innerHTML = '<div class="empty-state">Brak szablonów do wyświetlenia</div>';
+        return;
+    }
+    
+    const categoryIcons = {
+        project: '📁', financial: '💰', timesheet: '⏱️',
+        legal: '📜', tax: '🧾', report: '📊'
+    };
+    
+    const timeScopeLabels = {
+        none: '', monthly: 'Miesięczny', quarterly: 'Kwartalny',
+        yearly: 'Roczny', project: 'Projektowy', custom: 'Własny'
+    };
+    
+    container.innerHTML = templates.map(t => `
+        <div class="docgen-template-card" data-template-id="${t.id}">
+            <div class="template-header">
+                <span class="template-icon">${categoryIcons[t.category] || '📄'}</span>
+                <h3>${t.name}</h3>
+            </div>
+            <p class="template-description">${t.description}</p>
+            <div class="template-meta">
+                <span class="template-scope">${timeScopeLabels[t.time_scope] || ''}</span>
+                <span class="template-version">v${t.version}</span>
+            </div>
+            <div class="template-actions">
+                <button class="btn btn-sm btn-secondary" onclick="previewDocData('${t.id}')">
+                    👁️ Podgląd danych
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="downloadDemoDoc('${t.id}')">
+                    📥 Demo
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="openDocGenerateModal('${t.id}')">
+                    ✨ Generuj
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function previewDocData(templateId) {
+    const projectId = document.getElementById('docgen-project-filter')?.value || PROJECT_ID;
+    const year = document.getElementById('docgen-year-filter')?.value || new Date().getFullYear();
+    const month = document.getElementById('docgen-month-filter')?.value || null;
+    
+    try {
+        showToast('Pobieranie danych...', 'info');
+        const result = await apiCall('/doc-generator/preview-data', {
+            method: 'POST',
+            body: JSON.stringify({
+                template_id: templateId,
+                params: { project_id: projectId, year: parseInt(year), month: month ? parseInt(month) : null }
+            })
+        });
+        
+        // Show data in a modal
+        const modal = document.getElementById('doc-preview-modal');
+        if (!modal) {
+            // Create modal if it doesn't exist
+            const modalHtml = `
+                <div id="doc-preview-modal" class="modal">
+                    <div class="modal-content modal-lg">
+                        <span class="modal-close" onclick="closeDocPreviewModal()">&times;</span>
+                        <h2>Podgląd danych dla szablonu</h2>
+                        <div id="doc-preview-content"></div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        const content = document.getElementById('doc-preview-content') || document.querySelector('#doc-preview-modal .modal-content');
+        content.innerHTML = `
+            <h3>Parametry</h3>
+            <pre>${JSON.stringify(result.params, null, 2)}</pre>
+            <h3>Dane źródłowe</h3>
+            ${Object.entries(result.data || {}).map(([key, value]) => `
+                <details open>
+                    <summary><strong>${key}</strong> (${Array.isArray(value) ? value.length + ' rekordów' : 'obiekt'})</summary>
+                    <pre style="max-height: 300px; overflow: auto;">${JSON.stringify(value, null, 2)}</pre>
+                </details>
+            `).join('')}
+            ${result.errors ? `<div class="alert alert-warning">Błędy: ${result.errors.join(', ')}</div>` : ''}
+        `;
+        
+        document.getElementById('doc-preview-modal').classList.add('active');
+        
+    } catch (e) {
+        showToast('Błąd pobierania danych: ' + e.message, 'error');
+    }
+}
+
+function closeDocPreviewModal() {
+    const modal = document.getElementById('doc-preview-modal');
+    if (modal) modal.classList.remove('active');
+}
+
+async function downloadDemoDoc(templateId) {
+    try {
+        const result = await apiCall(`/doc-generator/demo/${templateId}`);
+        
+        const blob = new Blob([result.content], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${templateId}_demo.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('Demo pobrane', 'success');
+    } catch (e) {
+        showToast('Błąd pobierania demo: ' + e.message, 'error');
+    }
+}
+
+async function openDocGenerateModal(templateId) {
+    const template = docTemplatesCache.find(t => t.id === templateId);
+    if (!template) return;
+    
+    const projectId = document.getElementById('docgen-project-filter')?.value || PROJECT_ID;
+    const year = document.getElementById('docgen-year-filter')?.value || new Date().getFullYear();
+    const month = document.getElementById('docgen-month-filter')?.value || '';
+    
+    // Create or show generate modal
+    let modal = document.getElementById('doc-generate-modal');
+    if (!modal) {
+        const modalHtml = `
+            <div id="doc-generate-modal" class="modal">
+                <div class="modal-content modal-lg">
+                    <span class="modal-close" onclick="closeDocGenerateModal()">&times;</span>
+                    <h2 id="docgen-modal-title">Generuj dokument</h2>
+                    <div id="docgen-modal-body"></div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        modal = document.getElementById('doc-generate-modal');
+    }
+    
+    document.getElementById('docgen-modal-title').textContent = `Generuj: ${template.name}`;
+    document.getElementById('docgen-modal-body').innerHTML = `
+        <form id="docgen-form" onsubmit="generateDocument(event, '${templateId}')">
+            <div class="form-group">
+                <label>Projekt:</label>
+                <select id="docgen-form-project" required>
+                    <option value="${projectId}" selected>Wybrany projekt</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Rok:</label>
+                <input type="number" id="docgen-form-year" value="${year}" min="2020" max="2030">
+            </div>
+            ${template.time_scope === 'monthly' ? `
+            <div class="form-group">
+                <label>Miesiąc:</label>
+                <select id="docgen-form-month">
+                    <option value="">-- Wybierz --</option>
+                    <option value="1" ${month==='1'?'selected':''}>Styczeń</option>
+                    <option value="2" ${month==='2'?'selected':''}>Luty</option>
+                    <option value="3" ${month==='3'?'selected':''}>Marzec</option>
+                    <option value="4" ${month==='4'?'selected':''}>Kwiecień</option>
+                    <option value="5" ${month==='5'?'selected':''}>Maj</option>
+                    <option value="6" ${month==='6'?'selected':''}>Czerwiec</option>
+                    <option value="7" ${month==='7'?'selected':''}>Lipiec</option>
+                    <option value="8" ${month==='8'?'selected':''}>Sierpień</option>
+                    <option value="9" ${month==='9'?'selected':''}>Wrzesień</option>
+                    <option value="10" ${month==='10'?'selected':''}>Październik</option>
+                    <option value="11" ${month==='11'?'selected':''}>Listopad</option>
+                    <option value="12" ${month==='12'?'selected':''}>Grudzień</option>
+                </select>
+            </div>
+            ` : ''}
+            <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="docgen-use-llm"> Użyj LLM do wzbogacenia treści</label>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeDocGenerateModal()">Anuluj</button>
+                <button type="submit" class="btn btn-primary">✨ Generuj dokument</button>
+            </div>
+        </form>
+        <div id="docgen-result" style="display:none;">
+            <h3>Wygenerowany dokument</h3>
+            <div class="docgen-result-actions">
+                <button class="btn btn-sm btn-secondary" onclick="copyDocContent()">📋 Kopiuj</button>
+                <button class="btn btn-sm btn-secondary" onclick="downloadDocContent()">📥 Pobierz MD</button>
+                <button class="btn btn-sm btn-secondary" onclick="editDocContent()">✏️ Edytuj</button>
+            </div>
+            <div id="docgen-result-content" class="markdown-preview"></div>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+}
+
+function closeDocGenerateModal() {
+    const modal = document.getElementById('doc-generate-modal');
+    if (modal) modal.classList.remove('active');
+}
+
+let generatedDocContent = '';
+
+async function generateDocument(event, templateId) {
+    event.preventDefault();
+    
+    const projectId = document.getElementById('docgen-form-project')?.value || PROJECT_ID;
+    const year = parseInt(document.getElementById('docgen-form-year')?.value) || new Date().getFullYear();
+    const monthEl = document.getElementById('docgen-form-month');
+    const month = monthEl ? (monthEl.value ? parseInt(monthEl.value) : null) : null;
+    const useLlm = document.getElementById('docgen-use-llm')?.checked || false;
+    
+    try {
+        showToast('Generowanie dokumentu...', 'info');
+        
+        const result = await apiCall('/doc-generator/generate', {
+            method: 'POST',
+            body: JSON.stringify({
+                template_id: templateId,
+                params: { project_id: projectId, year, month },
+                use_llm: useLlm,
+                llm_model: 'llama3.2'
+            })
+        });
+        
+        generatedDocContent = result.content;
+        
+        const resultDiv = document.getElementById('docgen-result');
+        const contentDiv = document.getElementById('docgen-result-content');
+        
+        if (resultDiv && contentDiv) {
+            resultDiv.style.display = 'block';
+            // Use markdown renderer if available
+            if (typeof renderMarkdown === 'function') {
+                contentDiv.innerHTML = renderMarkdown(result.content);
+            } else {
+                contentDiv.innerHTML = `<pre>${result.content}</pre>`;
+            }
+        }
+        
+        showToast('Dokument wygenerowany', 'success');
+        
+    } catch (e) {
+        showToast('Błąd generowania: ' + e.message, 'error');
+    }
+}
+
+function copyDocContent() {
+    if (generatedDocContent) {
+        navigator.clipboard.writeText(generatedDocContent).then(() => {
+            showToast('Skopiowano do schowka', 'success');
+        });
+    }
+}
+
+function downloadDocContent() {
+    if (generatedDocContent) {
+        const blob = new Blob([generatedDocContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dokument_${new Date().toISOString().slice(0,10)}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+function editDocContent() {
+    const contentDiv = document.getElementById('docgen-result-content');
+    if (!contentDiv) return;
+    
+    contentDiv.innerHTML = `
+        <textarea id="docgen-edit-textarea" style="width:100%; height:400px; font-family:monospace;">${generatedDocContent}</textarea>
+        <div class="form-actions" style="margin-top:10px;">
+            <button class="btn btn-secondary" onclick="cancelDocEdit()">Anuluj</button>
+            <button class="btn btn-primary" onclick="saveDocEdit()">Zapisz zmiany</button>
+        </div>
+    `;
+}
+
+function cancelDocEdit() {
+    const contentDiv = document.getElementById('docgen-result-content');
+    if (contentDiv && typeof renderMarkdown === 'function') {
+        contentDiv.innerHTML = renderMarkdown(generatedDocContent);
+    }
+}
+
+function saveDocEdit() {
+    const textarea = document.getElementById('docgen-edit-textarea');
+    if (textarea) {
+        generatedDocContent = textarea.value;
+        cancelDocEdit();
+        showToast('Zmiany zapisane', 'success');
+    }
+}
+
+// ==================== DOCUMENT ANNOTATIONS ====================
+async function loadDocAnnotations() {
+    const container = document.getElementById('doc-annotations-list');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading">Ładowanie dokumentów...</div>';
+    
+    try {
+        const result = await apiCall('/documents/notes?limit=100');
+        const items = result.items || [];
+        
+        if (items.length === 0) {
+            container.innerHTML = '<div class="empty-state">Brak dokumentów do wyświetlenia</div>';
+            return;
+        }
+        
+        container.innerHTML = items.map(doc => `
+            <div class="doc-annotation-card" data-doc-id="${doc.id}">
+                <div class="doc-annotation-header">
+                    <div class="doc-info">
+                        <span class="doc-icon">${getDocTypeIcon(doc.document_type)}</span>
+                        <div class="doc-details">
+                            <h4>${doc.filename}</h4>
+                            <span class="doc-type">${doc.document_type}</span>
+                            <span class="doc-date">${doc.created_at ? new Date(doc.created_at).toLocaleDateString('pl-PL') : ''}</span>
+                        </div>
+                    </div>
+                    <div class="doc-actions">
+                        <a href="${doc.file_url}" target="_blank" class="btn btn-sm btn-secondary">📄 Otwórz</a>
+                        <button class="btn btn-sm btn-secondary" onclick="showDocumentDetail('${doc.id}')">👁️ Szczegóły</button>
+                    </div>
+                </div>
+                ${doc.ocr_excerpt ? `
+                <div class="doc-ocr-excerpt">
+                    <strong>OCR:</strong> ${doc.ocr_excerpt.substring(0, 200)}${doc.ocr_excerpt.length > 200 ? '...' : ''}
+                </div>
+                ` : ''}
+                <div class="doc-annotation-content">
+                    <label>Adnotacja / notatka kontekstowa:</label>
+                    <textarea 
+                        id="annotation-${doc.id}" 
+                        class="doc-annotation-textarea"
+                        placeholder="Dodaj notatkę o tym dokumencie dla kontekstu B+R..."
+                        onchange="saveDocAnnotation('${doc.id}')"
+                    >${doc.notes || ''}</textarea>
+                    <span class="annotation-status" id="annotation-status-${doc.id}">
+                        ${doc.notes_updated_at ? `Zapisano: ${new Date(doc.notes_updated_at).toLocaleString('pl-PL')}` : ''}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (e) {
+        container.innerHTML = `<div class="error">Błąd ładowania: ${e.message}</div>`;
+    }
+}
+
+function getDocTypeIcon(type) {
+    const icons = {
+        invoice: '🧾', receipt: '🧾', contract: '📜',
+        report: '📊', timesheet: '⏱️', other: '📄'
+    };
+    return icons[type] || '📄';
+}
+
+async function saveDocAnnotation(docId) {
+    const textarea = document.getElementById(`annotation-${docId}`);
+    const statusEl = document.getElementById(`annotation-status-${docId}`);
+    if (!textarea) return;
+    
+    const notes = textarea.value;
+    
+    try {
+        await apiCall(`/documents/${docId}/notes`, {
+            method: 'PUT',
+            body: JSON.stringify({ notes })
+        });
+        
+        if (statusEl) {
+            statusEl.textContent = `Zapisano: ${new Date().toLocaleString('pl-PL')}`;
+        }
+    } catch (e) {
+        showToast('Błąd zapisu adnotacji', 'error');
+    }
+}
+
+// Expose functions globally
+window.loadDocTemplates = loadDocTemplates;
+window.filterDocTemplates = filterDocTemplates;
+window.previewDocData = previewDocData;
+window.closeDocPreviewModal = closeDocPreviewModal;
+window.downloadDemoDoc = downloadDemoDoc;
+window.openDocGenerateModal = openDocGenerateModal;
+window.closeDocGenerateModal = closeDocGenerateModal;
+window.generateDocument = generateDocument;
+window.copyDocContent = copyDocContent;
+window.downloadDocContent = downloadDocContent;
+window.editDocContent = editDocContent;
+window.cancelDocEdit = cancelDocEdit;
+window.saveDocEdit = saveDocEdit;
+window.loadDocAnnotations = loadDocAnnotations;
+window.saveDocAnnotation = saveDocAnnotation;

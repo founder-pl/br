@@ -669,7 +669,7 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
         # Build detailed expense descriptions
         expense_details = self._build_expense_details(expenses)
         
-        # Build timesheet section
+        # Build timesheet section with monthly breakdown
         timesheet_section = ""
         if timesheet_data and timesheet_data.get('total_hours', 0) > 0:
             timesheet_section = f"""
@@ -679,11 +679,46 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
 |----------|---------|
 | Łączna liczba godzin | {timesheet_data.get('total_hours', 0)} h |
 
-### Podział godzin według pracowników:
+### 7.1 Podział godzin według pracowników:
 
+| Pracownik | Godziny |
+|-----------|---------|
 """
             for w in timesheet_data.get('by_worker', []):
                 timesheet_section += f"| {w['worker_name']} | {w['total_hours']} h |\n"
+            
+            # Monthly breakdown
+            monthly_data = timesheet_data.get('by_month', [])
+            if monthly_data:
+                timesheet_section += "\n### 7.2 Rozbicie miesięczne godzin:\n\n"
+                
+                workers = list(set(w['worker_name'] for w in timesheet_data.get('by_worker', [])))
+                
+                timesheet_section += "| Miesiąc |"
+                for worker in workers:
+                    timesheet_section += f" {worker[:15]} |"
+                timesheet_section += " **Razem** |\n"
+                
+                timesheet_section += "|---------|" + "".join(["--------|" for _ in workers]) + "--------|\n"
+                
+                months_dict = {}
+                for entry in monthly_data:
+                    month_key = (entry.get('year'), entry.get('month'))
+                    if month_key not in months_dict:
+                        months_dict[month_key] = {}
+                    months_dict[month_key][entry.get('worker_name', '')] = entry.get('hours', 0)
+                
+                month_names = {1: 'Styczeń', 2: 'Luty', 3: 'Marzec', 4: 'Kwiecień', 5: 'Maj', 6: 'Czerwiec',
+                              7: 'Lipiec', 8: 'Sierpień', 9: 'Wrzesień', 10: 'Październik', 11: 'Listopad', 12: 'Grudzień'}
+                
+                for (year, month), worker_hours in sorted(months_dict.items()):
+                    month_name = f"{month_names.get(month, month)} {year}"
+                    total = sum(worker_hours.values())
+                    timesheet_section += f"| {month_name} |"
+                    for worker in workers:
+                        h = worker_hours.get(worker, 0)
+                        timesheet_section += f" {h} h |" if h else " - |"
+                    timesheet_section += f" **{total} h** |\n"
         
         # Build contractors section
         contractors_section = ""
@@ -707,13 +742,14 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
 
 Poniższa sekcja dokumentuje przychody z komercjalizacji wyników projektu B+R.
 
-| Data | Nr faktury | Klient | Kwota | Opis |
-|------|------------|--------|-------|------|
+| Data | Nr faktury | Klient | Kwota | Opis | Dokument |
+|------|------------|--------|-------|------|----------|
 """
             for r in revenues:
                 ip_desc = r.get('ip_description') or 'Usługi B+R'
                 client = r.get('client_name') or r.get('client_nip') or 'N/A'
-                revenues_section += f"| {r.get('invoice_date', 'N/A')} | {r.get('invoice_number', 'N/A')} | {client} | {float(r.get('gross_amount', 0)):.2f} PLN | {ip_desc[:30]} |\n"
+                doc_link = self._format_doc_link(r)
+                revenues_section += f"| {r.get('invoice_date', 'N/A')} | {r.get('invoice_number', 'N/A')} | {client} | {float(r.get('gross_amount', 0)):.2f} PLN | {ip_desc[:30]} | {doc_link} |\n"
             
             revenues_section += f"""
 **Łączne przychody z projektu B+R:** {total_revenue:.2f} PLN
@@ -910,6 +946,7 @@ Oświadczam, że:
 | Status kwalifikacji | {status_icon} {'Kwalifikowany' if br_qualified else 'Oczekuje na klasyfikację'} |
 | Stawka odliczenia | {int(deduction_rate * 100)}% |
 | Kwota odliczenia | {gross * deduction_rate if br_qualified else 0:.2f} PLN |
+| Dokument źródłowy | {self._format_doc_link(e)} |
 
 **Uzasadnienie kwalifikacji B+R:**
 
@@ -925,6 +962,14 @@ Wydatek dokumentuje iterację #{iteration} projektu B+R, w ramach której:
 ---
 """
         return details
+    
+    def _format_doc_link(self, expense: Dict[str, Any]) -> str:
+        """Format document link for expense."""
+        doc_id = expense.get('document_id')
+        doc_filename = expense.get('document_filename') or expense.get('filename')
+        if doc_id:
+            return f"[{doc_filename or 'Dokument'}](/api/documents/{doc_id}/file)"
+        return "Brak dokumentu"
     
     def _build_expense_list(self, expenses: list) -> str:
         """Build expense list table for summary."""
