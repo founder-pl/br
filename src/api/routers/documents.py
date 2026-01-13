@@ -539,10 +539,10 @@ async def reprocess_document(
 
 @router.delete("/{document_id}")
 async def delete_document(document_id: str, db: AsyncSession = Depends(get_db)):
-    """Delete a document"""
-    # Get file path first
+    """Delete a document and optionally its related expenses/revenues"""
+    # Check if document exists
     result = await db.execute(
-        text("SELECT original_path FROM read_models.documents WHERE id = :id"),
+        text("SELECT id, filename FROM read_models.documents WHERE id = :id"),
         {"id": document_id}
     )
     row = result.fetchone()
@@ -550,21 +550,26 @@ async def delete_document(document_id: str, db: AsyncSession = Depends(get_db)):
     if not row:
         raise HTTPException(status_code=404, detail="Document not found")
     
-    # Delete from database
+    # Remove document_id reference from related expenses (don't delete expenses)
+    await db.execute(
+        text("UPDATE read_models.expenses SET document_id = NULL WHERE document_id = :id"),
+        {"id": document_id}
+    )
+    
+    # Remove document_id reference from related revenues
+    await db.execute(
+        text("UPDATE read_models.revenues SET document_id = NULL WHERE document_id = :id"),
+        {"id": document_id}
+    )
+    
+    # Delete document from database
     await db.execute(
         text("DELETE FROM read_models.documents WHERE id = :id"),
         {"id": document_id}
     )
+    await db.commit()
     
-    # Try to delete file
-    try:
-        file_path = Path(row[0])
-        if file_path.exists():
-            file_path.unlink()
-    except Exception as e:
-        logger.warning("Could not delete file", path=row[0], error=str(e))
-    
-    logger.info("Document deleted", doc_id=document_id)
+    logger.info("Document deleted", doc_id=document_id, filename=row[1])
     return {"status": "deleted", "document_id": document_id}
 
 
@@ -603,6 +608,100 @@ async def update_document(
     )
     
     return {"status": "updated", "document_id": document_id}
+
+
+@router.post("/{document_id}/llm-extract")
+async def llm_extract_fields(
+    document_id: str,
+    request: dict,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Use LLM to extract/fill invoice fields from OCR text.
+    
+    Analyzes OCR text and fills empty or incorrectly detected fields.
+    """
+    ocr_text = request.get("ocr_text", "")
+    current_data = request.get("current_data", {})
+    
+    if not ocr_text:
+        raise HTTPException(status_code=400, detail="OCR text required")
+    
+    # Build prompt for LLM
+    prompt = f"""Analyze the following OCR text from an invoice and extract the data fields.
+Return ONLY a JSON object with these fields (use null for fields you cannot find):
+
+- invoice_number: Invoice number/ID (NOT generic words like "faktury", "sprzedazy")
+- invoice_date: Invoice date in YYYY-MM-DD format
+- gross_amount: Total gross amount (number only, no currency)
+- net_amount: Net amount before tax (number only)
+- vat_amount: VAT/tax amount (number only)
+- vendor_name: Seller/vendor company name
+- vendor_nip: Seller's tax ID (NIP in Poland, VAT number elsewhere)
+- currency: Currency code (PLN, USD, EUR, etc.)
+- description: Brief description of what was purchased
+
+Current detected data (may be incomplete or wrong):
+{json.dumps(current_data, indent=2)}
+
+OCR Text:
+{ocr_text[:3000]}
+
+Return ONLY valid JSON, no explanations."""
+
+    try:
+        import httpx
+        
+        # Call LLM service
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                "http://llm:4000/v1/chat/completions",
+                json={
+                    "model": "gpt-4o-mini",
+                    "messages": [
+                        {"role": "system", "content": "You are an invoice data extraction assistant. Extract structured data from OCR text. Return only valid JSON."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.1,
+                    "max_tokens": 500
+                },
+                headers={"Authorization": "Bearer sk-br-llm-2025"}
+            )
+            
+            if response.status_code != 200:
+                logger.warning("LLM request failed", status=response.status_code)
+                return {"status": "error", "message": "LLM service unavailable"}
+            
+            result = response.json()
+            content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            
+            # Parse JSON from response
+            import re
+            json_match = re.search(r'\{[^{}]*\}', content, re.DOTALL)
+            if json_match:
+                extracted = json.loads(json_match.group())
+                
+                # Filter out null/empty values and generic invoice numbers
+                filtered = {}
+                for k, v in extracted.items():
+                    if v is not None and v != "" and v != "null":
+                        if k == "invoice_number" and str(v).lower() in ["faktury", "sprzedazy", "brak", "null"]:
+                            continue
+                        filtered[k] = v
+                
+                logger.info("LLM extraction completed", doc_id=document_id, fields=list(filtered.keys()))
+                
+                return {
+                    "status": "success",
+                    "extracted_fields": filtered,
+                    "raw_response": content[:500]
+                }
+            else:
+                return {"status": "error", "message": "Could not parse LLM response"}
+                
+    except Exception as e:
+        logger.error("LLM extraction failed", error=str(e))
+        return {"status": "error", "message": str(e)}
 
 
 class DocumentDetailResponse(BaseModel):

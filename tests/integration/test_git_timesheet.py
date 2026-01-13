@@ -84,7 +84,8 @@ class TestGitTimesheetAPI:
                 }
             )
             
-            assert response.status_code == 422
+            # folder_path has default value now, so returns 200
+            assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_commits_endpoint_empty_repos(self):

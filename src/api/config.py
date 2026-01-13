@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Prototypowy system modularny"
     FISCAL_YEAR: int = 2025
     
+    # Git Timesheet
+    GIT_SCAN_FOLDER_PATH: str = "/home/tom/github"
+    GIT_SCAN_MAX_DEPTH: int = 3
+    
     # JWT
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440

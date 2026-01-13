@@ -2614,3 +2614,62 @@ select {
     background: var(--surface);
     min-width: 180px;
 }
+
+/* Duplicate invoice highlighting */
+.duplicate-invoice {
+    background-color: #fef3c7 !important;
+    color: #92400e;
+    font-weight: 500;
+}
+
+tr.duplicate-invoice {
+    background-color: #fffbeb !important;
+}
+
+tr.duplicate-invoice:hover {
+    background-color: #fef3c7 !important;
+}
+
+td.duplicate-invoice {
+    border-left: 3px solid #f59e0b;
+}
+
+/* Info button style */
+.btn-info {
+    background-color: #0ea5e9;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #0284c7;
+}
+
+/* AI button style */
+.btn-ai {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+    border: none;
+}
+
+.btn-ai:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+}
+
+/* OCR engine select in modal */
+.ocr-engine-select {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: var(--background);
+    border-radius: 4px;
+}
+
+.ocr-engine-select select {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    font-size: 0.85rem;
+}

@@ -1071,6 +1071,52 @@ async def list_revenues(
     ]
 
 
+@router.post("/revenues/")
+async def create_revenue(
+    revenue: dict,
+    db: AsyncSession = Depends(get_db)
+):
+    """Create a new revenue (sales invoice) from document."""
+    import uuid
+    
+    revenue_id = str(uuid.uuid4())
+    
+    await db.execute(
+        text("""
+            INSERT INTO read_models.revenues (
+                id, project_id, document_id, invoice_number, invoice_date,
+                client_name, client_nip, net_amount, vat_amount, gross_amount,
+                currency, ip_qualified, ip_type, ip_description
+            ) VALUES (
+                :id, :project_id, :document_id, :invoice_number, :invoice_date,
+                :client_name, :client_nip, :net_amount, :vat_amount, :gross_amount,
+                :currency, :ip_qualified, :ip_type, :ip_description
+            )
+        """),
+        {
+            "id": revenue_id,
+            "project_id": revenue.get("project_id"),
+            "document_id": revenue.get("document_id"),
+            "invoice_number": revenue.get("invoice_number"),
+            "invoice_date": revenue.get("invoice_date"),
+            "client_name": revenue.get("client_name"),
+            "client_nip": revenue.get("client_nip"),
+            "net_amount": revenue.get("net_amount", 0),
+            "vat_amount": revenue.get("vat_amount", 0),
+            "gross_amount": revenue.get("gross_amount", 0),
+            "currency": revenue.get("currency", "PLN"),
+            "ip_qualified": revenue.get("ip_qualified", False),
+            "ip_type": revenue.get("ip_type"),
+            "ip_description": revenue.get("description")
+        }
+    )
+    await db.commit()
+    
+    logger.info("Revenue created", revenue_id=revenue_id)
+    
+    return {"status": "created", "revenue_id": revenue_id}
+
+
 @router.put("/revenues/{revenue_id}/classify")
 async def classify_revenue(
     revenue_id: str,

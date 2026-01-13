@@ -56,7 +56,7 @@ function navigateTo(page, options = {}) {
     }
     
     const loaders = { dashboard: loadDashboard, upload: () => { setupUploadListeners(); loadRecentDocuments(); }, 
-                      projects: loadProjects, expenses: () => { loadProjectsForFilter(); loadExpenses(); },
+                      projects: loadProjects, expenses: () => { initExpenseFilters(); loadProjectsForFilter(); loadExpenses(); },
                       reports: loadReports, clarifications: loadClarifications, timesheet: initTimesheet,
                       integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig,
                       'git-timesheet': initGitTimesheet };
@@ -434,9 +434,20 @@ async function showDocumentDetail(docId, options = {}) {
                 <p><strong>Typ:</strong> ${getDocTypeName(doc.document_type)}</p>
                 <p><strong>Pewność OCR:</strong> ${doc.ocr_confidence ? (doc.ocr_confidence * 100).toFixed(1) + '%' : '-'}</p>
                 <p><strong>Data dodania:</strong> ${new Date(doc.created_at).toLocaleString('pl-PL')}</p>
+                <div class="ocr-engine-select">
+                    <label><strong>Silnik OCR:</strong></label>
+                    <select id="ocr-engine-select" onchange="updateOcrEngine(this.value)">
+                        <option value="paddleocr" selected>PaddleOCR (domyślny)</option>
+                        <option value="tesseract">Tesseract</option>
+                        <option value="easyocr">EasyOCR</option>
+                    </select>
+                </div>
             </div>
             <div class="doc-detail-section">
-                <h4>Wyodrębnione dane <button class="btn btn-sm" onclick="toggleEditMode()">✏️ Edytuj</button></h4>
+                <h4>Wyodrębnione dane 
+                    <button class="btn btn-sm" onclick="toggleEditMode()">✏️ Edytuj</button>
+                    <button class="btn btn-sm btn-ai" onclick="fillFieldsWithLLM('${docId}')" title="Uzupełnij puste pola za pomocą AI">🤖 Uzupełnij AI</button>
+                </h4>
                 <div class="extracted-data" id="extracted-data-view">
                     ${Object.entries(extractedData)
                         .filter(([k]) => !k.startsWith('_'))
@@ -477,7 +488,8 @@ async function showDocumentDetail(docId, options = {}) {
                 <button class="btn btn-primary" onclick="retryOcr('${docId}'); closeDocumentModal();">🔄 Powtórz OCR</button>
                 <button class="btn btn-secondary" onclick="reExtractData('${docId}')">🔍 Ponowne wyodrębnienie</button>
                 <button class="btn btn-warning" onclick="checkDuplicates('${docId}')">🔎 Sprawdź duplikaty</button>
-                <button class="btn btn-success" onclick="createExpenseFromDoc('${docId}')">💰 Utwórz wydatek</button>
+                <button class="btn btn-success" onclick="createExpenseFromDoc('${docId}')">📤 Utwórz wydatek</button>
+                <button class="btn btn-info" onclick="createRevenueFromDoc('${docId}')">📥 Utwórz przychód</button>
                 <button class="btn btn-danger" onclick="deleteDocument('${docId}'); closeDocumentModal();">🗑️ Usuń</button>
             </div>
         `;
@@ -571,6 +583,49 @@ async function createExpenseFromDoc(docId) {
         }
     } catch (e) {
         showToast('Błąd tworzenia wydatku', 'error');
+    }
+}
+
+async function createRevenueFromDoc(docId) {
+    if (!currentDocData) return;
+    const data = currentDocData.extracted_data || {};
+    
+    const grossAmount = parseFloat(data.gross_amount || data.total_gross || 0);
+    const netAmount = parseFloat(data.net_amount || grossAmount * 0.81);
+    const vatAmount = parseFloat(data.vat_amount || (grossAmount - netAmount));
+    
+    try {
+        const response = await fetch(`${API_BASE}/expenses/revenues/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                project_id: PROJECT_ID,
+                document_id: docId,
+                invoice_number: data.invoice_number || null,
+                invoice_date: data.invoice_date || null,
+                client_name: data.vendor_name || data.client_name || null,
+                client_nip: data.vendor_nip || data.client_nip || null,
+                gross_amount: grossAmount,
+                net_amount: netAmount,
+                vat_amount: vatAmount,
+                currency: data.currency || 'PLN',
+                description: data.description || `Faktura ${data.invoice_number || currentDocData.filename}`,
+                ip_qualified: false
+            })
+        });
+        
+        if (response.ok) {
+            showToast('Przychód utworzony', 'success');
+            closeDocumentModal();
+            navigateTo('expenses');
+            document.getElementById('expense-filter-type').value = 'revenue';
+            loadExpenses();
+        } else {
+            const err = await response.json();
+            showToast(`Błąd: ${err.detail || 'Nie udało się utworzyć przychodu'}`, 'error');
+        }
+    } catch (e) {
+        showToast('Błąd tworzenia przychodu', 'error');
     }
 }
 
@@ -725,27 +780,40 @@ function getProjectName(projectId) {
 // Expenses and Revenues
 let selectedExpenses = new Set();
 
+function initExpenseFilters() {
+    // Initialize filters from URL params on page load
+    const urlYear = getUrlParam('year');
+    const urlMonth = getUrlParam('month');
+    
+    if (urlYear && document.getElementById('expense-filter-year')) {
+        document.getElementById('expense-filter-year').value = urlYear;
+    }
+    if (urlMonth && document.getElementById('expense-filter-month')) {
+        document.getElementById('expense-filter-month').value = urlMonth;
+    }
+}
+
 async function loadExpenses() {
     try {
         const typeFilter = document.getElementById('expense-filter-type')?.value || 'expense';
         const projectFilter = document.getElementById('expense-filter-project')?.value;
         const status = document.getElementById('expense-filter-status')?.value;
         const brQualified = document.getElementById('expense-filter-br')?.value;
-        const yearFilter = document.getElementById('expense-filter-year')?.value;
-        const monthFilter = document.getElementById('expense-filter-month')?.value;
+        // Get current filter values from selects
+        const year = document.getElementById('expense-filter-year')?.value || '';
+        const month = document.getElementById('expense-filter-month')?.value || '';
         
-        // Restore from URL params on first load
-        const urlYear = getUrlParam('year');
-        const urlMonth = getUrlParam('month');
-        if (urlYear && document.getElementById('expense-filter-year')) {
-            document.getElementById('expense-filter-year').value = urlYear;
+        // Update URL params when filters change
+        if (year) {
+            setUrlParam('year', year, true);
+        } else {
+            setUrlParam('year', null, true);
         }
-        if (urlMonth && document.getElementById('expense-filter-month')) {
-            document.getElementById('expense-filter-month').value = urlMonth;
+        if (month) {
+            setUrlParam('month', month, true);
+        } else {
+            setUrlParam('month', null, true);
         }
-        
-        const year = urlYear || yearFilter;
-        const month = urlMonth || monthFilter;
         
         // Update page title based on type and filters
         const titleEl = document.getElementById('expenses-page-title');
@@ -787,6 +855,15 @@ async function loadExpenses() {
         // Sort by date descending
         items.sort((a, b) => (b.invoice_date || '').localeCompare(a.invoice_date || ''));
         
+        // Detect duplicate invoice numbers
+        const invoiceCounts = {};
+        items.forEach(e => {
+            const inv = (e.invoice_number || '').toLowerCase().trim();
+            if (inv && inv !== '-') {
+                invoiceCounts[inv] = (invoiceCounts[inv] || 0) + 1;
+            }
+        });
+        
         selectedExpenses.clear();
         updateBulkActionsBar();
         
@@ -803,11 +880,17 @@ async function loadExpenses() {
                     (e.ip_qualified ? '✅ IP Box' : '⏳ Do klasyfikacji') :
                     (getCategoryName(e.br_category) || '-');
                 
-                return `<tr class="${isRev ? 'revenue-row' : 'expense-row'}">
+                // Check if invoice number is duplicate
+                const invKey = (e.invoice_number || '').toLowerCase().trim();
+                const isDuplicate = invKey && invKey !== '-' && invoiceCounts[invKey] > 1;
+                const duplicateClass = isDuplicate ? 'duplicate-invoice' : '';
+                const duplicateTitle = isDuplicate ? `title="⚠️ Duplikat (${invoiceCounts[invKey]}x)"` : '';
+                
+                return `<tr class="${isRev ? 'revenue-row' : 'expense-row'} ${duplicateClass}">
                     <td><input type="checkbox" class="expense-checkbox" data-id="${e.id}" data-type="${e.type}" onchange="toggleExpenseSelection('${e.id}', this.checked)"></td>
                     <td><span class="project-tag">${getProjectName(e.project_id)}</span></td>
                     <td>${typeIcon} ${e.invoice_date || '-'}</td>
-                    <td>${e.invoice_number || '-'}</td>
+                    <td ${duplicateTitle} class="${duplicateClass}">${isDuplicate ? '⚠️ ' : ''}${e.invoice_number || '-'}</td>
                     <td>${partyName}</td>
                     <td class="${isRev ? 'amount-revenue' : ''}">${formatCurrencyWithCode(e.gross_amount, e.currency)}</td>
                     <td>${categoryDisplay}</td>
@@ -1398,6 +1481,63 @@ async function reExtractData(docId) {
     } catch (e) { 
         showToast('Błąd wyodrębniania danych', 'error'); 
         console.error(e);
+    }
+}
+
+let selectedOcrEngine = 'paddleocr';
+
+function updateOcrEngine(engine) {
+    selectedOcrEngine = engine;
+    showToast(`Silnik OCR zmieniony na: ${engine}`, 'info');
+}
+
+async function fillFieldsWithLLM(docId) {
+    if (!currentDocData || !currentDocData.ocr_text) {
+        showToast('Brak tekstu OCR do analizy', 'error');
+        return;
+    }
+    
+    try {
+        showToast('Analizowanie tekstu za pomocą AI...', 'info');
+        
+        const result = await apiCall(`/documents/${docId}/llm-extract`, {
+            method: 'POST',
+            body: JSON.stringify({
+                ocr_text: currentDocData.ocr_text,
+                current_data: currentDocData.extracted_data || {}
+            })
+        });
+        
+        if (result.status === 'success' && result.extracted_fields) {
+            // Update the form fields with LLM results
+            const fields = result.extracted_fields;
+            let filledCount = 0;
+            
+            for (const [field, value] of Object.entries(fields)) {
+                if (value) {
+                    const input = document.getElementById(`edit-${field}`);
+                    if (input && (!input.value || input.value === '' || input.value === 'faktury' || input.value === 'sprzedazy')) {
+                        input.value = value;
+                        filledCount++;
+                    }
+                }
+            }
+            
+            // Switch to edit mode to show filled fields
+            const editDiv = document.getElementById('extracted-data-edit');
+            const viewDiv = document.getElementById('extracted-data-view');
+            if (editDiv && viewDiv) {
+                viewDiv.style.display = 'none';
+                editDiv.style.display = 'block';
+            }
+            
+            showToast(`AI uzupełniło ${filledCount} pól. Sprawdź i zapisz.`, 'success');
+        } else {
+            showToast('AI nie znalazło dodatkowych danych', 'warning');
+        }
+    } catch (e) {
+        console.error('LLM extraction error:', e);
+        showToast('Błąd analizy AI', 'error');
     }
 }
 

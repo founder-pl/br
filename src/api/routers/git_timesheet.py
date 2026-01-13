@@ -47,9 +47,17 @@ class GitCommit(BaseModel):
     files_changed: int = 0
 
 
+from ..config import settings as app_settings
+
 class ScanRequest(BaseModel):
-    folder_path: str = Field(default="/home/tom/github", description="Base folder to scan for git repos")
-    max_depth: int = Field(default=3, ge=1, le=4, description="Max depth to search (1-4)")
+    folder_path: str = Field(default=None, description="Base folder to scan for git repos")
+    max_depth: int = Field(default=None, ge=1, le=4, description="Max depth to search (1-4)")
+    
+    def get_folder_path(self) -> str:
+        return self.folder_path or app_settings.GIT_SCAN_FOLDER_PATH
+    
+    def get_max_depth(self) -> int:
+        return self.max_depth or app_settings.GIT_SCAN_MAX_DEPTH
 
 
 class CommitHistoryRequest(BaseModel):
@@ -213,14 +221,20 @@ async def scan_for_repositories(request: ScanRequest):
     """
     Scan a folder for git repositories up to specified depth.
     Returns list of repositories with their authors.
+    
+    Default values are loaded from environment variables:
+    - GIT_SCAN_FOLDER_PATH (default: /home/tom/github)
+    - GIT_SCAN_MAX_DEPTH (default: 3)
     """
-    base_path = translate_path_to_container(request.folder_path)
+    folder_path = request.get_folder_path()
+    max_depth = request.get_max_depth()
+    base_path = translate_path_to_container(folder_path)
     
     if not os.path.isdir(base_path):
-        raise HTTPException(status_code=400, detail=f"Folder not found: {request.folder_path} (mapped to {base_path})")
+        raise HTTPException(status_code=400, detail=f"Folder not found: {folder_path} (mapped to {base_path})")
     
     # Find all git repos
-    repo_paths = find_git_repos(base_path, request.max_depth)
+    repo_paths = find_git_repos(base_path, max_depth)
     
     # Get info for each repo
     repos = []
@@ -268,8 +282,8 @@ async def scan_for_repositories(request: ScanRequest):
                 all_authors[key]["repos"].append(host_path)
     
     return {
-        "base_path": request.folder_path,
-        "max_depth": request.max_depth,
+        "base_path": folder_path,
+        "max_depth": max_depth,
         "repositories": repos,
         "total_repos": len(repos),
         "all_authors": list(all_authors.values())
