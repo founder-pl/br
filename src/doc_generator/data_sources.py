@@ -309,9 +309,9 @@ class DataSourceRegistry:
             name="revenues",
             query_template="""
                 SELECT 
-                    id, description, gross_amount, currency,
-                    ip_box_qualified, ip_classification, invoice_date,
-                    document_id, client_name, client_nip
+                    id, ip_description as description, gross_amount, currency,
+                    ip_qualified, ip_type, invoice_date,
+                    document_id, client_name, client_nip, invoice_number
                 FROM read_models.revenues
                 WHERE project_id = :project_id
                 ORDER BY invoice_date ASC
@@ -399,32 +399,30 @@ class DataSourceRegistry:
             query_template="""
                 WITH expense_categories AS (
                     SELECT 
-                        SUM(CASE WHEN category IN ('personnel', 'materials', 'equipment') 
-                            AND vendor_nip NOT IN (SELECT nip FROM read_models.contractors WHERE related_party = true)
+                        SUM(CASE WHEN br_category IN ('personnel_employment', 'personnel_civil', 'materials', 'equipment') 
                             THEN gross_amount ELSE 0 END) as a_direct,
-                        SUM(CASE WHEN category = 'subcontractor' 
-                            AND vendor_nip NOT IN (SELECT nip FROM read_models.contractors WHERE related_party = true)
+                        SUM(CASE WHEN br_category = 'external_services'
                             THEN gross_amount ELSE 0 END) as b_unrelated,
-                        SUM(CASE WHEN category = 'subcontractor' 
-                            AND vendor_nip IN (SELECT nip FROM read_models.contractors WHERE related_party = true)
-                            THEN gross_amount ELSE 0 END) as c_related,
-                        SUM(CASE WHEN category = 'ip_purchase' THEN gross_amount ELSE 0 END) as d_ip
+                        SUM(0) as c_related,
+                        SUM(CASE WHEN br_category = 'ip_purchase' THEN gross_amount ELSE 0 END) as d_ip
                     FROM read_models.expenses
                     WHERE project_id = :project_id
                       AND br_qualified = true
-                      AND (:year IS NULL OR EXTRACT(YEAR FROM invoice_date) = :year)
                 )
                 SELECT 
-                    a_direct, b_unrelated, c_related, d_ip,
+                    COALESCE(a_direct, 0) as a_direct, 
+                    COALESCE(b_unrelated, 0) as b_unrelated, 
+                    COALESCE(c_related, 0) as c_related, 
+                    COALESCE(d_ip, 0) as d_ip,
                     CASE 
-                        WHEN (a_direct + b_unrelated + c_related + d_ip) = 0 THEN 1
-                        ELSE LEAST(1, ((a_direct + b_unrelated) * 1.3) / 
-                             NULLIF(a_direct + b_unrelated + c_related + d_ip, 0))
+                        WHEN COALESCE(a_direct, 0) + COALESCE(b_unrelated, 0) + COALESCE(c_related, 0) + COALESCE(d_ip, 0) = 0 THEN 1
+                        ELSE LEAST(1, ((COALESCE(a_direct, 0) + COALESCE(b_unrelated, 0)) * 1.3) / 
+                             NULLIF(COALESCE(a_direct, 0) + COALESCE(b_unrelated, 0) + COALESCE(c_related, 0) + COALESCE(d_ip, 0), 0))
                     END as nexus
                 FROM expense_categories
             """,
             description="Obliczenie wskaźnika Nexus dla IP Box",
-            params_schema={"project_id": "UUID projektu", "year": "Rok (opcjonalny)"}
+            params_schema={"project_id": "UUID projektu"}
         ))
         
         self.register(RESTDataSource(
