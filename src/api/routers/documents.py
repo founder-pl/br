@@ -120,8 +120,58 @@ async def upload_document(
     )
 
 
+def detect_invoice_type(extracted_data: dict, our_nip: str = "5881918662") -> str:
+    """
+    Detect if invoice is a cost (expense) or revenue invoice.
+    
+    Logic:
+    - If our company NIP appears as seller/vendor -> revenue invoice (we sold something)
+    - If our company NIP appears as buyer -> cost invoice (we bought something)
+    - If seller NIP is different from ours -> cost invoice (default)
+    
+    Returns: 'expense' or 'revenue'
+    """
+    # Get seller/vendor NIP
+    seller_nip = (extracted_data.get('vendor_nip') or 
+                  extracted_data.get('seller_nip') or 
+                  extracted_data.get('nip_sprzedawcy') or 
+                  extracted_data.get('nip_wystawcy') or '')
+    
+    # Get buyer NIP
+    buyer_nip = (extracted_data.get('buyer_nip') or 
+                 extracted_data.get('client_nip') or 
+                 extracted_data.get('nip_nabywcy') or 
+                 extracted_data.get('nip_kupujacego') or '')
+    
+    # Clean NIPs for comparison
+    def clean_nip(nip):
+        if not nip:
+            return ''
+        return ''.join(c for c in str(nip) if c.isdigit())
+    
+    seller_clean = clean_nip(seller_nip)
+    buyer_clean = clean_nip(buyer_nip)
+    our_clean = clean_nip(our_nip)
+    
+    # If we are the seller -> revenue invoice
+    if seller_clean == our_clean:
+        return 'revenue'
+    
+    # If we are the buyer -> cost invoice
+    if buyer_clean == our_clean:
+        return 'expense'
+    
+    # Check invoice type hints in text
+    ocr_text = str(extracted_data.get('ocr_text', '')).lower()
+    if 'faktura sprzedaży' in ocr_text or 'faktura vat sprzedaż' in ocr_text:
+        return 'revenue'
+    
+    # Default to expense (cost invoice)
+    return 'expense'
+
+
 async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_type: str):
-    """Create expense record from OCR-extracted document data"""
+    """Create expense or revenue record from OCR-extracted document data"""
     from ..database import get_db_context
     from decimal import Decimal
     
@@ -129,6 +179,9 @@ async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_ty
         # Handle nested extracted_data structure
         if 'extracted_data' in extracted_data and isinstance(extracted_data['extracted_data'], dict):
             extracted_data = {**extracted_data, **extracted_data['extracted_data']}
+        
+        # Detect if this is a cost or revenue invoice
+        invoice_type = detect_invoice_type(extracted_data)
         
         # Extract financial data from OCR results
         gross_amount = extracted_data.get('gross_amount') or extracted_data.get('total') or extracted_data.get('kwota_brutto') or 0
@@ -209,38 +262,71 @@ async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_ty
             currency = 'PLN'
         
         async with get_db_context() as db:
-            await db.execute(
-                text("""
-                INSERT INTO read_models.expenses 
-                (id, project_id, document_id, invoice_number, invoice_date, 
-                 vendor_name, vendor_nip, net_amount, vat_amount, gross_amount, 
-                 currency, expense_category, status, br_qualified, br_deduction_rate)
-                VALUES (:id, :project_id, :document_id, :invoice_number, :invoice_date,
-                        :vendor_name, :vendor_nip, :net_amount, :vat_amount, :gross_amount,
-                        :currency, :expense_category, 'draft', false, 1.0)
-                """),
-                {
-                    "id": expense_id,
-                    "project_id": project_id,
-                    "document_id": doc_id,
-                    "invoice_number": invoice_number,
-                    "invoice_date": invoice_date,
-                    "vendor_name": vendor_name,
-                    "vendor_nip": vendor_nip,
-                    "net_amount": float(net),
-                    "vat_amount": float(vat),
-                    "gross_amount": float(gross),
-                    "currency": currency,
-                    "expense_category": doc_type
-                }
-            )
-        
-        logger.info("Expense created from document", expense_id=expense_id, doc_id=doc_id, gross=float(gross))
-        
-        # Queue LLM classification for the new expense
-        from .expenses import classify_expense_with_llm
-        import asyncio
-        asyncio.create_task(classify_expense_with_llm(expense_id))
+            if invoice_type == 'revenue':
+                # Create revenue record (we sold something)
+                # Extract client info (buyer is our client for revenue invoices)
+                client_name = get_str_field(extracted_data.get('buyer_name') or extracted_data.get('nabywca') or extracted_data.get('client_name'))
+                client_nip = get_str_field(extracted_data.get('buyer_nip') or extracted_data.get('nip_nabywcy') or extracted_data.get('client_nip'))
+                
+                await db.execute(
+                    text("""
+                    INSERT INTO read_models.revenues 
+                    (id, project_id, document_id, invoice_number, invoice_date, 
+                     client_name, client_nip, net_amount, vat_amount, gross_amount, 
+                     currency, ip_description)
+                    VALUES (:id, :project_id, :document_id, :invoice_number, :invoice_date,
+                            :client_name, :client_nip, :net_amount, :vat_amount, :gross_amount,
+                            :currency, :ip_description)
+                    """),
+                    {
+                        "id": expense_id,
+                        "project_id": project_id,
+                        "document_id": doc_id,
+                        "invoice_number": invoice_number,
+                        "invoice_date": invoice_date,
+                        "client_name": client_name,
+                        "client_nip": client_nip,
+                        "net_amount": float(net),
+                        "vat_amount": float(vat),
+                        "gross_amount": float(gross),
+                        "currency": currency,
+                        "ip_description": "Przychód z projektu B+R"
+                    }
+                )
+                logger.info("Revenue created from document", revenue_id=expense_id, doc_id=doc_id, gross=float(gross), invoice_type=invoice_type)
+            else:
+                # Create expense record (we bought something)
+                await db.execute(
+                    text("""
+                    INSERT INTO read_models.expenses 
+                    (id, project_id, document_id, invoice_number, invoice_date, 
+                     vendor_name, vendor_nip, net_amount, vat_amount, gross_amount, 
+                     currency, expense_category, status, br_qualified, br_deduction_rate)
+                    VALUES (:id, :project_id, :document_id, :invoice_number, :invoice_date,
+                            :vendor_name, :vendor_nip, :net_amount, :vat_amount, :gross_amount,
+                            :currency, :expense_category, 'draft', false, 1.0)
+                    """),
+                    {
+                        "id": expense_id,
+                        "project_id": project_id,
+                        "document_id": doc_id,
+                        "invoice_number": invoice_number,
+                        "invoice_date": invoice_date,
+                        "vendor_name": vendor_name,
+                        "vendor_nip": vendor_nip,
+                        "net_amount": float(net),
+                        "vat_amount": float(vat),
+                        "gross_amount": float(gross),
+                        "currency": currency,
+                        "expense_category": doc_type
+                    }
+                )
+                logger.info("Expense created from document", expense_id=expense_id, doc_id=doc_id, gross=float(gross), invoice_type=invoice_type)
+                
+                # Queue LLM classification for the new expense
+                from .expenses import classify_expense_with_llm
+                import asyncio
+                asyncio.create_task(classify_expense_with_llm(expense_id))
         
     except Exception as e:
         logger.error("Failed to create expense from document", doc_id=doc_id, error=str(e))

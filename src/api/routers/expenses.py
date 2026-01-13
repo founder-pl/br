@@ -662,11 +662,41 @@ async def generate_project_documentation_summary(
     except Exception as e:
         logger.warning("Could not load contractors data", error=str(e))
     
+    # Get revenues for this project
+    revenues = []
+    try:
+        rev_result = await db.execute(
+            text("""
+                SELECT id, invoice_number, invoice_date, client_name, client_nip,
+                       gross_amount, net_amount, currency, ip_description
+                FROM read_models.revenues
+                WHERE project_id = :project_id
+                ORDER BY invoice_date
+            """),
+            {"project_id": project_id}
+        )
+        revenues = [
+            {
+                "id": str(r[0]),
+                "invoice_number": r[1],
+                "invoice_date": str(r[2]) if r[2] else None,
+                "client_name": r[3],
+                "client_nip": r[4],
+                "gross_amount": float(r[5] or 0),
+                "net_amount": float(r[6] or 0),
+                "currency": r[7],
+                "ip_description": r[8]
+            }
+            for r in rev_result.fetchall()
+        ]
+    except Exception as e:
+        logger.warning("Could not load revenues data", error=str(e))
+    
     # Generate summary documentation
     doc_generator = get_doc_generator()
-    result = await doc_generator.generate_project_summary(project, expenses, timesheet_data, contractors)
+    result = await doc_generator.generate_project_summary(project, expenses, timesheet_data, contractors, revenues)
     
-    logger.info("Project summary generated", project_id=project_id, expenses=len(expenses))
+    logger.info("Project summary generated", project_id=project_id, expenses=len(expenses), revenues=len(revenues))
     
     # Recalculate project totals after generating summary
     await db.execute(

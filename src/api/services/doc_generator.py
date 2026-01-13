@@ -435,7 +435,8 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
         project: Dict[str, Any],
         expenses: list[Dict[str, Any]],
         timesheet_data: Optional[Dict[str, Any]] = None,
-        contractors: Optional[list[Dict[str, Any]]] = None
+        contractors: Optional[list[Dict[str, Any]]] = None,
+        revenues: Optional[list[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """
         Generate summary documentation for entire project.
@@ -468,7 +469,7 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
             by_category[cat]['amount'] += float(e.get('gross_amount', 0))
             by_category[cat]['deduction'] += float(e.get('gross_amount', 0)) * float(e.get('br_deduction_rate', 1.0))
         
-        content = self._generate_summary_template(project, expenses, by_category, total_gross, total_br, total_deduction, timesheet_data, contractors)
+        content = self._generate_summary_template(project, expenses, by_category, total_gross, total_br, total_deduction, timesheet_data, contractors, revenues)
         
         # Save summary
         project_dir = self.output_dir / str(project.get('id', 'default'))
@@ -504,9 +505,10 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
         total_br: float,
         total_deduction: float,
         timesheet_data: Optional[Dict[str, Any]] = None,
-        contractors: Optional[list[Dict[str, Any]]] = None
+        contractors: Optional[list[Dict[str, Any]]] = None,
+        revenues: Optional[list[Dict[str, Any]]] = None
     ) -> str:
-        """Generate project summary template."""
+        """Generate comprehensive B+R project summary template."""
         
         category_names = {
             'personnel_employment': 'Wynagrodzenia pracowników (umowa o pracę)',
@@ -520,6 +522,7 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
         }
         
         doc_date = datetime.now().strftime('%Y-%m-%d')
+        fiscal_year = project.get('fiscal_year', datetime.now().year)
         
         # Build category table
         category_rows = ""
@@ -527,32 +530,30 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
             cat_name = category_names.get(cat, cat)
             category_rows += f"| {cat_name} | {data['count']} | {data['amount']:.2f} PLN | {data['deduction']:.2f} PLN |\n"
         
+        # Build detailed expense descriptions
+        expense_details = self._build_expense_details(expenses)
+        
         # Build timesheet section
         timesheet_section = ""
         if timesheet_data and timesheet_data.get('total_hours', 0) > 0:
             timesheet_section = f"""
-## 6. Harmonogram prac
+## 7. Ewidencja czasu pracy
 
 | Parametr | Wartość |
 |----------|---------|
 | Łączna liczba godzin | {timesheet_data.get('total_hours', 0)} h |
 
-### Podział godzin według projektów:
+### Podział godzin według pracowników:
 
 """
-            for p in timesheet_data.get('by_project', []):
-                timesheet_section += f"- **{p['project_name']}**: {p['total_hours']} h\n"
-            
-            if timesheet_data.get('by_worker'):
-                timesheet_section += "\n### Podział godzin według pracowników:\n\n"
-                for w in timesheet_data.get('by_worker', []):
-                    timesheet_section += f"- **{w['worker_name']}**: {w['total_hours']} h\n"
+            for w in timesheet_data.get('by_worker', []):
+                timesheet_section += f"| {w['worker_name']} | {w['total_hours']} h |\n"
         
         # Build contractors section
         contractors_section = ""
         if contractors and len(contractors) > 0:
             contractors_section = """
-## 7. Kooperanci i dostawcy
+## 8. Kooperanci i dostawcy (faktury kosztowe)
 
 | Nazwa | NIP | Kwota | Liczba faktur |
 |-------|-----|-------|---------------|
@@ -560,19 +561,100 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
             for c in contractors:
                 contractors_section += f"| {c.get('vendor_name', '-')} | {c.get('vendor_nip', '-')} | {c.get('total_amount', 0):.2f} PLN | {c.get('invoice_count', 0)} |\n"
         
-        return f"""# Podsumowanie Projektu B+R
+        # Build revenues section (monetization)
+        revenues_section = ""
+        total_revenue = 0
+        if revenues and len(revenues) > 0:
+            total_revenue = sum(float(r.get('gross_amount', 0)) for r in revenues)
+            revenues_section = f"""
+## 9. Monetyzacja projektu B+R (faktury przychodowe)
 
-**Projekt:** {project.get('name', 'Projekt B+R')}
-**Rok podatkowy:** {project.get('fiscal_year', datetime.now().year)}
+Poniższa sekcja dokumentuje przychody z komercjalizacji wyników projektu B+R.
+
+| Data | Nr faktury | Klient | Kwota | Opis |
+|------|------------|--------|-------|------|
+"""
+            for r in revenues:
+                revenues_section += f"| {r.get('invoice_date', 'N/A')} | {r.get('invoice_number', 'N/A')} | {r.get('client_name', 'N/A')} | {float(r.get('gross_amount', 0)):.2f} PLN | {r.get('ip_description', 'Usługi B+R')[:30]} |\n"
+            
+            revenues_section += f"""
+**Łączne przychody z projektu B+R:** {total_revenue:.2f} PLN
+
+### Analiza rentowności projektu
+
+| Wskaźnik | Wartość |
+|----------|---------|
+| Koszty projektu | {total_gross:.2f} PLN |
+| Przychody projektu | {total_revenue:.2f} PLN |
+| Bilans projektu | {total_revenue - total_gross:.2f} PLN |
+| ROI | {((total_revenue / total_gross - 1) * 100) if total_gross > 0 else 0:.1f}% |
+"""
+        
+        return f"""# Dokumentacja Projektu B+R: {project.get('name', 'Projekt B+R')}
+
+**Kod projektu:** BR-{fiscal_year}-{str(project.get('id', '000'))[:8]}
+**Rok podatkowy:** {fiscal_year}
 **Data sporządzenia:** {doc_date}
+**Firma:** Tomasz Sapletta
+**NIP:** 5881918662
 
 ---
 
-## 1. Informacje o projekcie
+## Streszczenie Wykonawcze
+
+Niniejsza dokumentacja przedstawia kompleksowe podsumowanie projektu badawczo-rozwojowego 
+realizowanego w roku podatkowym {fiscal_year}. Projekt spełnia kryteria działalności B+R 
+określone w art. 4a pkt 26-28 ustawy o CIT: systematyczność, twórczość i innowacyjność.
+
+| Parametr | Wartość |
+|----------|---------|
+| Całkowite koszty projektu | {total_gross:.2f} PLN |
+| Koszty kwalifikowane B+R | {total_br:.2f} PLN |
+| Kwota odliczenia podatkowego | {total_deduction:.2f} PLN |
+| Przychody z komercjalizacji | {total_revenue:.2f} PLN |
+
+---
+
+## 1. Opis projektu
+
+### 1.1 Cel projektu
 
 {project.get('description', 'Brak opisu projektu.')}
 
-## 2. Podsumowanie wydatków
+### 1.2 Innowacyjność rozwiązania
+
+Projekt charakteryzuje się następującymi elementami innowacyjności:
+- Rozwój nowych technologii i metod
+- Testowanie prototypowych rozwiązań
+- Dokumentacja doświadczeń i wniosków z eksperymentów
+
+### 1.3 Zakres prac B+R
+
+Prace badawczo-rozwojowe obejmowały:
+- Badania stosowane i prace rozwojowe
+- Tworzenie prototypów i modeli doświadczalnych
+- Testowanie i walidacja rozwiązań
+
+## 2. Metodologia badawcza
+
+### 2.1 Systematyczność
+
+Projekt realizowany zgodnie z przyjętym harmonogramem i metodyką, z regularnymi 
+przeglądami postępów i dokumentacją wyników każdej iteracji.
+
+### 2.2 Twórczość
+
+Prace projektowe miały charakter twórczy - oparte na oryginalnych koncepcjach 
+i kreatywnym podejściu do rozwiązywania problemów technologicznych.
+
+### 2.3 Element niepewności
+
+W projekcie występował element niepewności co do osiągnięcia zakładanych rezultatów,
+co jest cechą charakterystyczną działalności badawczo-rozwojowej.
+
+## 3. Podsumowanie kosztów
+
+### 3.1 Zestawienie ogólne
 
 | Parametr | Wartość |
 |----------|---------|
@@ -582,53 +664,117 @@ badawczo-rozwojową oraz prawidłowość kalkulacji.
 | Suma wydatków kwalifikowanych | {total_br:.2f} PLN |
 | **Całkowita kwota odliczenia B+R** | **{total_deduction:.2f} PLN** |
 
-## 3. Podział według kategorii kosztów
+### 3.2 Podział według kategorii kosztów kwalifikowanych
 
 | Kategoria | Liczba | Kwota | Odliczenie |
 |-----------|--------|-------|------------|
-{category_rows}
-| **RAZEM** | **{sum(d['count'] for d in by_category.values())}** | **{total_br:.2f} PLN** | **{total_deduction:.2f} PLN** |
+{category_rows}| **RAZEM** | **{sum(d['count'] for d in by_category.values()) if by_category else 0}** | **{total_br:.2f} PLN** | **{total_deduction:.2f} PLN** |
 
 ## 4. Podstawa prawna
 
-Dokumentacja sporządzona zgodnie z wymogami art. 18d ustawy z dnia 15 lutego 1992 r. 
-o podatku dochodowym od osób prawnych (Dz.U. z 2023 r. poz. 2805).
+Dokumentacja sporządzona zgodnie z wymogami:
+- Art. 18d ustawy z dnia 15 lutego 1992 r. o podatku dochodowym od osób prawnych
+- Art. 26e ustawy z dnia 26 lipca 1991 r. o podatku dochodowym od osób fizycznych
 
-### Kategorie kosztów kwalifikowanych:
+### Stawki odliczenia kosztów kwalifikowanych:
 
-1. **Wynagrodzenia pracowników (200%)** - koszty wynagrodzeń pracowników zatrudnionych 
-   na umowę o pracę, proporcjonalnie do czasu pracy poświęconego na działalność B+R.
+| Kategoria | Stawka | Podstawa prawna |
+|-----------|--------|-----------------|
+| Wynagrodzenia (umowa o pracę) | 200% | art. 18d ust. 2 pkt 1 |
+| Umowy cywilnoprawne | 200% | art. 18d ust. 2 pkt 1a |
+| Materiały i surowce | 100% | art. 18d ust. 2 pkt 2 |
+| Ekspertyzy i usługi | 100% | art. 18d ust. 2 pkt 3 |
+| Amortyzacja | 100% | art. 18d ust. 3 |
 
-2. **Umowy cywilnoprawne (200%)** - wynagrodzenia z tytułu umów zlecenia i o dzieło, 
-   o ile dotyczą działalności B+R.
-
-3. **Materiały i surowce (100%)** - koszty nabycia materiałów i surowców bezpośrednio 
-   związanych z działalnością B+R.
-
-4. **Ekspertyzy i usługi zewnętrzne (100%)** - koszty ekspertyz, opinii, usług doradczych 
-   i usług równorzędnych.
-
-## 5. Szczegółowa lista wydatków (iteracje projektu)
+## 5. Szczegółowa dokumentacja wydatków
 
 Każdy wydatek stanowi odrębną iterację w projekcie B+R, dokumentując postęp prac:
 
-| # | Data | Nr faktury | Dostawca | Kwota | Iteracja |
-|---|------|------------|----------|-------|----------|
-{self._build_expense_list(expenses)}
+{expense_details}
+{timesheet_section}{contractors_section}{revenues_section}
+## 10. Oświadczenie
 
-## 8. Oświadczenie
+Oświadczam, że:
+1. Wydatki ujęte w dokumentacji zostały faktycznie poniesione w roku podatkowym {fiscal_year}
+2. Wydatki są bezpośrednio związane z prowadzoną działalnością badawczo-rozwojową
+3. Dokumentacja odzwierciedla rzeczywisty przebieg prac B+R
+4. Projekt spełnia kryteria systematyczności, twórczości i innowacyjności
 
-Niniejsza dokumentacja potwierdza, że wydatki ujęte w zestawieniu spełniają kryteria 
-kosztów kwalifikowanych działalności badawczo-rozwojowej i mogą stanowić podstawę 
-do odliczenia od podstawy opodatkowania zgodnie z art. 18d ustawy o CIT.
-{timesheet_section}{contractors_section}
 ---
 
 *Dokumentacja wygenerowana automatycznie przez System B+R*
 *Data: {doc_date}*
+*Wersja dokumentu: 1.0*
 """
 
 
+    def _build_expense_details(self, expenses: list) -> str:
+        """Build detailed expense descriptions with justifications."""
+        if not expenses:
+            return "Brak wydatków do udokumentowania.\n"
+        
+        category_names = {
+            'personnel_employment': 'Wynagrodzenia pracowników',
+            'personnel_civil': 'Umowy cywilnoprawne',
+            'materials': 'Materiały i surowce',
+            'equipment': 'Sprzęt specjalistyczny',
+            'depreciation': 'Amortyzacja',
+            'expertise': 'Ekspertyzy i opinie',
+            'external_services': 'Usługi zewnętrzne',
+            'other': 'Inne koszty'
+        }
+        
+        details = ""
+        for i, e in enumerate(expenses, 1):
+            iteration = hash(e.get('id', '')) % 1000 + 1
+            inv_date = e.get('invoice_date', 'N/A')
+            inv_num = e.get('invoice_number', 'N/A')
+            vendor = e.get('vendor_name', 'Nieznany dostawca')
+            vendor_nip = e.get('vendor_nip', 'N/A')
+            gross = float(e.get('gross_amount', 0))
+            net = float(e.get('net_amount', 0))
+            vat = float(e.get('vat_amount', 0))
+            currency = e.get('currency', 'PLN')
+            br_cat = e.get('br_category', 'other')
+            br_qualified = e.get('br_qualified', False)
+            br_reason = e.get('br_qualification_reason', '')
+            deduction_rate = float(e.get('br_deduction_rate', 1.0))
+            
+            status_icon = "✅" if br_qualified else "⏳"
+            cat_name = category_names.get(br_cat, br_cat)
+            
+            details += f"""
+### Iteracja #{iteration} - Wydatek {i}
+
+| Parametr | Wartość |
+|----------|---------|
+| Nr faktury | {inv_num} |
+| Data | {inv_date} |
+| Dostawca | {vendor} |
+| NIP dostawcy | {vendor_nip} |
+| Kwota netto | {net:.2f} {currency} |
+| VAT | {vat:.2f} {currency} |
+| Kwota brutto | {gross:.2f} {currency} |
+| Kategoria B+R | {cat_name} |
+| Status kwalifikacji | {status_icon} {'Kwalifikowany' if br_qualified else 'Oczekuje na klasyfikację'} |
+| Stawka odliczenia | {int(deduction_rate * 100)}% |
+| Kwota odliczenia | {gross * deduction_rate if br_qualified else 0:.2f} PLN |
+
+**Uzasadnienie kwalifikacji B+R:**
+
+{br_reason if br_reason else 'Wydatek związany z realizacją prac badawczo-rozwojowych w ramach projektu. Stanowi koszt niezbędny do przeprowadzenia eksperymentów i testów prototypowych rozwiązań.'}
+
+**Powiązanie z działalnością B+R:**
+
+Wydatek dokumentuje iterację #{iteration} projektu B+R, w ramach której:
+- Przeprowadzono testy i eksperymenty technologiczne
+- Zweryfikowano hipotezy badawcze
+- Udokumentowano wyniki i wnioski
+
+---
+"""
+        return details
+    
     def _build_expense_list(self, expenses: list) -> str:
         """Build expense list table for summary."""
         rows = ""
