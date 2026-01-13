@@ -94,19 +94,12 @@ class ProjectBasicInfo(BaseModel):
 # Timeline & Milestones
 # =============================================================================
 
-class Deliverable(BaseModel):
-    """Project deliverable."""
-    name: str = Field(..., min_length=1)
-    description: Optional[str] = None
-    completed: bool = False
-
-
 class Milestone(BaseModel):
     """Project milestone."""
-    date: date = Field(..., description="Data kamienia milowego")
+    milestone_date: date = Field(..., description="Data kamienia milowego")
     name: str = Field(..., min_length=1, description="Nazwa etapu")
     description: Optional[str] = None
-    deliverables: list[Deliverable] = Field(default_factory=list)
+    deliverables: list[str] = Field(default_factory=list)
 
 
 class ProjectTimeline(BaseModel):
@@ -452,3 +445,12 @@ class PipelineResult(BaseModel):
     def save_validation_report(self, path: Path) -> None:
         """Save validation report to file."""
         path.write_text(self.to_yaml(), encoding="utf-8")
+
+
+# =============================================================================
+# Type Aliases for backward compatibility
+# =============================================================================
+
+Timeline = ProjectTimeline
+Innovation = InnovationInfo
+Methodology = MethodologyInfo

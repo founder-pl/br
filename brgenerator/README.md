@@ -22,8 +22,8 @@ Automatyczny generator dokumentacji B+R (ulga podatkowa na badania i rozwój) z 
 
 ```bash
 # Klonowanie
-git clone https://github.com/softreck/br-doc-generator.git
-cd br-doc-generator
+git clone https://github.com/softreck/brgenerator.git
+cd brgenerator
 
 # Instalacja
 pip install -e .
@@ -163,7 +163,7 @@ PDF_TEMPLATE=professional
 ## 📁 Struktura projektu
 
 ```
-br-doc-generator/
+brgenerator/
 ├── src/br_doc_generator/
 │   ├── __init__.py          # Eksporty główne
 │   ├── cli.py               # Interfejs CLI (Typer)
@@ -220,12 +220,12 @@ Słowa kluczowe: ryzyko, niepewność, wyzwanie, problem badawczy, hipoteza
 
 ```bash
 # Budowanie
-docker build -t br-doc-generator .
+docker build -t brgenerator .
 
 # Uruchomienie z lokalnym Ollama
 docker run -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
            -v $(pwd)/output:/app/output \
-           br-doc-generator generate --input /app/input/projekt.yaml
+           brgenerator generate --input /app/input/projekt.yaml
 ```
 
 ## 🧪 Testowanie

@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  br-doc-generator:
+  brgenerator:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: br-doc-generator
+    container_name: brgenerator
     environment:
       # LLM Provider
       - LLM_DEFAULT_PROVIDER=${LLM_DEFAULT_PROVIDER:-openrouter}

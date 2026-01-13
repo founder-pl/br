@@ -3,7 +3,7 @@
 ## Overview
 
 ```
-br-doc-generator/
+brgenerator/
 ├── .env.example              # Environment configuration template
 ├── .gitignore                # Git ignore rules
 ├── Dockerfile                # Docker container definition
@@ -216,16 +216,16 @@ br-doc render --input docs/documentation.md --output docs/documentation.pdf
 
 ```bash
 # Build
-docker build -t br-doc-generator .
+docker build -t brgenerator .
 
 # Run with OpenRouter
 docker run -e OPENROUTER_API_KEY=sk-or-xxx \
            -v $(pwd)/output:/app/output \
-           br-doc-generator generate --input /app/input/form.yaml
+           brgenerator generate --input /app/input/form.yaml
 
 # Run with local Ollama
 docker run -e LLM_DEFAULT_PROVIDER=ollama \
            -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
            -v $(pwd)/output:/app/output \
-           br-doc-generator generate --input /app/input/form.yaml
+           brgenerator generate --input /app/input/form.yaml
 ```

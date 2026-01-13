@@ -286,3 +286,38 @@ class LegalComplianceValidator(BaseValidator):
 4. Add required legal phrases and declarations
 5. Emphasize risk and uncertainty elements
 Use formal, legal language appropriate for tax documentation."""
+    
+    def _validate_nip_checksum(self, nip: str) -> bool:
+        """
+        Validate NIP checksum using Polish algorithm.
+        
+        Args:
+            nip: NIP string (10 digits)
+            
+        Returns:
+            True if checksum is valid, False otherwise
+        """
+        # Clean NIP
+        nip_clean = nip.replace("-", "").replace(" ", "")
+        
+        if len(nip_clean) != 10 or not nip_clean.isdigit():
+            return False
+        
+        # Reject all zeros
+        if nip_clean == "0000000000":
+            return False
+        
+        # NIP checksum weights
+        weights = [6, 5, 7, 2, 3, 4, 5, 6, 7]
+        
+        # Calculate checksum
+        checksum = sum(int(nip_clean[i]) * weights[i] for i in range(9)) % 11
+        
+        # Check digit (10th digit)
+        check_digit = int(nip_clean[9])
+        
+        # Checksum of 10 is invalid
+        if checksum == 10:
+            return False
+        
+        return checksum == check_digit

@@ -12,8 +12,7 @@ def env_setup(monkeypatch):
     monkeypatch.setenv("LLM_DEFAULT_PROVIDER", "openrouter")
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
     monkeypatch.setenv("OPENROUTER_MODEL", "test-model")
-    monkeypatch.setenv("VALIDATION_LEVELS", "structure,content,legal,financial")
-    monkeypatch.setenv("VALIDATION_MAX_ITERATIONS", "3")
+    # Don't set VALIDATION_LEVELS - let it use defaults
 
 
 @pytest.fixture

@@ -57,7 +57,7 @@ function navigateTo(page, options = {}) {
     
     const loaders = { dashboard: loadDashboard, upload: () => { setupUploadListeners(); loadRecentDocuments(); }, 
                       projects: loadProjects, expenses: () => { loadProjectsForFilter(); loadExpenses(); },
-                      reports: loadReports, clarifications: loadClarifications,
+                      reports: loadReports, clarifications: loadClarifications, timesheet: initTimesheet,
                       integrations: loadIntegrations, logs: initLogStreams, 'ai-config': loadAIConfig };
     if (loaders[page]) loaders[page]();
     
@@ -426,6 +426,8 @@ async function loadProjects() {
                 <div class="project-actions">
                     <button class="btn btn-sm btn-secondary" onclick="editProject('${p.id}')">✏️ Edytuj</button>
                     <button class="btn btn-sm btn-primary" onclick="viewProjectExpenses('${p.id}')">💰 Wydatki</button>
+                    <button class="btn btn-sm btn-success" onclick="viewProjectDocs('${p.id}')">📄 Podgląd</button>
+                    <button class="btn btn-sm btn-warning" onclick="generateProjectSummary('${p.id}')">📝 Generuj</button>
                     <button class="btn btn-sm btn-danger" onclick="deleteProject('${p.id}')">🗑️</button>
                 </div>
             </div>
@@ -660,6 +662,7 @@ async function showExpenseDetails(id) {
                 <button class="btn btn-primary" onclick="classifyExpense('${e.id}')">Zmień klasyfikację</button>
                 <button class="btn btn-secondary" onclick="reclassifyWithLLM('${e.id}')">Reklasyfikuj AI</button>
                 <button class="btn btn-success" onclick="saveExpenseStatus('${e.id}')">💾 Zapisz status</button>
+                <button class="btn btn-warning" onclick="generateExpenseDoc('${e.id}')">📝 Generuj dokumentację</button>
                 <button class="btn btn-danger" onclick="deleteExpense('${e.id}')">🗑️ Usuń</button>
             </div>`;
         document.getElementById('expense-modal').classList.add('active');
@@ -844,6 +847,220 @@ async function reExtractData(docId) {
     }
 }
 
+// Documentation generation
+async function generateExpenseDoc(expenseId) {
+    try {
+        showToast('Generowanie dokumentacji...', 'info');
+        const result = await apiCall(`/expenses/${expenseId}/generate-doc`, { method: 'POST' });
+        
+        if (result.status === 'success') {
+            showToast('Dokumentacja wygenerowana!', 'success');
+            // Show link to file
+            const filename = result.file_path.split('/').pop();
+            alert(`Dokumentacja zapisana:\n${filename}\n\nŚcieżka: ${result.file_path}`);
+        } else {
+            showToast('Błąd generowania dokumentacji', 'error');
+        }
+    } catch (e) { 
+        showToast('Błąd generowania dokumentacji', 'error'); 
+        console.error(e);
+    }
+}
+
+async function generateProjectSummary(projectId) {
+    try {
+        showToast('Generowanie podsumowania projektu...', 'info');
+        const result = await apiCall(`/expenses/project/${projectId}/generate-summary`, { method: 'POST' });
+        
+        if (result.status === 'success') {
+            showToast(`Podsumowanie wygenerowane!`, 'success');
+            // Refresh projects to show updated totals
+            loadProjects();
+            // Show documentation viewer
+            viewProjectDocs(projectId);
+        } else {
+            showToast('Błąd generowania podsumowania', 'error');
+        }
+    } catch (e) { 
+        showToast('Błąd generowania podsumowania', 'error'); 
+        console.error(e);
+    }
+}
+
+// Documentation viewer
+async function viewProjectDocs(projectId) {
+    try {
+        const result = await apiCall(`/expenses/project/${projectId}/docs`);
+        const modal = document.getElementById('docs-modal');
+        const content = document.getElementById('docs-modal-content');
+        
+        if (result.files.length === 0) {
+            content.innerHTML = `
+                <p class="empty-state">Brak wygenerowanych dokumentów dla tego projektu.</p>
+                <button class="btn btn-primary" onclick="generateProjectSummary('${projectId}'); closeDocsModal();">
+                    📝 Generuj dokumentację
+                </button>`;
+        } else {
+            content.innerHTML = `
+                <div class="docs-list">
+                    ${result.files.map(f => `
+                        <div class="doc-item" onclick="viewDocContent('${projectId}', '${f.filename}')">
+                            <span class="doc-icon">📄</span>
+                            <span class="doc-name">${f.filename}</span>
+                            <span class="doc-size">${(f.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="doc-preview" class="doc-preview"></div>
+                <div class="docs-actions">
+                    <button class="btn btn-primary" onclick="generateProjectSummary('${projectId}')">
+                        🔄 Wygeneruj nowe podsumowanie
+                    </button>
+                </div>`;
+            
+            // Auto-load latest document
+            if (result.files.length > 0) {
+                viewDocContent(projectId, result.files[0].filename);
+            }
+        }
+        
+        modal.classList.add('active');
+    } catch (e) { 
+        showToast('Błąd ładowania dokumentacji', 'error'); 
+        console.error(e);
+    }
+}
+
+async function viewDocContent(projectId, filename) {
+    try {
+        const result = await apiCall(`/expenses/project/${projectId}/docs/${filename}`);
+        const preview = document.getElementById('doc-preview');
+        
+        // Highlight selected doc
+        document.querySelectorAll('.doc-item').forEach(d => d.classList.remove('active'));
+        event?.target?.closest('.doc-item')?.classList.add('active');
+        
+        // Render markdown content
+        preview.innerHTML = `
+            <div class="doc-content-header">
+                <strong>${filename}</strong>
+                <div class="doc-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocHistory('${projectId}', '${filename}')">📜 Historia</button>
+                    <button class="btn btn-sm btn-secondary" onclick="downloadDoc('${projectId}', '${filename}')">⬇️ MD</button>
+                    <button class="btn btn-sm btn-primary" onclick="downloadPdf('${projectId}', '${filename}')">📄 PDF</button>
+                    <button class="btn btn-sm btn-secondary" onclick="printDoc()">🖨️ Drukuj</button>
+                </div>
+            </div>
+            <div class="doc-markdown">${renderMarkdown(result.content)}</div>`;
+    } catch (e) { 
+        showToast('Błąd ładowania dokumentu', 'error'); 
+    }
+}
+
+// Use MarkdownRenderer module (loaded from markdown-renderer.js)
+function renderMarkdown(md) {
+    return MarkdownRenderer.render(md);
+}
+
+function downloadDoc(projectId, filename) {
+    // Download markdown file
+    window.open(`${API_BASE}/expenses/project/${projectId}/docs/${filename}`, '_blank');
+}
+
+function downloadPdf(projectId, filename) {
+    // Download/view PDF
+    window.open(`${API_BASE}/expenses/project/${projectId}/docs/${filename}/pdf`, '_blank');
+}
+
+async function viewDocHistory(projectId, filename) {
+    try {
+        const data = await apiCall(`/expenses/project/${projectId}/docs/${filename}/history`);
+        const preview = document.getElementById('doc-preview');
+        
+        if (!data.history || data.history.length === 0) {
+            preview.innerHTML = `
+                <div class="doc-content-header">
+                    <strong>📜 Historia: ${filename}</strong>
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocContent('${projectId}', '${filename}')">← Powrót</button>
+                </div>
+                <p class="empty-state">Brak historii zmian</p>`;
+            return;
+        }
+        
+        let historyHtml = data.history.map(h => `
+            <div class="history-item" onclick="viewDocVersion('${projectId}', '${filename}', '${h.commit}')">
+                <span class="history-commit">${h.commit}</span>
+                <span class="history-date">${h.date}</span>
+                <span class="history-message">${h.message}</span>
+            </div>
+        `).join('');
+        
+        preview.innerHTML = `
+            <div class="doc-content-header">
+                <strong>📜 Historia: ${filename}</strong>
+                <button class="btn btn-sm btn-secondary" onclick="viewDocContent('${projectId}', '${filename}')">← Powrót</button>
+            </div>
+            <div class="history-list">${historyHtml}</div>`;
+    } catch (e) {
+        showToast('Błąd ładowania historii', 'error');
+    }
+}
+
+async function viewDocVersion(projectId, filename, commit) {
+    try {
+        const data = await apiCall(`/expenses/project/${projectId}/docs/${filename}/version/${commit}`);
+        const preview = document.getElementById('doc-preview');
+        
+        preview.innerHTML = `
+            <div class="doc-content-header">
+                <strong>Wersja: ${commit}</strong>
+                <div class="doc-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocHistory('${projectId}', '${filename}')">📜 Historia</button>
+                    <button class="btn btn-sm btn-secondary" onclick="viewDocContent('${projectId}', '${filename}')">← Aktualna</button>
+                </div>
+            </div>
+            <div class="doc-markdown version-preview">${renderMarkdown(data.content)}</div>`;
+    } catch (e) {
+        showToast('Błąd ładowania wersji', 'error');
+    }
+}
+
+function printDoc() {
+    // Print the current document preview
+    const content = document.querySelector('.doc-markdown').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Dokumentacja B+R</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
+                h2 { color: #1e40af; margin-top: 30px; }
+                h3 { color: #374151; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th { background: #1e40af; color: white; padding: 10px; text-align: left; }
+                td { border: 1px solid #e5e7eb; padding: 8px; }
+                tr:nth-child(even) td { background: #f9fafb; }
+                hr { border: none; border-top: 1px solid #e5e7eb; margin: 30px 0; }
+                p { margin: 5px 0; }
+                .spacer { height: 10px; }
+                @media print { body { margin: 20px; } }
+            </style>
+        </head>
+        <body>${content}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function closeDocsModal() {
+    document.getElementById('docs-modal').classList.remove('active');
+}
+
 // Modal
 document.querySelector('.modal-close').addEventListener('click', () => document.getElementById('expense-modal').classList.remove('active'));
 document.getElementById('expense-modal').addEventListener('click', (e) => { if (e.target.id === 'expense-modal') e.target.classList.remove('active'); });
@@ -852,6 +1069,310 @@ document.getElementById('expense-modal').addEventListener('click', (e) => { if (
 document.getElementById('expense-filter-status').addEventListener('change', loadExpenses);
 document.getElementById('expense-filter-br').addEventListener('change', loadExpenses);
 document.getElementById('report-year').addEventListener('change', loadReports);
+
+// =============================================================================
+// Timesheet
+// =============================================================================
+
+const TIME_SLOTS = [
+    { id: 'morning', label: '8-12', hours: 4 },
+    { id: 'afternoon', label: '12-16', hours: 4 },
+    { id: 'evening', label: '16-20', hours: 4 },
+    { id: 'night', label: '20-24', hours: 4 }
+];
+
+let timesheetData = {};
+let workersCache = [];
+
+async function initTimesheet() {
+    // Populate month selector
+    const monthSelect = document.getElementById('timesheet-month');
+    const months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 
+                    'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+    const currentMonth = new Date().getMonth();
+    monthSelect.innerHTML = months.map((m, i) => 
+        `<option value="${i + 1}" ${i === currentMonth ? 'selected' : ''}>${m}</option>`
+    ).join('');
+    
+    // Load workers
+    await loadWorkers();
+    
+    // Load contractors
+    await loadContractors();
+    
+    // Load timesheet if worker selected
+    const workerId = document.getElementById('timesheet-worker').value;
+    if (workerId) {
+        loadTimesheet();
+    }
+}
+
+async function loadWorkers() {
+    try {
+        const workers = await apiCall('/timesheet/workers');
+        workersCache = workers;
+        
+        const select = document.getElementById('timesheet-worker');
+        select.innerHTML = '<option value="">Wybierz pracownika...</option>' +
+            workers.map(w => `<option value="${w.id}">${w.name}${w.role ? ` (${w.role})` : ''}</option>`).join('');
+    } catch (e) { console.error('Error loading workers:', e); }
+}
+
+async function loadContractors() {
+    try {
+        const contractors = await apiCall('/timesheet/contractors');
+        const container = document.getElementById('contractors-list');
+        
+        if (contractors.length === 0) {
+            container.innerHTML = '<p class="empty-state">Brak kooperantów</p>';
+            return;
+        }
+        
+        container.innerHTML = contractors.map(c => `
+            <div class="contractor-item">
+                <strong>${c.vendor_name}</strong>
+                ${c.vendor_nip ? `<span class="nip">NIP: ${c.vendor_nip}</span>` : ''}
+                <span class="amount">${formatCurrency(c.total_amount)} (${c.invoice_count} faktur)</span>
+            </div>
+        `).join('');
+    } catch (e) { console.error('Error loading contractors:', e); }
+}
+
+async function loadTimesheet() {
+    const workerId = document.getElementById('timesheet-worker').value;
+    const month = document.getElementById('timesheet-month').value;
+    const year = document.getElementById('timesheet-year').value;
+    
+    if (!workerId) {
+        document.getElementById('timesheet-grid').innerHTML = 
+            '<p class="empty-state">Wybierz pracownika, aby wyświetlić harmonogram</p>';
+        return;
+    }
+    
+    try {
+        // Load projects and timesheet entries
+        const [projects, entriesData] = await Promise.all([
+            apiCall('/projects/'),
+            apiCall(`/timesheet/entries?year=${year}&month=${month}&worker_id=${workerId}`)
+        ]);
+        
+        // Build entries lookup
+        timesheetData = {};
+        for (const entry of entriesData.entries) {
+            const key = `${entry.project_id}_${entry.work_date}_${entry.time_slot}`;
+            timesheetData[key] = entry.hours;
+        }
+        
+        // Get days in month
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        // Build grid HTML with checkboxes
+        let html = '<table class="timesheet-table timesheet-checkbox">';
+        
+        // Header row with projects
+        html += '<thead><tr><th>Dzień</th><th>Pora</th>';
+        for (const p of projects) {
+            html += `<th class="project-col" title="${p.name}">${p.name.substring(0, 12)}${p.name.length > 12 ? '..' : ''}</th>`;
+        }
+        html += '<th>Σ</th></tr></thead>';
+        
+        html += '<tbody>';
+        
+        // Rows for each day and time slot
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayOfWeek = new Date(year, month - 1, day).getDay();
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const dayNames = ['Nd', 'Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So'];
+            
+            for (let slotIdx = 0; slotIdx < TIME_SLOTS.length; slotIdx++) {
+                const slot = TIME_SLOTS[slotIdx];
+                const rowClass = isWeekend ? 'weekend' : '';
+                
+                html += `<tr class="${rowClass}">`;
+                
+                // Day column (only on first slot)
+                if (slotIdx === 0) {
+                    html += `<td rowspan="${TIME_SLOTS.length}" class="day-cell ${isWeekend ? 'weekend' : ''}">${day} ${dayNames[dayOfWeek]}</td>`;
+                }
+                
+                // Time slot
+                html += `<td class="slot-cell">${slot.label}</td>`;
+                
+                // Project columns - CHECKBOXES
+                let daySlotTotal = 0;
+                for (const p of projects) {
+                    const key = `${p.id}_${dateStr}_${slot.id}`;
+                    const hours = timesheetData[key] || 0;
+                    const checked = hours > 0;
+                    daySlotTotal += hours;
+                    
+                    html += `<td class="check-cell">
+                        <input type="checkbox" ${checked ? 'checked' : ''} 
+                               data-project="${p.id}" data-date="${dateStr}" data-slot="${slot.id}"
+                               onchange="toggleTimesheetBlock(this)" class="ts-checkbox">
+                    </td>`;
+                }
+                
+                // Row total
+                html += `<td class="total-cell">${daySlotTotal > 0 ? daySlotTotal : ''}</td>`;
+                html += '</tr>';
+            }
+        }
+        
+        html += '</tbody></table>';
+        
+        document.getElementById('timesheet-grid').innerHTML = html;
+        
+        // Update summary
+        updateTimesheetSummary(year, month);
+        
+    } catch (e) { 
+        console.error('Error loading timesheet:', e);
+        document.getElementById('timesheet-grid').innerHTML = '<p class="error">Błąd ładowania harmonogramu</p>';
+    }
+}
+
+async function toggleTimesheetBlock(checkbox) {
+    const workerId = document.getElementById('timesheet-worker').value;
+    const hours = checkbox.checked ? 4 : 0;
+    const key = `${checkbox.dataset.project}_${checkbox.dataset.date}_${checkbox.dataset.slot}`;
+    timesheetData[key] = hours;
+    
+    // Save immediately to database
+    try {
+        await apiCall('/timesheet/entries', {
+            method: 'POST',
+            body: JSON.stringify({
+                project_id: checkbox.dataset.project,
+                worker_id: workerId,
+                work_date: checkbox.dataset.date,
+                time_slot: checkbox.dataset.slot,
+                hours: hours
+            })
+        });
+        
+        // Update row total
+        const row = checkbox.closest('tr');
+        const checkboxes = row.querySelectorAll('.ts-checkbox');
+        let total = 0;
+        checkboxes.forEach(cb => { if (cb.checked) total += 4; });
+        row.querySelector('.total-cell').textContent = total > 0 ? total : '';
+        
+        // Update summary
+        const year = document.getElementById('timesheet-year').value;
+        const month = document.getElementById('timesheet-month').value;
+        updateTimesheetSummary(year, month);
+    } catch (e) {
+        console.error('Error saving timesheet:', e);
+        checkbox.checked = !checkbox.checked; // Revert
+        showToast('Błąd zapisywania', 'error');
+    }
+}
+
+function updateTimesheetCell(input) {
+    const hours = parseFloat(input.value) || 0;
+    const key = `${input.dataset.project}_${input.dataset.date}_${input.dataset.slot}`;
+    timesheetData[key] = hours;
+    
+    input.classList.toggle('has-value', hours > 0);
+    
+    // Update row total
+    const row = input.closest('tr');
+    const inputs = row.querySelectorAll('.hours-input');
+    let total = 0;
+    inputs.forEach(i => total += parseFloat(i.value) || 0);
+    row.querySelector('.total-cell').textContent = total > 0 ? total : '';
+}
+
+async function saveTimesheet() {
+    const workerId = document.getElementById('timesheet-worker').value;
+    if (!workerId) {
+        showToast('Wybierz pracownika', 'warning');
+        return;
+    }
+    
+    // Collect all entries
+    const entries = [];
+    document.querySelectorAll('.hours-input').forEach(input => {
+        const hours = parseFloat(input.value) || 0;
+        if (hours > 0) {
+            entries.push({
+                project_id: input.dataset.project,
+                worker_id: workerId,
+                work_date: input.dataset.date,
+                time_slot: input.dataset.slot,
+                hours: hours
+            });
+        }
+    });
+    
+    try {
+        await apiCall('/timesheet/entries/batch', {
+            method: 'POST',
+            body: JSON.stringify(entries)
+        });
+        showToast(`Zapisano ${entries.length} wpisów`, 'success');
+        
+        // Update summary
+        const year = document.getElementById('timesheet-year').value;
+        const month = document.getElementById('timesheet-month').value;
+        updateTimesheetSummary(year, month);
+    } catch (e) {
+        showToast('Błąd zapisywania', 'error');
+    }
+}
+
+async function updateTimesheetSummary(year, month) {
+    try {
+        const summary = await apiCall(`/timesheet/summary?year=${year}&month=${month}`);
+        const container = document.getElementById('timesheet-month-summary');
+        
+        let html = `<div class="summary-total"><strong>Razem:</strong> ${summary.total_hours} h</div>`;
+        
+        if (summary.by_project.length > 0) {
+            html += '<div class="summary-section"><strong>Wg projektów:</strong>';
+            for (const p of summary.by_project) {
+                html += `<div class="summary-item">${p.project_name}: <strong>${p.total_hours}h</strong></div>`;
+            }
+            html += '</div>';
+        }
+        
+        if (summary.by_worker.length > 0) {
+            html += '<div class="summary-section"><strong>Wg pracowników:</strong>';
+            for (const w of summary.by_worker) {
+                html += `<div class="summary-item">${w.worker_name}: <strong>${w.total_hours}h</strong></div>`;
+            }
+            html += '</div>';
+        }
+        
+        container.innerHTML = html;
+    } catch (e) { console.error('Error loading summary:', e); }
+}
+
+function showAddWorkerModal() {
+    const name = prompt('Imię i nazwisko pracownika:');
+    if (!name) return;
+    
+    const role = prompt('Rola/stanowisko (opcjonalnie):') || null;
+    const rateStr = prompt('Stawka godzinowa (opcjonalnie):');
+    const hourlyRate = rateStr ? parseFloat(rateStr) : null;
+    
+    createWorker(name, role, hourlyRate);
+}
+
+async function createWorker(name, role, hourlyRate) {
+    try {
+        await apiCall('/timesheet/workers', {
+            method: 'POST',
+            body: JSON.stringify({ name, role, hourly_rate: hourlyRate })
+        });
+        showToast('Pracownik dodany', 'success');
+        loadWorkers();
+    } catch (e) {
+        showToast('Błąd dodawania pracownika', 'error');
+    }
+}
 
 // =============================================================================
 // Integrations

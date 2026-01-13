@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "br-doc-generator"
+name = "brgenerator"
 version = "1.0.0"
 description = "Automatic B+R documentation generator with multi-level LLM validation"
 readme = "README.md"
@@ -39,6 +39,8 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "typer>=0.9.0",
     "rich>=13.7.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
 ]
 
 [project.optional-dependencies]
@@ -54,9 +56,9 @@ dev = [
 br-doc = "br_doc_generator.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/softreck/br-doc-generator"
-Documentation = "https://docs.softreck.com/br-doc-generator"
-Repository = "https://github.com/softreck/br-doc-generator"
+Homepage = "https://github.com/softreck/brgenerator"
+Documentation = "https://docs.softreck.com/brgenerator"
+Repository = "https://github.com/softreck/brgenerator"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -34,9 +34,13 @@ from .config import (
 from .models import (
     ProjectInput,
     CompanyInfo,
+    ProjectBasicInfo,
+    ProjectTimeline,
     Timeline,
     Milestone,
+    InnovationInfo,
     Innovation,
+    MethodologyInfo,
     Methodology,
     ProjectCosts,
     PersonnelEmploymentCost,
@@ -50,6 +54,7 @@ from .models import (
     InnovationScale,
     CostCategory,
     ValidationStatus,
+    IssueSeverity,
 )
 
 from .llm_client import LLMClient
@@ -360,9 +365,13 @@ __all__ = [
     # Models
     "ProjectInput",
     "CompanyInfo",
+    "ProjectBasicInfo",
+    "ProjectTimeline",
     "Timeline",
     "Milestone",
+    "InnovationInfo",
     "Innovation",
+    "MethodologyInfo",
     "Methodology",
     "ProjectCosts",
     "PersonnelEmploymentCost",
@@ -376,6 +385,7 @@ __all__ = [
     "InnovationScale",
     "CostCategory",
     "ValidationStatus",
+    "IssueSeverity",
     
     # LLM Client
     "LLMClient",

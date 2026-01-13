@@ -60,7 +60,7 @@ build: clean
 
 # Build Docker image
 docker:
-	docker build -t br-doc-generator:latest .
+	docker build -t brgenerator:latest .
 
 # Run Docker with compose
 docker-up:

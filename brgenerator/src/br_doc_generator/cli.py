@@ -65,17 +65,11 @@ def generate_form(
     try:
         generator = FormGenerator()
         
-        if project_name or fiscal_year:
-            generator.generate_prefilled_form(
-                project_name=project_name or "Nowy Projekt B+R",
-                fiscal_year=fiscal_year,
-                output_path=output
-            )
-        else:
-            generator.generate_empty_form(
-                project_name="Projekt B+R",
-                output_path=output
-            )
+        generator.generate_empty_form(
+            project_name=project_name or "Nowy Projekt B+R",
+            fiscal_year=fiscal_year,
+            output_path=output
+        )
         
         console.print(f"[green]✓[/green] Formularz zapisany: [cyan]{output}[/cyan]")
         console.print("\n[dim]Wypełnij formularz i uruchom:[/dim]")
@@ -234,12 +228,16 @@ def validate(
         ValidationPipeline,
         LLMClient,
         ProjectInput,
+        ProjectBasicInfo,
         CompanyInfo,
-        Timeline,
-        Innovation,
-        Methodology,
+        ProjectTimeline,
+        InnovationInfo,
+        MethodologyInfo,
         ProjectCosts,
+        InnovationType,
+        InnovationScale,
     )
+    from br_doc_generator.config import DocumentationConfig
     from datetime import date
     
     if not Path(input_file).exists():
@@ -270,23 +268,29 @@ def validate(
                 pipeline = ValidationPipeline(llm_client, config.validation)
                 
                 # Dummy project input for validation context
+                # Use a valid test NIP: 1234567854
                 dummy_project = ProjectInput(
-                    name="Validation Target",
-                    code="VAL-001",
-                    fiscal_year=date.today().year,
-                    company=CompanyInfo(name="", nip="", regon=""),
-                    timeline=Timeline(
+                    project=ProjectBasicInfo(
+                        name="Validation Target",
+                        code="VAL-001",
+                        fiscal_year=date.today().year,
+                        company=CompanyInfo(
+                            name="Test Company",
+                            nip="1234567854",  # Valid test NIP
+                        )
+                    ),
+                    timeline=ProjectTimeline(
                         start_date=date.today(),
                         end_date=date.today(),
                         milestones=[]
                     ),
-                    innovation=Innovation(
-                        type="product",
-                        scale="company",
-                        description="",
-                        novelty_aspects=[]
+                    innovation=InnovationInfo(
+                        type=InnovationType.PRODUCT,
+                        scale=InnovationScale.COMPANY,
+                        description="Validation target project - description placeholder for validation",
+                        novelty_aspects=["Placeholder aspect"]
                     ),
-                    methodology=Methodology(
+                    methodology=MethodologyInfo(
                         systematic=True,
                         creative=True,
                         innovative=True,
@@ -298,7 +302,8 @@ def validate(
                         personnel_civil=[],
                         materials=[],
                         external_services=[]
-                    )
+                    ),
+                    documentation=DocumentationConfig()
                 )
                 
                 final_content, result = await pipeline.run(
@@ -314,6 +319,7 @@ def validate(
                 
             except Exception as e:
                 progress.update(task, description=f"[red]Błąd: {e}")
+                raise
                 raise
     
     try:
@@ -483,19 +489,67 @@ def info():
         table.add_column("Parametr", style="cyan")
         table.add_column("Wartość", style="green")
         
-        table.add_row("LLM Provider", config.llm.provider)
-        table.add_row("LLM Model", config.llm.model)
+        table.add_row("LLM Provider", config.llm.default_provider.value)
+        if config.llm.default_provider.value == "openrouter":
+            table.add_row("LLM Model", config.llm.openrouter_model)
+        else:
+            table.add_row("LLM Model", config.llm.ollama_model)
         table.add_row("Temperatura", str(config.llm.temperature))
         table.add_row("Max Tokens", str(config.llm.max_tokens))
-        table.add_row("Poziomy walidacji", ", ".join(config.validation.levels))
+        table.add_row("Poziomy walidacji", ", ".join([l.value for l in config.validation.levels]))
         table.add_row("Max iteracji", str(config.validation.max_iterations))
-        table.add_row("Szablon PDF", config.pdf.template)
+        table.add_row("Szablon PDF", config.pdf.template.value)
         
         console.print(table)
         
     except Exception as e:
         console.print(f"[yellow]⚠ Nie można załadować konfiguracji: {e}[/yellow]")
         console.print("[dim]Upewnij się, że plik .env istnieje w bieżącym katalogu.[/dim]")
+
+
+@app.command("web")
+def web_server(
+    host: str = typer.Option(
+        "0.0.0.0",
+        "--host", "-h",
+        help="Host do nasłuchiwania"
+    ),
+    port: int = typer.Option(
+        8000,
+        "--port", "-p",
+        help="Port do nasłuchiwania"
+    ),
+    reload: bool = typer.Option(
+        False,
+        "--reload", "-r",
+        help="Automatyczne przeładowanie przy zmianach"
+    )
+):
+    """
+    Uruchom serwer web z interfejsem graficznym.
+    
+    Otwórz http://localhost:8000 w przeglądarce po uruchomieniu.
+    """
+    console.print(Panel.fit(
+        f"[bold]BR Documentation Generator - Web Server[/bold]\n"
+        f"Uruchamianie na http://{host}:{port}",
+        border_style="blue"
+    ))
+    
+    try:
+        import uvicorn
+        uvicorn.run(
+            "br_doc_generator.web:app",
+            host=host,
+            port=port,
+            reload=reload,
+        )
+    except ImportError:
+        console.print("[red]✗ Brak modułu uvicorn. Zainstaluj: pip install uvicorn[/red]")
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print(f"[red]✗ Błąd uruchamiania serwera: {e}[/red]")
+        raise typer.Exit(1)
 
 
 def main():

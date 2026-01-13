@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System B+R - Prototypowy System Modularny</title>
-    <link rel="stylesheet" href="static/css/style.css?v=20260112c">
+    <link rel="stylesheet" href="static/css/style.css?v=20260113a">
+    <script src="static/js/markdown-renderer.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
 <body>
@@ -36,6 +37,10 @@
                 <li class="nav-item" data-page="reports">
                     <span class="nav-icon">📈</span>
                     <span>Raporty miesięczne</span>
+                </li>
+                <li class="nav-item" data-page="timesheet">
+                    <span class="nav-icon">⏱️</span>
+                    <span>Harmonogram prac</span>
                 </li>
                 <li class="nav-item" data-page="clarifications">
                     <span class="nav-icon">❓</span>
@@ -176,6 +181,17 @@
                     <p class="empty-state">Ładowanie projektów...</p>
                 </div>
             </section>
+            
+            <!-- Documentation Viewer Modal -->
+            <div id="docs-modal" class="modal">
+                <div class="modal-content modal-large">
+                    <span class="modal-close" onclick="closeDocsModal()">&times;</span>
+                    <h3>📄 Dokumentacja B+R</h3>
+                    <div id="docs-modal-content">
+                        <p>Ładowanie...</p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Expenses Page -->
             <section id="page-expenses" class="page">
@@ -233,6 +249,47 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- Timesheet Page -->
+            <section id="page-timesheet" class="page">
+                <header class="page-header">
+                    <h2>Harmonogram prac B+R</h2>
+                    <div class="header-actions">
+                        <select id="timesheet-worker" onchange="loadTimesheet()">
+                            <option value="">Wybierz pracownika...</option>
+                        </select>
+                        <select id="timesheet-month" onchange="loadTimesheet()"></select>
+                        <select id="timesheet-year" onchange="loadTimesheet()">
+                            <option value="2026">2026</option>
+                            <option value="2025" selected>2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="showAddWorkerModal()">👤 Dodaj pracownika</button>
+                        <button class="btn btn-primary" onclick="saveTimesheet()">💾 Zapisz</button>
+                    </div>
+                </header>
+                
+                <div class="timesheet-container">
+                    <div class="timesheet-grid" id="timesheet-grid">
+                        <p class="empty-state">Wybierz pracownika, aby wyświetlić harmonogram</p>
+                    </div>
+                </div>
+                
+                <div class="timesheet-summary">
+                    <div class="card">
+                        <h3>Podsumowanie miesiąca</h3>
+                        <div id="timesheet-month-summary">
+                            <p class="empty-state">Brak danych</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Kooperanci (z faktur)</h3>
+                        <div id="contractors-list">
+                            <p class="empty-state">Ładowanie...</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 

@@ -43,6 +43,7 @@ class ValidationPipeline:
     
     def __init__(
         self,
+        llm_client=None,
         config: Optional[ValidationConfig] = None,
         use_llm: bool = True
     ):
@@ -50,11 +51,13 @@ class ValidationPipeline:
         Initialize validation pipeline.
         
         Args:
+            llm_client: Optional LLM client for validation and corrections
             config: Validation configuration
             use_llm: Whether to use LLM for validation and corrections
         """
         self.config = config or get_config().validation
         self.use_llm = use_llm
+        self.llm_client = llm_client
         
         # Initialize validators
         self.validators: dict[ValidationLevel, BaseValidator] = {
@@ -63,6 +66,51 @@ class ValidationPipeline:
             ValidationLevel.LEGAL: LegalComplianceValidator(use_llm=use_llm),
             ValidationLevel.FINANCIAL: FinancialValidator(use_llm=use_llm),
         }
+        
+        # If llm_client provided, set it on all validators
+        if llm_client:
+            for validator in self.validators.values():
+                validator._llm_client = llm_client
+    
+    async def run(
+        self,
+        markdown_content: str,
+        project_input: ProjectInput,
+        levels: Optional[list[str]] = None,
+        max_iterations: Optional[int] = None,
+    ) -> tuple[str, PipelineResult]:
+        """
+        Run validation pipeline on documentation.
+        
+        Alias for validate() with different return type for CLI compatibility.
+        
+        Args:
+            markdown_content: Generated markdown documentation  
+            project_input: Project data
+            levels: Specific validation level names to run (as strings)
+            max_iterations: Maximum correction iterations per stage
+            
+        Returns:
+            Tuple of (final markdown content, pipeline result)
+        """
+        # Convert string levels to ValidationLevel enum
+        validation_levels = None
+        if levels:
+            validation_levels = []
+            for level_name in levels:
+                try:
+                    validation_levels.append(ValidationLevel(level_name))
+                except ValueError:
+                    logger.warning(f"Unknown validation level: {level_name}")
+        
+        result = await self.validate(
+            project_input=project_input,
+            markdown_content=markdown_content,
+            levels=validation_levels,
+            max_iterations=max_iterations
+        )
+        
+        return result.markdown_content or markdown_content, result
     
     async def validate(
         self,
