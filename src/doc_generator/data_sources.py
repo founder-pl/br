@@ -232,9 +232,9 @@ class DataSourceRegistry:
             name="expenses_summary",
             query_template="""
                 SELECT 
-                    e.id, e.description, e.gross_amount, e.net_amount, e.currency,
+                    e.id, e.invoice_number as description, e.gross_amount, e.net_amount, e.currency,
                     e.br_category as category, e.br_qualified, e.vendor_name, e.vendor_nip,
-                    e.invoice_number, e.invoice_date, e.justification,
+                    e.invoice_number, e.invoice_date, e.br_qualification_reason as justification,
                     d.filename as document_filename, d.id as document_id
                 FROM read_models.expenses e
                 LEFT JOIN read_models.documents d ON e.document_id = d.id
