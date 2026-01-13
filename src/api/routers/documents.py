@@ -120,6 +120,118 @@ async def upload_document(
     )
 
 
+async def create_expense_from_document(doc_id: str, extracted_data: dict, doc_type: str):
+    """Create expense record from OCR-extracted document data"""
+    from ..database import get_db_context
+    from decimal import Decimal
+    
+    try:
+        # Handle nested extracted_data structure
+        if 'extracted_data' in extracted_data and isinstance(extracted_data['extracted_data'], dict):
+            extracted_data = {**extracted_data, **extracted_data['extracted_data']}
+        
+        # Extract financial data from OCR results
+        gross_amount = extracted_data.get('gross_amount') or extracted_data.get('total') or extracted_data.get('kwota_brutto') or 0
+        net_amount = extracted_data.get('net_amount') or extracted_data.get('netto') or extracted_data.get('kwota_netto') or gross_amount
+        vat_amount = extracted_data.get('vat_amount') or extracted_data.get('vat') or extracted_data.get('kwota_vat') or 0
+        
+        # Try to parse amounts if they're strings
+        def parse_amount(val):
+            if val is None:
+                return Decimal('0')
+            if isinstance(val, (int, float)):
+                return Decimal(str(val))
+            if isinstance(val, str):
+                # Remove currency symbols and whitespace, replace comma with dot
+                cleaned = val.replace('PLN', '').replace('zł', '').replace(' ', '').replace(',', '.').strip()
+                try:
+                    return Decimal(cleaned) if cleaned else Decimal('0')
+                except:
+                    return Decimal('0')
+            return Decimal('0')
+        
+        gross = parse_amount(gross_amount)
+        net = parse_amount(net_amount)
+        vat = parse_amount(vat_amount)
+        
+        # If we have no amounts, skip expense creation
+        if gross == 0 and net == 0:
+            logger.warning("No amounts found in document, skipping expense creation", doc_id=doc_id)
+            return
+        
+        # Get document's project_id
+        async with get_db_context() as db:
+            result = await db.execute(
+                text("SELECT project_id FROM read_models.documents WHERE id = :id"),
+                {"id": doc_id}
+            )
+            row = result.fetchone()
+            project_id = str(row[0]) if row else "00000000-0000-0000-0000-000000000001"
+        
+        expense_id = str(uuid.uuid4())
+        
+        # Helper to extract string value from field that may be dict or string
+        def get_str_field(val):
+            if val is None:
+                return None
+            if isinstance(val, dict):
+                return val.get('raw') or val.get('cleaned') or val.get('value') or str(val)
+            return str(val) if val else None
+        
+        # Extract other fields
+        invoice_number = get_str_field(extracted_data.get('invoice_number') or extracted_data.get('numer_faktury') or extracted_data.get('number'))
+        invoice_date_raw = extracted_data.get('invoice_date') or extracted_data.get('data_wystawienia') or extracted_data.get('date')
+        vendor_name = get_str_field(extracted_data.get('vendor_name') or extracted_data.get('seller_name') or extracted_data.get('sprzedawca') or extracted_data.get('wystawca'))
+        vendor_nip = get_str_field(extracted_data.get('vendor_nip') or extracted_data.get('seller_nip') or extracted_data.get('nip_sprzedawcy'))
+        
+        # Parse date
+        invoice_date = None
+        if invoice_date_raw:
+            from datetime import datetime as dt
+            for fmt in ['%Y-%m-%d', '%d.%m.%Y', '%d-%m-%Y', '%d/%m/%Y']:
+                try:
+                    invoice_date = dt.strptime(str(invoice_date_raw), fmt).date()
+                    break
+                except:
+                    continue
+        
+        async with get_db_context() as db:
+            await db.execute(
+                text("""
+                INSERT INTO read_models.expenses 
+                (id, project_id, document_id, invoice_number, invoice_date, 
+                 vendor_name, vendor_nip, net_amount, vat_amount, gross_amount, 
+                 currency, expense_category, status, br_qualified, br_deduction_rate)
+                VALUES (:id, :project_id, :document_id, :invoice_number, :invoice_date,
+                        :vendor_name, :vendor_nip, :net_amount, :vat_amount, :gross_amount,
+                        'PLN', :expense_category, 'draft', false, 1.0)
+                """),
+                {
+                    "id": expense_id,
+                    "project_id": project_id,
+                    "document_id": doc_id,
+                    "invoice_number": invoice_number,
+                    "invoice_date": invoice_date,
+                    "vendor_name": vendor_name,
+                    "vendor_nip": vendor_nip,
+                    "net_amount": float(net),
+                    "vat_amount": float(vat),
+                    "gross_amount": float(gross),
+                    "expense_category": doc_type
+                }
+            )
+        
+        logger.info("Expense created from document", expense_id=expense_id, doc_id=doc_id, gross=float(gross))
+        
+        # Queue LLM classification for the new expense
+        from .expenses import classify_expense_with_llm
+        import asyncio
+        asyncio.create_task(classify_expense_with_llm(expense_id))
+        
+    except Exception as e:
+        logger.error("Failed to create expense from document", doc_id=doc_id, error=str(e))
+
+
 async def process_document_ocr(doc_id: str, file_path: str, document_type: str):
     """Background task to process document with OCR service"""
     from ..database import get_db_context
@@ -197,6 +309,10 @@ async def process_document_ocr(doc_id: str, file_path: str, document_type: str):
             
             logger.info("OCR completed", doc_id=doc_id, detected_type=detected_type, 
                        confidence=result.get('confidence'), detection_confidence=detection_confidence)
+            
+            # Auto-create expense record for invoice documents
+            if detected_type in ('invoice', 'faktura', 'receipt', 'paragon'):
+                await create_expense_from_document(doc_id, final_extracted_data, detected_type)
         else:
             raise Exception(f"OCR service error: {response.status_code}")
             
@@ -432,3 +548,43 @@ async def get_document_detail(document_id: str, db: AsyncSession = Depends(get_d
         created_at=row[8],
         updated_at=row[9]
     )
+
+
+@router.post("/sync-expenses")
+async def sync_expenses_from_documents(
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Create expense records for all completed invoice documents that don't have expenses yet.
+    This is useful for retroactively processing already-OCR'd documents.
+    """
+    # Find completed invoice documents without expenses
+    result = await db.execute(
+        text("""
+        SELECT d.id, d.extracted_data, d.document_type
+        FROM read_models.documents d
+        LEFT JOIN read_models.expenses e ON e.document_id = d.id
+        WHERE d.ocr_status = 'completed'
+          AND d.document_type IN ('invoice', 'faktura', 'receipt', 'paragon')
+          AND e.id IS NULL
+        """)
+    )
+    rows = result.fetchall()
+    
+    created = 0
+    for row in rows:
+        doc_id = str(row[0])
+        extracted_data = row[1] or {}
+        doc_type = row[2]
+        
+        background_tasks.add_task(create_expense_from_document, doc_id, extracted_data, doc_type)
+        created += 1
+    
+    logger.info("Sync expenses triggered", documents_count=created)
+    
+    return {
+        "status": "queued",
+        "message": f"Queued expense creation for {created} documents",
+        "documents_processed": created
+    }

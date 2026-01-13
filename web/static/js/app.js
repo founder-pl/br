@@ -337,7 +337,7 @@ async function createExpenseFromDoc(docId) {
     const vatAmount = parseFloat(data.vat_amount || (grossAmount - netAmount));
     
     try {
-        const response = await fetch(`${API_BASE}/expenses`, {
+        const response = await fetch(`${API_BASE}/expenses/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
