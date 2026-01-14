@@ -5,8 +5,8 @@ Original templates.py (1001 LOC) split into:
 - base.py: Base classes (DocumentCategory, TimeScope, TemplateDataRequirement, DocumentTemplate)
 - project.py: Project templates (project_card)
 - financial.py: Financial templates (expense_registry, timesheet_monthly)
-- tax.py: Tax templates (nexus_calculation, br_annual_summary)
-- legal.py: Legal templates (br_contract, ip_box_procedure, tax_interpretation_request)
+- tax.py: Tax templates (nexus_calculation, br_annual_summary, ip_box_procedure, tax_interpretation_request)
+- legal.py: Legal templates (br_contract)
 - registry.py: TemplateRegistry class
 """
 
@@ -19,5 +19,5 @@ __all__ = [
     "TemplateDataRequirement",
     "DocumentTemplate",
     "TemplateRegistry",
-    "get_template_registry"
+    "get_template_registry",
 ]

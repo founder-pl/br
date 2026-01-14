@@ -70,11 +70,34 @@ br/
 |---------|-------------|
 | Backend | Python 3.11+, FastAPI |
 | Baza danych | PostgreSQL + SQLAlchemy |
-| LLM | OpenRouter (nvidia/nemotron) |
-| OCR | Tesseract / EasyOCR |
+| LLM Proxy | **LiteLLM** (multi-model routing) |
+| LLM Models | GPT-4o, Claude Sonnet, Llama 3.2 (Ollama) |
+| OCR | PaddleOCR / Tesseract |
 | PDF | WeasyPrint |
 | Frontend | Vanilla JS + Markdown renderer |
 | Kolejki | Celery + Redis |
+| Cache | Redis |
+| Monitoring | Flower (Celery) |
+
+### Architektura LLM
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        LiteLLM Proxy                        │
+│  (routing, fallback, caching, budget tracking)              │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+        ┌─────────────┼─────────────┬─────────────┐
+        ▼             ▼             ▼             ▼
+   ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐
+   │ OpenAI  │  │Anthropic │  │OpenRouter│  │ Ollama  │
+   │ GPT-4o  │  │ Claude   │  │(fallback)│  │ Local   │
+   └─────────┘  └──────────┘  └──────────┘  └─────────┘
+```
+
+**Fallback Strategy:**
+- `br-classifier` → `br-classifier-fallback` → `openrouter-claude`
+- `gpt-4o` → `claude-sonnet` → `openrouter-claude` → `llama3.2`
 
 ### Wzorce Projektowe
 
@@ -241,10 +264,35 @@ pip install -e .
 ### Konfiguracja
 
 ```bash
-# .env
-DATABASE_URL=postgresql://user:pass@localhost/br
-OPENROUTER_API_KEY=sk-or-...
+# .env - pełna konfiguracja
+
+# === Database ===
+POSTGRES_DB=br_system
+POSTGRES_USER=br_admin
+POSTGRES_PASSWORD=br_secret_2025
+
+# === Company Info ===
+COMPANY_NAME=Tomasz Sapletta
+COMPANY_BRAND=prototypowanie.pl
+COMPANY_NIP=5881918662
+PROJECT_NAME=Prototypowy system modularny
+FISCAL_YEAR=2025
+
+# === LLM (opcjonalne - można używać lokalnych modeli) ===
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+OPENROUTER_API_KEY=
 OPENROUTER_MODEL=nvidia/nemotron-3-nano-30b-a3b:free
+LITELLM_MASTER_KEY=sk-br-llm-2025
+OLLAMA_API_BASE=http://host.docker.internal:11434
+
+# === OCR ===
+OCR_ENGINE=paddleocr
+OCR_LANG=pol
+
+# === Git Timesheet ===
+GIT_SCAN_FOLDER_PATH=/home/tom/github
+GIT_SCAN_MAX_DEPTH=3
 ```
 
 ### Generowanie Dokumentu

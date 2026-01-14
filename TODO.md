@@ -56,6 +56,20 @@
 
 ## Priorytet: Średni 🟡
 
+### Refaktoryzacja ✅
+- [x] **Modularyzacja expenses.py (1702 LOC)** ✅
+  - Package `src/api/routers/expenses/`
+  - 6 modułów: models, crud, validation, classification, revenues, documentation
+- [x] **Modularyzacja documents.py (1087 LOC)** ✅
+  - Package `src/api/routers/documents/`
+  - 5 modułów: models, upload, crud, notes, extraction
+- [x] **Modularyzacja templates.py (1001 LOC)** ✅
+  - Package `src/doc_generator/templates/`
+  - 6 modułów: base, registry, project, financial, tax, legal
+- [x] **Modularyzacja app.js (4072 LOC)** ✅
+  - Directory `web/static/js/modules/`
+  - 8 modułów: core, dashboard, projects, reports, upload, doc-generator, config, logs
+
 ### CQRS/Event Sourcing
 - [x] **Pipeline walidacji wydatków** ✅
   - Moduł `src/api/validators/expense_pipeline.py`

@@ -815,74 +815,201 @@ Zwróć TYLKO poprawiony dokument w formacie Markdown, bez dodatkowych wyjaśnie
 
 ---
 
-## Konfiguracja LLM
+## Konfiguracja LLM (LiteLLM)
 
-### LLMClient
+### LiteLLM Config
+
+```yaml
+# litellm_config.yaml - konfiguracja modeli
+
+model_list:
+  # Klasyfikator dokumentów B+R
+  - model_name: br-classifier
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: os.environ/OPENAI_API_KEY
+      max_tokens: 2048
+      temperature: 0
+    model_info:
+      description: "Primary B+R document classifier"
+
+  - model_name: br-classifier-fallback
+    litellm_params:
+      model: ollama/llama3.2
+      api_base: os.environ/OLLAMA_API_BASE
+      max_tokens: 2048
+      temperature: 0
+    model_info:
+      description: "Fallback B+R classifier (local)"
+
+  # Generator raportów
+  - model_name: br-report-generator
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+      temperature: 0.3
+    model_info:
+      description: "B+R report generator"
+
+  # Lokalne modele (Ollama)
+  - model_name: llama3.2
+    litellm_params:
+      model: ollama/llama3.2
+      api_base: os.environ/OLLAMA_API_BASE
+      max_tokens: 4096
+      temperature: 0.1
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 3
+  timeout: 120
+  
+  fallbacks:
+    - br-classifier: [br-classifier-fallback, openrouter-claude]
+    - gpt-4o: [claude-sonnet, openrouter-claude, llama3.2]
+
+litellm_settings:
+  cache: True
+  cache_params:
+    type: redis
+    host: redis
+    port: 6379
+  max_budget: 100  # USD per month
+```
+
+### LLMClient z LiteLLM
 
 ```python
 # brgenerator/src/br_doc_generator/llm_client.py
 
-import httpx
+import litellm
 import os
 from typing import Optional
 
 class LLMClient:
-    """Klient do komunikacji z OpenRouter API"""
+    """Klient do komunikacji z LLM przez LiteLLM proxy"""
     
     def __init__(
         self,
-        api_key: Optional[str] = None,
         model: Optional[str] = None,
-        base_url: str = "https://openrouter.ai/api/v1"
+        fallback_models: Optional[list] = None
     ):
-        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
-        self.model = model or os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-nano-30b-a3b:free")
-        self.base_url = base_url
+        self.model = model or os.getenv("DEFAULT_LLM_MODEL", "br-classifier")
+        self.fallback_models = fallback_models or ["llama3.2"]
         
-        if not self.api_key:
-            raise ValueError("OPENROUTER_API_KEY is required")
+        # Konfiguracja LiteLLM
+        litellm.set_verbose = False
+        litellm.cache = True
     
     async def generate(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
         temperature: float = 0.3,
-        max_tokens: int = 4096
+        max_tokens: int = 4096,
+        model_override: Optional[str] = None
     ) -> str:
-        """Generuj odpowiedź z modelu LLM"""
+        """Generuj odpowiedź z modelu LLM przez LiteLLM"""
         
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
         
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens
-        }
+        model = model_override or self.model
         
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "HTTP-Referer": "https://founder.pl",
-            "X-Title": "BR Documentation Generator"
-        }
-        
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                f"{self.base_url}/chat/completions",
-                json=payload,
-                headers=headers
+        try:
+            response = await litellm.acompletion(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                timeout=120,
+                # Fallback automatyczny przez LiteLLM router
+                fallbacks=self.fallback_models if not model_override else None
             )
-            response.raise_for_status()
+            return response.choices[0].message.content
             
-            data = response.json()
-            return data["choices"][0]["message"]["content"]
+        except litellm.exceptions.RateLimitError:
+            # Automatyczny fallback do lokalnego modelu
+            return await self._fallback_generate(messages, temperature, max_tokens)
+        
+    async def _fallback_generate(
+        self,
+        messages: list,
+        temperature: float,
+        max_tokens: int
+    ) -> str:
+        """Fallback do lokalnego modelu Ollama"""
+        
+        for fallback_model in self.fallback_models:
+            try:
+                response = await litellm.acompletion(
+                    model=fallback_model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    timeout=180  # Więcej czasu dla lokalnych modeli
+                )
+                return response.choices[0].message.content
+            except Exception:
+                continue
+        
+        raise RuntimeError("All LLM models failed")
+    
+    async def classify_document(self, text: str, categories: list) -> dict:
+        """Klasyfikacja dokumentu z użyciem dedykowanego modelu"""
+        
+        prompt = f"""Sklasyfikuj poniższy dokument do jednej z kategorii: {', '.join(categories)}
 
-def get_llm_client() -> LLMClient:
-    """Singleton dla LLM client"""
-    return LLMClient()
+Dokument:
+{text[:2000]}
+
+Odpowiedz w formacie JSON:
+{{"category": "nazwa_kategorii", "confidence": 0.0-1.0, "reasoning": "uzasadnienie"}}"""
+
+        response = await self.generate(
+            prompt=prompt,
+            model_override="br-classifier",
+            temperature=0.0,
+            max_tokens=500
+        )
+        
+        import json
+        return json.loads(response)
+    
+    async def generate_report(self, project_data: dict, template: str) -> str:
+        """Generowanie raportu B+R z użyciem dedykowanego modelu"""
+        
+        system_prompt = """Jesteś ekspertem w przygotowywaniu dokumentacji do polskiej ulgi B+R.
+Generujesz profesjonalne dokumenty zgodne z wymogami prawnymi."""
+        
+        return await self.generate(
+            prompt=f"Wygeneruj raport na podstawie danych:\n{project_data}\n\nSzablon: {template}",
+            system_prompt=system_prompt,
+            model_override="br-report-generator",
+            temperature=0.3,
+            max_tokens=8192
+        )
+
+
+# Singleton z wyborem modelu
+_llm_clients = {}
+
+def get_llm_client(model: str = "br-classifier") -> LLMClient:
+    """Pobierz klienta LLM dla określonego zadania"""
+    if model not in _llm_clients:
+        _llm_clients[model] = LLMClient(model=model)
+    return _llm_clients[model]
+
+def get_classifier_client() -> LLMClient:
+    """Klient do klasyfikacji dokumentów"""
+    return get_llm_client("br-classifier")
+
+def get_generator_client() -> LLMClient:
+    """Klient do generowania raportów"""
+    return get_llm_client("br-report-generator")
 ```
 
 ---
@@ -947,4 +1074,33 @@ System walidacji dokumentów B+R wykorzystuje:
 3. **Walidację prawną** - zgodność z polskimi przepisami
 4. **Weryfikację finansową** - poprawność obliczeń Nexus
 
-Model `nvidia/nemotron-3-nano-30b-a3b:free` jest używany z niską temperaturą (0.2-0.3) dla zapewnienia spójnych wyników w dokumentach prawno-finansowych.
+### Konfiguracja Modeli LLM
+
+System wykorzystuje **LiteLLM** jako proxy z wieloma modelami:
+
+| Zadanie | Primary Model | Fallback | Temperature |
+|---------|---------------|----------|-------------|
+| Klasyfikacja dokumentów | `gpt-4o-mini` | `llama3.2` | 0.0 |
+| Generowanie raportów | `claude-sonnet` | `gpt-4o` | 0.3 |
+| Walidacja prawna | `claude-sonnet` | `gpt-4o` | 0.1 |
+| Szybkie zadania | `gpt-4o-mini` | `mistral` | 0.1 |
+
+**Fallback chain** zapewnia ciągłość działania nawet przy niedostępności głównych API:
+```
+br-classifier → br-classifier-fallback → openrouter-claude → llama3.2 (local)
+```
+
+### Uruchomienie Lokalne (bez kluczy API)
+
+Jeśli nie masz kluczy do OpenAI/Anthropic, system automatycznie użyje Ollama:
+
+```bash
+# Zainstaluj Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pobierz model
+ollama pull llama3.2
+
+# System automatycznie użyje lokalnego modelu
+export OLLAMA_API_BASE=http://localhost:11434
+```

@@ -2,6 +2,40 @@
 
 Wszystkie istotne zmiany w projekcie System B+R.
 
+## [2026-01-14] - Refaktoryzacja Architektury
+
+### Refaktoryzacja Backend
+- **expenses.py (1702 LOC) → 6 modułów**
+  - `src/api/routers/expenses/` package
+  - models.py, crud.py, validation.py, classification.py, revenues.py, documentation.py
+  - Średnia: 263 LOC/moduł
+- **documents.py (1087 LOC) → 5 modułów**
+  - `src/api/routers/documents/` package
+  - models.py, upload.py, crud.py, notes.py, extraction.py
+  - Średnia: 175 LOC/moduł
+- **templates.py (1001 LOC) → 6 modułów**
+  - `src/doc_generator/templates/` package
+  - base.py, registry.py, project.py, financial.py, tax.py, legal.py
+  - Średnia: 154 LOC/moduł
+
+### Refaktoryzacja Frontend
+- **app.js (4072 LOC) → 8 modułów**
+  - `web/static/js/modules/` directory
+  - core.js, dashboard.js, projects.js, reports.js
+  - upload.js, doc-generator.js, config.js, logs.js
+  - Średnia: 178 LOC/moduł
+
+### Zmienione
+- Zaktualizowane importy w `src/api/main.py`
+- 126 endpointów API działających poprawnie
+- 8 szablonów dokumentów B+R/IP Box
+
+### Testy
+- ✅ Health check: OK
+- ✅ Expenses categories: OK
+- ✅ Documents notes: OK
+- ✅ Doc-generator templates: 8 loaded
+
 ## [2026-01-13] - Modularny Dashboard i Naprawy API
 
 ### Dodane

@@ -9,7 +9,8 @@ articles/
 ├── README.md                           # Ten plik
 ├── br-generator-todo.md               # Lista TODO dla LLM
 ├── br-generator-status.md             # Status projektu BR Generator
-└── br-generator-validation-system.md  # Architektura systemu walidacji
+├── br-generator-validation-system.md  # Architektura systemu walidacji
+└── br-generator-llm-config.md         # Konfiguracja LiteLLM
 ```
 
 ## Projekty
@@ -17,12 +18,13 @@ articles/
 ### 1. BR Documentation Generator
 
 **Status**: W aktywnym rozwoju  
-**Technologie**: Python, FastAPI, PostgreSQL, OpenRouter LLM
+**Technologie**: Python, FastAPI, PostgreSQL, LiteLLM, Ollama
 
 Artykuły:
 - [Lista TODO dla LLM](br-generator-todo.md) - Szczegółowe zadania do implementacji
 - [Status projektu](br-generator-status.md) - Przegląd funkcjonalności i roadmapa
-- [System walidacji](br-generator-validation-system.md) - Dokumentacja techniczna
+- [System walidacji](br-generator-validation-system.md) - Dokumentacja techniczna pipeline'u
+- [Konfiguracja LLM](br-generator-llm-config.md) - **NOWY** - LiteLLM, fallback, Ollama
 
 ### 2. Prototypowanie.pl
 
@@ -35,6 +37,22 @@ Artykuły:
 ### 4. Code2Logic
 
 *Artykuł w przygotowaniu*
+
+---
+
+## Konfiguracja LLM
+
+System wykorzystuje **LiteLLM** z automatycznym fallback:
+
+```
+Production:  GPT-4o / Claude Sonnet
+     ↓
+Fallback:    OpenRouter (Claude/GPT-4)
+     ↓  
+Local:       Ollama (Llama 3.2 / Mistral)
+```
+
+**Możliwość pracy offline** - bez kluczy API system automatycznie używa lokalnych modeli Ollama.
 
 ---
 

@@ -202,22 +202,80 @@ Dostępne źródła:
   - nbp_exchange_rate: kursy walut (REST API)
 ```
 
-### 4.2 Konfiguracja LLM
+### 4.2 Konfiguracja LLM (LiteLLM)
 
 ```yaml
-# .env configuration
-OPENROUTER_MODEL=nvidia/nemotron-3-nano-30b-a3b:free
+# Projekt używa LiteLLM jako proxy z wieloma modelami
+# Konfiguracja: litellm_config.yaml
+
+DOSTĘPNE_MODELE:
+  production:
+    - gpt-4o: OpenAI GPT-4o (klasyfikacja dokumentów)
+    - gpt-4o-mini: OpenAI GPT-4o-mini (szybka klasyfikacja)
+    - claude-sonnet: Anthropic Claude Sonnet (reasoning)
+  
+  openrouter:
+    - openrouter-claude: Claude 3.5 Sonnet via OpenRouter
+    - openrouter-gpt4: GPT-4 Turbo via OpenRouter
+  
+  local_ollama:
+    - llama3.2: Llama 3.2 (dobry dla polskiego tekstu)
+    - mistral: Mistral (szybki lokalny model)
+    - qwen2.5: Qwen 2.5 (dobra obsługa wielojęzyczna)
+  
+  specialized:
+    - br-classifier: Klasyfikator dokumentów B+R (GPT-4o-mini)
+    - br-classifier-fallback: Fallback lokalny (Llama 3.2)
+    - br-report-generator: Generator raportów (Claude Sonnet)
+
+FALLBACK_CHAIN:
+  br-classifier: [br-classifier-fallback, openrouter-claude]
+  gpt-4o: [claude-sonnet, openrouter-claude, llama3.2]
+  claude-sonnet: [gpt-4o, openrouter-gpt4, llama3.2]
 
 TODO:
-  - [ ] Dodać fallback model gdy limit zostanie przekroczony
-  - [ ] Implementować rate limiting dla API calls
-  - [ ] Dodać logowanie wywołań LLM
-  - [ ] Konfigurować temperature i max_tokens per document type
+  - [x] Fallback models - ZAIMPLEMENTOWANE w litellm_config.yaml
+  - [x] Rate limiting - ZAIMPLEMENTOWANE (max_budget: 100 USD/month)
+  - [ ] Włączyć langfuse logging (wymaga instalacji)
+  - [ ] Dodać metryki per model type
+  - [ ] Konfigurować temperature per document type
 
-Rekomendowane parametry:
-  temperature: 0.3  # niska dla dokumentów prawnych
-  max_tokens: 4096  # wystarczające dla większości dokumentów
-  top_p: 0.9
+# .env - klucze API (opcjonalne - można używać lokalnych modeli)
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+OPENROUTER_API_KEY=
+OPENROUTER_MODEL=nvidia/nemotron-3-nano-30b-a3b:free
+OLLAMA_API_BASE=http://host.docker.internal:11434
+LITELLM_MASTER_KEY=sk-br-llm-2025
+```
+
+### 4.3 Wybór Modelu per Zadanie
+
+```yaml
+REKOMENDACJE:
+  klasyfikacja_dokumentów:
+    primary: br-classifier (gpt-4o-mini)
+    fallback: llama3.2
+    temperature: 0.0
+    max_tokens: 2048
+    
+  generowanie_raportów:
+    primary: br-report-generator (claude-sonnet)
+    fallback: gpt-4o
+    temperature: 0.3
+    max_tokens: 8192
+    
+  walidacja_prawna:
+    primary: claude-sonnet
+    fallback: gpt-4o
+    temperature: 0.1
+    max_tokens: 4096
+    
+  szybkie_zadania:
+    primary: gpt-4o-mini
+    fallback: mistral
+    temperature: 0.1
+    max_tokens: 2048
 ```
 
 ---

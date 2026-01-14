@@ -13,7 +13,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .routers import documents, expenses, projects, reports, auth, clarifications, integrations, logs, config, timesheet, git_timesheet
+from .routers import projects, reports, auth, clarifications, integrations, logs, config, timesheet, git_timesheet
+from .routers.expenses import router as expenses_router
+from .routers.documents import router as documents_router
 from src.doc_generator.router import router as doc_generator_router
 from .database import init_database, close_database
 from .config import settings
@@ -143,8 +145,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["Autoryzacja"])
-app.include_router(documents.router, prefix="/documents", tags=["Dokumenty"])
-app.include_router(expenses.router, prefix="/expenses", tags=["Wydatki B+R"])
+app.include_router(documents_router, prefix="/documents", tags=["Dokumenty"])
+app.include_router(expenses_router, prefix="/expenses", tags=["Wydatki B+R"])
 app.include_router(projects.router, prefix="/projects", tags=["Projekty"])
 app.include_router(reports.router, prefix="/reports", tags=["Raporty"])
 app.include_router(clarifications.router, prefix="/clarifications", tags=["Wyjaśnienia"])
