@@ -53,6 +53,8 @@ This directory contains modular Python libraries extracted from the BR Documenta
 | **br-core** | Core types, enums, formatters, validators | pydantic, structlog |
 | **md-render** | Markdown → HTML → PDF conversion | markdown, weasyprint, jinja2 |
 | **br-data-sources** | Data extraction DSL (SQL, REST, curl) | br-core, httpx, sqlalchemy |
+| **br-validators** | Multi-level validation pipeline | br-core, pydantic |
+| **br-llm-client** | LLM client with fallback | httpx, structlog |
 | **br-variable-api** | Variable API with authentication | br-core, br-data-sources, fastapi |
 
 ## Installation

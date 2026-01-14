@@ -9,13 +9,15 @@
 
 ### 1. Wyodrębnione biblioteki Python
 
-Utworzono 4 niezależne, komplementarne biblioteki w `libs/`:
+Utworzono 6 niezależnych, komplementarnych bibliotek w `libs/`:
 
 | Biblioteka | Opis | Zależności |
 |------------|------|------------|
 | **br-core** | Typy, enumy, walidatory, formatery | pydantic, structlog |
 | **md-render** | Konwersja MD→HTML→PDF | markdown, weasyprint, jinja2 |
 | **br-data-sources** | DSL do ekstrakcji danych (SQL, REST, curl) | br-core, httpx, sqlalchemy |
+| **br-validators** | Pipeline walidacji wielopoziomowej | br-core, pydantic |
+| **br-llm-client** | Klient LLM z fallback | httpx, structlog |
 | **br-variable-api** | API zmiennych z autentykacją | br-core, br-data-sources, fastapi |
 
 ### 2. Architektura warstwowa
@@ -146,6 +148,8 @@ cd /home/tom/github/founder-pl/br
 pip install -e libs/br-core
 pip install -e libs/md-render
 pip install -e libs/br-data-sources
+pip install -e libs/br-validators
+pip install -e libs/br-llm-client
 pip install -e libs/br-variable-api
 ```
 
@@ -155,6 +159,8 @@ pip install -e libs/br-variable-api
 # Testy bibliotek
 pytest libs/br-core/tests -v
 pytest libs/md-render/tests -v
+pytest libs/br-validators/tests -v
+pytest libs/br-llm-client/tests -v
 
 # Testy E2E
 pytest tests/e2e/test_doc_generator_e2e.py -v
@@ -202,6 +208,30 @@ libs/
 │       ├── curl.py
 │       ├── registry.py
 │       └── variable_tracker.py
+├── br-validators/
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── src/br_validators/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── structure.py
+│   │   ├── legal.py
+│   │   ├── financial.py
+│   │   └── pipeline.py
+│   └── tests/
+│       ├── __init__.py
+│       └── test_pipeline.py
+├── br-llm-client/
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── src/br_llm_client/
+│   │   ├── __init__.py
+│   │   ├── client.py
+│   │   ├── fallback.py
+│   │   └── prompts.py
+│   └── tests/
+│       ├── __init__.py
+│       └── test_prompts.py
 └── br-variable-api/
     ├── pyproject.toml
     ├── README.md
