@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 from .routers import projects, reports, auth, clarifications, integrations, logs, config, timesheet, git_timesheet
 from .routers.expenses import router as expenses_router
 from .routers.documents import router as documents_router
+from .routers.variable_api import router as variable_api_router
 from src.doc_generator.router import router as doc_generator_router
 from .database import init_database, close_database
 from .config import settings
@@ -64,6 +65,7 @@ openapi_tags = [
     {"name": "Harmonogram", "description": "Rejestr czasu pracy pracowników B+R"},
     {"name": "Harmonogram Git", "description": "Generowanie ewidencji z commitów Git"},
     {"name": "Generator dokumentów", "description": "Generowanie dokumentów B+R i IP Box"},
+    {"name": "Variable API", "description": "API dostępu do zmiennych z weryfikacją URL"},
 ]
 
 # Create FastAPI app
@@ -156,6 +158,7 @@ app.include_router(config.router, prefix="/config", tags=["Konfiguracja"])
 app.include_router(timesheet.router, prefix="/timesheet", tags=["Harmonogram"])
 app.include_router(git_timesheet.router, prefix="/git-timesheet", tags=["Harmonogram Git"])
 app.include_router(doc_generator_router, tags=["Generator dokumentów"])
+app.include_router(variable_api_router, tags=["Variable API"])
 
 
 # Health check

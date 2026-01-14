@@ -11,7 +11,7 @@ Original documents.py (1087 LOC) split into:
 
 from fastapi import APIRouter
 
-from .upload import router as upload_router
+from .upload import router as upload_router, detect_invoice_type
 from .crud import router as crud_router
 from .notes import router as notes_router
 from .extraction import router as extraction_router
@@ -24,4 +24,4 @@ router.include_router(notes_router)       # /notes
 router.include_router(extraction_router)  # /{id}/llm-extract, /{id}/re-extract
 router.include_router(crud_router)        # Base CRUD (/{id})
 
-__all__ = ["router"]
+__all__ = ["router", "detect_invoice_type"]

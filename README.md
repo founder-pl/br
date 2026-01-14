@@ -80,10 +80,12 @@ make up-gpu  # z GPU
 # lub
 make up      # bez GPU
 ```
-
+### Wsparcie OCR, LLM do czytania, analizy i tworzenia dokumentów 
 
 ![img_3.png](img_3.png)
 
+### Generowanie dokumentów
+![img_4.png](img_4.png)
 
 ### Dostęp
 

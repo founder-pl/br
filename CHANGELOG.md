@@ -35,6 +35,18 @@ Wszystkie istotne zmiany w projekcie System B+R.
 - ✅ Expenses categories: OK
 - ✅ Documents notes: OK
 - ✅ Doc-generator templates: 8 loaded
+- ✅ **185 passed, 17 skipped** (pytest)
+
+### Naprawione
+- Import `detect_invoice_type` w pakiecie documents (backward compatibility)
+- OCR text hint detection dla faktur sprzedaży
+
+### Kontynuacja refaktoryzacji
+- **doc_generator.py (996 LOC) → 6 modułów**
+  - `src/api/services/doc_generator/` package
+  - version_control.py (94 LOC), prompts.py (75 LOC), llm.py (141 LOC)
+  - templates.py (518 LOC), generator.py (207 LOC), __init__.py (53 LOC)
+  - Średnia: ~181 LOC/moduł
 
 ## [2026-01-13] - Modularny Dashboard i Naprawy API
 

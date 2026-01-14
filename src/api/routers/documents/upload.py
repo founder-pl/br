@@ -85,6 +85,12 @@ def detect_invoice_type(extracted_data: dict, our_nip: str = "5881918662") -> st
         return 'revenue'
     if buyer_clean == our_clean:
         return 'expense'
+    
+    # Check OCR text hints for revenue detection
+    ocr_text = (extracted_data.get('ocr_text') or '').upper()
+    if ocr_text and ('SPRZEDAŻ' in ocr_text or 'SPRZEDAZ' in ocr_text):
+        return 'revenue'
+    
     return 'expense'
 
 

@@ -69,6 +69,9 @@
 - [x] **Modularyzacja app.js (4072 LOC)** ✅
   - Directory `web/static/js/modules/`
   - 8 modułów: core, dashboard, projects, reports, upload, doc-generator, config, logs
+- [x] **Modularyzacja doc_generator.py (996 LOC)** ✅
+  - Package `src/api/services/doc_generator/`
+  - 6 modułów: version_control, prompts, llm, templates, generator, __init__
 
 ### CQRS/Event Sourcing
 - [x] **Pipeline walidacji wydatków** ✅
@@ -135,6 +138,19 @@
 
 ## Zakończone ✅
 
+### 2026-01-14
+- [x] Refaktoryzacja expenses.py → 6 modułów (1702→1580 LOC)
+- [x] Refaktoryzacja documents.py → 5 modułów (1087→878 LOC)
+- [x] Refaktoryzacja templates.py → 6 modułów (1001→926 LOC)
+- [x] Refaktoryzacja app.js → 8 modułów (4072→~1423 LOC)
+- [x] Refaktoryzacja doc_generator.py → 6 modułów (996→1088 LOC)
+- [x] Aktualizacja importów w main.py
+- [x] Testy API: 126 endpointów OK
+- [x] Testy templates: 8 szablonów loaded
+- [x] Fix import detect_invoice_type (backward compatibility)
+- [x] Fix OCR text hint detection dla faktur sprzedaży
+- [x] **185 passed, 17 skipped** (pytest)
+
 ### 2026-01-13
 - [x] Modularny dashboard 4x4
 - [x] Edycja danych OCR
@@ -200,4 +216,4 @@
 
 ---
 
-Ostatnia aktualizacja: 2026-01-13
+Ostatnia aktualizacja: 2026-01-14
