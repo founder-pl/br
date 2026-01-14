@@ -3,22 +3,35 @@
 # Prototypowy system modularny dla Tomasz Sapletta (NIP: 5881918662)
 # =============================================================================
 
-.PHONY: help build up down logs shell test clean setup-ollama
+.PHONY: help build up down logs shell test clean setup-ollama test-all test-libs publish-all install-libs
 
 # Default target
 help:
 	@echo "System B+R - Dostępne komendy:"
 	@echo ""
+	@echo "  Docker:"
 	@echo "  make build        - Buduj obrazy Docker"
 	@echo "  make up           - Uruchom wszystkie serwisy"
 	@echo "  make up-gpu       - Uruchom z obsługą GPU NVIDIA"
 	@echo "  make down         - Zatrzymaj wszystkie serwisy"
 	@echo "  make logs         - Pokaż logi wszystkich serwisów"
-	@echo "  make logs-api     - Pokaż logi API"
-	@echo "  make logs-ocr     - Pokaż logi OCR"
 	@echo "  make shell-api    - Shell w kontenerze API"
 	@echo "  make shell-db     - Shell PostgreSQL"
-	@echo "  make test         - Uruchom testy"
+	@echo ""
+	@echo "  Testy:"
+	@echo "  make test         - Uruchom testy główne"
+	@echo "  make test-all     - Uruchom wszystkie testy (libs + main)"
+	@echo "  make test-libs    - Uruchom testy bibliotek"
+	@echo "  make test-lib LIB=br-core - Testuj pojedynczą bibliotekę"
+	@echo ""
+	@echo "  Biblioteki (libs/):"
+	@echo "  make install-libs - Zainstaluj wszystkie biblioteki (dev)"
+	@echo "  make build-libs   - Zbuduj wszystkie biblioteki"
+	@echo "  make publish-all  - Opublikuj wszystkie do PyPI"
+	@echo "  make publish-lib LIB=br-core - Opublikuj pojedynczą"
+	@echo "  make clean-libs   - Wyczyść artefakty budowania"
+	@echo ""
+	@echo "  Inne:"
 	@echo "  make clean        - Usuń kontenery i wolumeny"
 	@echo "  make setup-ollama - Pobierz modele Ollama"
 	@echo "  make setup-env    - Utwórz plik .env"
@@ -111,6 +124,100 @@ test-e2e:
 
 test-coverage:
 	docker compose exec api pytest tests/ -v --cov=src --cov-report=html --cov-report=term
+
+# =============================================================================
+# Library Management (libs/)
+# =============================================================================
+
+LIBS_DIR := libs
+LIBS := br-core md-render br-data-sources br-validators br-llm-client br-variable-api
+
+# Test all libraries
+test-all: test-libs test
+	@echo "✓ Wszystkie testy zakończone"
+
+test-libs:
+	@echo "=== Testowanie bibliotek ==="
+	@for lib in $(LIBS); do \
+		echo ""; \
+		echo ">>> Testowanie $$lib..."; \
+		if [ -d "$(LIBS_DIR)/$$lib/tests" ]; then \
+			cd $(LIBS_DIR)/$$lib && pip install -e . -q && pytest tests/ -v && cd ../..; \
+		else \
+			echo "Brak testów dla $$lib"; \
+		fi; \
+	done
+	@echo ""
+	@echo "=== Testy bibliotek zakończone ==="
+
+test-lib:
+	@if [ -z "$(LIB)" ]; then \
+		echo "Użycie: make test-lib LIB=br-core"; \
+	else \
+		cd $(LIBS_DIR)/$(LIB) && pip install -e . -q && pytest tests/ -v; \
+	fi
+
+# Install all libraries in development mode
+install-libs:
+	@echo "=== Instalacja bibliotek (development mode) ==="
+	@for lib in $(LIBS); do \
+		echo ">>> Instalacja $$lib..."; \
+		pip install -e $(LIBS_DIR)/$$lib -q; \
+	done
+	@echo "✓ Wszystkie biblioteki zainstalowane"
+
+# Publish all libraries to PyPI
+publish-all:
+	@echo "=== Publikowanie wszystkich bibliotek ==="
+	@for lib in $(LIBS); do \
+		echo ""; \
+		echo ">>> Publikowanie $$lib..."; \
+		cd $(LIBS_DIR)/$$lib && \
+		python -m build && \
+		python -m twine upload dist/* --skip-existing && \
+		rm -rf dist build *.egg-info && \
+		cd ../..; \
+	done
+	@echo ""
+	@echo "✓ Wszystkie biblioteki opublikowane"
+
+# Publish single library
+publish-lib:
+	@if [ -z "$(LIB)" ]; then \
+		echo "Użycie: make publish-lib LIB=br-core"; \
+	else \
+		cd $(LIBS_DIR)/$(LIB) && \
+		python -m build && \
+		python -m twine upload dist/* && \
+		rm -rf dist build *.egg-info; \
+	fi
+
+# Build all libraries (without publishing)
+build-libs:
+	@echo "=== Budowanie bibliotek ==="
+	@for lib in $(LIBS); do \
+		echo ">>> Budowanie $$lib..."; \
+		cd $(LIBS_DIR)/$$lib && python -m build && cd ../..; \
+	done
+	@echo "✓ Wszystkie biblioteki zbudowane"
+
+# Clean library build artifacts
+clean-libs:
+	@echo "=== Czyszczenie artefaktów bibliotek ==="
+	@for lib in $(LIBS); do \
+		rm -rf $(LIBS_DIR)/$$lib/dist $(LIBS_DIR)/$$lib/build $(LIBS_DIR)/$$lib/*.egg-info; \
+	done
+	@find $(LIBS_DIR) -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	@find $(LIBS_DIR) -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null || true
+	@echo "✓ Artefakty wyczyszczone"
+
+# Lint all libraries
+lint-libs:
+	@echo "=== Linting bibliotek ==="
+	@for lib in $(LIBS); do \
+		echo ">>> Linting $$lib..."; \
+		cd $(LIBS_DIR)/$$lib && ruff check src/ tests/ || true && cd ../..; \
+	done
 
 # Clean everything
 clean:

@@ -1,12 +1,12 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-14T08:29:07.093001
+generated: 2026-01-14T10:36:33.970104
 stats:
-  files: 114
-  lines: 37259
-  languages[2]: python:112,javascript:2
+  files: 184
+  lines: 44866
+  languages[2]: python:174,javascript:10
 
-modules[114]{path,lang,lines,kb}:
+modules[184]{path,lang,lines,kb}:
   src/__init__.py,python,0,0.0
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
@@ -17,6 +17,43 @@ modules[114]{path,lang,lines,kb}:
   cli/validate_documentation.py,python,131,6.2
   cli/generate_sample_invoices.py,python,186,7.8
   cli/br_cli.py,python,210,10.6
+  libs/br-core/tests/__init__.py,python,1,0.0
+  libs/br-core/tests/test_validators.py,python,79,3.0
+  libs/br-core/src/br_core/__init__.py,python,53,1.1
+  libs/br-core/src/br_core/types.py,python,113,4.0
+  libs/br-core/src/br_core/formatters.py,python,133,4.1
+  libs/br-core/src/br_core/validators.py,python,161,5.6
+  libs/br-core/src/br_core/enums.py,python,73,2.6
+  libs/md-render/tests/__init__.py,python,1,0.0
+  libs/md-render/tests/test_converter.py,python,57,1.8
+  libs/md-render/src/md_render/__init__.py,python,30,0.6
+  libs/md-render/src/md_render/styles.py,python,342,6.8
+  libs/md-render/src/md_render/converter.py,python,224,6.9
+  libs/br-llm-client/tests/__init__.py,python,1,0.0
+  libs/br-llm-client/tests/test_prompts.py,python,65,2.5
+  libs/br-llm-client/src/br_llm_client/fallback.py,python,166,5.8
+  libs/br-llm-client/src/br_llm_client/prompts.py,python,171,5.9
+  libs/br-llm-client/src/br_llm_client/__init__.py,python,19,0.5
+  libs/br-llm-client/src/br_llm_client/client.py,python,254,8.9
+  libs/br-variable-api/src/br_variable_api/auth.py,python,214,8.6
+  libs/br-variable-api/src/br_variable_api/__init__.py,python,35,0.8
+  libs/br-variable-api/src/br_variable_api/router.py,python,290,12.2
+  libs/br-variable-api/src/br_variable_api/models.py,python,64,2.3
+  libs/br-validators/tests/__init__.py,python,1,0.0
+  libs/br-validators/tests/test_pipeline.py,python,130,5.1
+  libs/br-validators/src/br_validators/base.py,python,93,3.8
+  libs/br-validators/src/br_validators/structure.py,python,121,5.5
+  libs/br-validators/src/br_validators/financial.py,python,163,8.9
+  libs/br-validators/src/br_validators/__init__.py,python,29,0.8
+  libs/br-validators/src/br_validators/legal.py,python,118,6.1
+  libs/br-validators/src/br_validators/pipeline.py,python,157,6.1
+  libs/br-data-sources/src/br_data_sources/variable_tracker.py,python,147,4.8
+  libs/br-data-sources/src/br_data_sources/base.py,python,49,1.7
+  libs/br-data-sources/src/br_data_sources/registry.py,python,180,8.0
+  libs/br-data-sources/src/br_data_sources/__init__.py,python,22,0.7
+  libs/br-data-sources/src/br_data_sources/curl.py,python,79,2.7
+  libs/br-data-sources/src/br_data_sources/sql.py,python,93,3.6
+  libs/br-data-sources/src/br_data_sources/rest.py,python,91,3.1
   tests/unit/test_extractors.py,python,149,6.4
   tests/unit/__init__.py,python,1,0.0
   tests/unit/test_validators.py,python,148,5.9
@@ -25,6 +62,7 @@ modules[114]{path,lang,lines,kb}:
   tests/e2e/test_scenarios.py,python,252,12.4
   tests/e2e/test_integrations_e2e.py,python,508,25.0
   tests/e2e/__init__.py,python,1,0.0
+  tests/e2e/test_doc_generator_e2e.py,python,440,21.4
   tests/integration/test_api.py,python,202,8.8
   tests/integration/__init__.py,python,1,0.0
   tests/integration/test_sql_fixes.py,python,122,5.7
@@ -34,7 +72,6 @@ modules[114]{path,lang,lines,kb}:
   src/doc_generator/data_sources.py,python,409,17.9
   src/doc_generator/__init__.py,python,9,0.4
   src/doc_generator/router.py,python,204,7.6
-  src/doc_generator/templates.py,python,681,31.6
   src/ocr/extractors.py,python,223,9.6
   src/ocr/engines.py,python,233,8.3
   src/ocr/__init__.py,python,26,0.9
@@ -51,19 +88,18 @@ modules[114]{path,lang,lines,kb}:
   src/api/ocr_config.py,python,191,8.2
   src/api/document_classifier.py,python,226,8.3
   src/api/database.py,python,58,1.9
-  src/api/main.py,python,147,6.5
+  src/api/main.py,python,152,6.8
   src/api/validators/expense_pipeline.py,python,369,16.3
   src/api/validators/__init__.py,python,25,0.7
   src/api/validators/currency_converter.py,python,102,4.5
   src/api/validators/invoice_validator.py,python,90,3.7
   src/api/services/uncertainty_generator.py,python,168,8.0
-  src/api/services/doc_generator.py,python,731,38.6
   src/api/services/justification_generator.py,python,230,10.6
   src/api/services/excel_exporter.py,python,247,11.8
   src/api/services/__init__.py,python,20,0.6
   src/api/services/expense_categorizer.py,python,246,11.0
   src/api/services/audit_trail.py,python,244,8.7
-  src/api/services/expense_service.py,python,576,26.4
+  src/api/services/expense_service.py,python,575,26.4
   src/api/models/project_extended.py,python,139,6.3
   src/api/models/__init__.py,python,50,1.1
   src/api/models/daily_time_entry.py,python,167,6.8
@@ -77,8 +113,7 @@ modules[114]{path,lang,lines,kb}:
   src/api/routers/logs.py,python,268,11.3
   src/api/routers/git_timesheet.py,python,407,15.9
   src/api/routers/reports.py,python,448,20.3
-  src/api/routers/documents.py,python,871,39.1
-  src/api/routers/expenses.py,python,1376,58.5
+  src/api/routers/variable_api.py,python,403,16.9
   src/api/cqrs/commands.py,python,276,12.2
   src/api/cqrs/events.py,python,220,9.3
   src/api/cqrs/__init__.py,python,46,1.1
@@ -86,6 +121,26 @@ modules[114]{path,lang,lines,kb}:
   src/api/integrations/__init__.py,python,34,0.7
   src/api/integrations/ksef_client.py,python,288,11.0
   src/api/integrations/jpk_export.py,python,324,15.5
+  src/api/routers/expenses/documentation.py,python,329,14.1
+  src/api/routers/expenses/__init__.py,python,24,1.3
+  src/api/routers/expenses/validation.py,python,123,4.9
+  src/api/routers/expenses/models.py,python,125,4.6
+  src/api/routers/expenses/revenues.py,python,201,7.8
+  src/api/routers/expenses/crud.py,python,243,9.8
+  src/api/routers/expenses/classification.py,python,280,12.2
+  src/api/routers/documents/notes.py,python,98,3.8
+  src/api/routers/documents/__init__.py,python,20,1.0
+  src/api/routers/documents/extraction.py,python,172,7.3
+  src/api/routers/documents/upload.py,python,216,12.4
+  src/api/routers/documents/models.py,python,43,1.2
+  src/api/routers/documents/crud.py,python,179,7.6
+  src/api/services/doc_generator/llm.py,python,119,5.2
+  src/api/services/doc_generator/generator.py,python,158,7.6
+  src/api/services/doc_generator/prompts.py,python,53,2.6
+  src/api/services/doc_generator/__init__.py,python,44,1.4
+  src/api/services/doc_generator/templates.py,python,344,17.9
+  src/api/services/doc_generator/version_control.py,python,74,3.7
+  src/api/services/doc_generator/footnotes.py,python,222,8.8
   src/integrations/accounting/fakturownia.py,python,232,9.4
   src/integrations/accounting/base.py,python,272,10.0
   src/integrations/accounting/__init__.py,python,24,0.5
@@ -98,8 +153,23 @@ modules[114]{path,lang,lines,kb}:
   src/integrations/cloud/google_s3.py,python,509,21.6
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
+  src/doc_generator/templates/base.py,python,58,1.8
+  src/doc_generator/templates/project.py,python,99,5.2
+  src/doc_generator/templates/registry.py,python,47,2.1
+  src/doc_generator/templates/financial.py,python,102,4.4
+  src/doc_generator/templates/__init__.py,python,20,0.8
+  src/doc_generator/templates/legal.py,python,100,4.3
+  src/doc_generator/templates/tax.py,python,206,11.0
   web/static/js/markdown-renderer.js,javascript,136,5.4
   web/static/js/app.js,javascript,3434,167.1
+  web/static/js/modules/reports.js,javascript,183,7.3
+  web/static/js/modules/dashboard.js,javascript,258,9.8
+  web/static/js/modules/core.js,javascript,177,6.9
+  web/static/js/modules/doc-generator.js,javascript,192,8.0
+  web/static/js/modules/config.js,javascript,69,2.7
+  web/static/js/modules/upload.js,javascript,177,6.2
+  web/static/js/modules/logs.js,javascript,107,3.7
+  web/static/js/modules/projects.js,javascript,150,6.1
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -415,6 +485,751 @@ module_details:
       cmd_expense_qualify: cmd expense qualify
       cmd_timesheet_list: cmd timesheet list
       main: main
+  libs/br-core/tests/__init__.py:
+  libs/br-core/tests/test_validators.py:
+    imports[6]: pytest,br_core.validators.validate_nip,br_core.validators.validate_date_range,br_core.validators.validate_fiscal_year,br_core.validators.validate_amount,br_core.validators.validate_nexus
+    exports[4]: TestValidateNIP,TestValidateDateRange,TestValidateFiscalYear,TestValidateNexus
+    classes[4]{name,bases,decorators,props,methods}:
+      TestValidateNIP,-,-,0,6
+      TestValidateDateRange,-,-,0,3
+      TestValidateFiscalYear,-,-,0,4
+      TestValidateNexus,-,-,0,4
+    class_details:
+      TestValidateNIP:
+        doc: Tests for NIP validation
+        methods[6]{name,sig,decorators,async,lines}:
+          test_valid_nip,()->None,-,false,5
+          test_valid_nip_with_separators,()->None,-,false,4
+          test_invalid_nip_wrong_checksum,()->None,-,false,4
+          test_invalid_nip_too_short,()->None,-,false,4
+          test_invalid_nip_empty,()->None,-,false,4
+          test_invalid_nip_non_numeric,()->None,-,false,3
+      TestValidateDateRange:
+        doc: Tests for date range validation
+        methods[3]{name,sig,decorators,async,lines}:
+          test_valid_date_range,()->None,-,false,4
+          test_same_date,()->None,-,false,3
+          test_invalid_range_reversed,()->None,-,false,4
+      TestValidateFiscalYear:
+        doc: Tests for fiscal year validation
+        methods[4]{name,sig,decorators,async,lines}:
+          test_valid_current_year,()->None,-,false,3
+          test_valid_past_year,()->None,-,false,3
+          test_invalid_too_old,()->None,-,false,4
+          test_invalid_future_year,()->None,-,false,4
+      TestValidateNexus:
+        doc: Tests for Nexus indicator validation
+        methods[4]{name,sig,decorators,async,lines}:
+          test_valid_nexus,()->None,-,false,3
+          test_nexus_exactly_one,()->None,-,false,3
+          test_invalid_nexus_greater_than_one,()->None,-,false,4
+          test_invalid_nexus_negative,()->None,-,false,4
+  libs/br-core/src/br_core/__init__.py:
+    imports[17]: types.Result,types.Success,types.Failure,types.ValidationSeverity,types.ValidationIssue,types.ValidationResult,enums.DocumentCategory,enums.TimeScope,enums.BRCategory,enums.ExpenseType,formatters.format_currency,formatters.format_date,formatters.format_nip,formatters.format_percent,validators.validate_nip
+  libs/br-core/src/br_core/types.py:
+    imports[10]: dataclasses.dataclass,dataclasses.field,datetime,enum.Enum,typing.Any,typing.Generic,typing.List,typing.Optional,typing.TypeVar,typing.Union
+    exports[8]: T,ValidationSeverity,ValidationIssue,ValidationResult,Success,Failure,VariableReference,DocumentContext
+    const[1]{n,t,v,keys}:
+      T,"-","TypeVar(\"T\")","-"
+    types[1]{name,kind,values,def}:
+      ValidationSeverity,enum,"ERROR=\"error\"|WARNING=\"warning\"|INFO=\"info\"","-"
+    classes[7]{name,bases,decorators,props,methods}:
+      ValidationSeverity,str|Enum,-,0,0
+      ValidationIssue,-,dataclass,0,1
+      ValidationResult,-,dataclass,0,3
+      Success,-,dataclass,0,2
+      Failure,-,dataclass,0,2
+      VariableReference,-,dataclass,0,2
+      DocumentContext,-,dataclass,0,2
+    class_details:
+      ValidationSeverity:
+        doc: Severity levels for validation issues
+      ValidationIssue:
+        doc: A single validation issue
+        fields[6]{n,t,default,factory}:
+          severity,ValidationSeverity,"-","-"
+          message,str,"-","-"
+          code,str,"\"\"","-"
+          location,"Optional[str]",None,"-"
+          suggestion,"Optional[str]",None,"-"
+          source_url,"Optional[str]",None,"-"
+        methods[1]{name,sig,decorators,async,lines}:
+          to_dict,()->dict,-,false,9
+      ValidationResult:
+        doc: Result of a validation operation
+        fields[5]{n,t,default,factory}:
+          valid,bool,"-","-"
+          issues,"List[ValidationIssue]","-",list
+          score,float,"1.0","-"
+          stage,str,"\"\"","-"
+          validated_at,datetime,"-",datetime.now
+        methods[3]{name,sig,decorators,async,lines}:
+          errors,"()->List[ValidationIssue]",property,false,2
+          warnings,"()->List[ValidationIssue]",property,false,2
+          to_dict,()->dict,-,false,9
+      Success:
+        doc: Success result wrapper
+        fields[2]{n,t,default,factory}:
+          value,T,"-","-"
+          metadata,dict,"-",dict
+        methods[2]{name,sig,decorators,async,lines}:
+          is_success,()->bool,property,false,2
+          is_failure,()->bool,property,false,2
+      Failure:
+        doc: Failure result wrapper
+        fields[3]{n,t,default,factory}:
+          error,str,"-","-"
+          code,str,"\"\"","-"
+          details,"Optional[dict]",None,"-"
+        methods[2]{name,sig,decorators,async,lines}:
+          is_success,()->bool,property,false,2
+          is_failure,()->bool,property,false,2
+      VariableReference:
+        doc: Reference to a variable in a document with source URL
+        fields[5]{n,t,default,factory}:
+          name,str,"-","-"
+          value,Any,"-","-"
+          source_url,str,"-","-"
+          description,"Optional[str]",None,"-"
+          fetched_at,datetime,"-",datetime.now
+        methods[2]{name,sig,decorators,async,lines}:
+          to_footnote,"(index:int)->str",-,false,3
+          to_footnote_definition,"(index:int)->str",-,false,3
+      DocumentContext:
+        doc: Context for document generation with variable tracking
+        fields[5]{n,t,default,factory}:
+          project_id,str,"-","-"
+          year,int,"-","-"
+          month,"Optional[int]",None,"-"
+          variables,"List[VariableReference]","-",list
+          base_url,str,"\"http://localhost:81\"","-"
+        methods[2]{name,sig,decorators,async,lines}:
+          add_variable,"(name:str;value:Any;path:str)->VariableReference",-,false,6
+          get_footnotes,()->str,-,false,6
+  libs/br-core/src/br_core/formatters.py:
+    imports[5]: datetime.date,datetime,decimal.Decimal,typing.Optional,typing.Union
+    exports[9]: MONTH_NAMES_PL,format_currency,format_date,format_date_pl,format_month_pl,format_nip,format_percent,format_hours,format_nexus
+    const[1]{n,t,v,keys}:
+      MONTH_NAMES_PL,Dict,"{     1: \"Styczeń\", 2: \"Luty\", 3: \"Marzec\", 4: \"Kwiecień\",     5: \"Maj\", 6: \"Czerwiec\", 7: \"Lipiec\", 8: \"Sierpień\",  ...","-"
+    functions[8]{name,sig,decorators,async,category,lines}:
+      format_currency,"(value:Optional[Union[int;float;Decimal;str]];currency:str='PLN';show_currency:bool=True)->str",-,false,-,31
+      format_date,"(value:Optional[Union[str;datetime;date]];format_str:str='%Y-%m-%d')->str",-,false,-,21
+      format_date_pl,"(value:Optional[Union[str;datetime;date]])->str",-,false,-,3
+      format_month_pl,"(month:int;year:Optional[int]=None)->str",-,false,-,15
+      format_nip,"(nip:str)->str",-,false,-,14
+      format_percent,"(value:Optional[Union[int;float;Decimal]];decimals:int=1)->str",-,false,-,25
+      format_hours,"(hours:Optional[Union[int;float]])->str",-,false,-,20
+      format_nexus,"(nexus:Optional[Union[float;Decimal]])->str",-,false,-,13
+    function_docs:
+      format_currency: formats currency
+      format_date: formats date
+      format_date_pl: formats date pl
+      format_month_pl: formats month pl
+      format_nip: formats nip
+      format_percent: formats percent
+      format_hours: formats hours
+      format_nexus: formats nexus
+  libs/br-core/src/br_core/validators.py:
+    imports[8]: re,datetime.date,datetime,typing.Optional,typing.Tuple,typing.Union,types.ValidationIssue,types.ValidationSeverity
+    exports[7]: validate_nip,validate_nip_issue,validate_date_range,validate_fiscal_year,validate_amount,validate_percentage,validate_nexus
+    functions[7]{name,sig,decorators,async,category,lines}:
+      validate_nip,"(nip:str)->Tuple[bool, Optional[str]]",-,false,-,38
+      validate_nip_issue,"(nip:str)->Optional[ValidationIssue]",-,false,-,19
+      validate_date_range,"(start_date:Union[str;date;datetime];end_date:Union[str;date;datetime])->Tuple[bool, Optional[str]]",-,false,-,33
+      validate_fiscal_year,"(year:int;allow_future:bool=False)->Tuple[bool, Optional[str]]",-,false,-,26
+      validate_amount,"(amount:Union[int;float;str];min_value:float=0;max_value:Optional[float]=None;field_name:str='Kwota')->Tuple[bool, Optional[str]]",-,false,-,30
+      validate_percentage,"(value:Union[int;float;str];field_name:str='Wartość procentowa')->Tuple[bool, Optional[str]]",-,false,-,27
+      validate_nexus,"(nexus:Union[float;str])->Tuple[bool, Optional[str]]",-,false,-,22
+    function_docs:
+      validate_nip: validates nip
+      validate_nip_issue: validates nip issue
+      validate_date_range: validates date range
+      validate_fiscal_year: validates fiscal year
+      validate_amount: validates amount
+      validate_percentage: validates percentage
+      validate_nexus: validates nexus
+  libs/br-core/src/br_core/enums.py:
+    imports[1]: enum.Enum
+    exports[6]: DocumentCategory,TimeScope,BRCategory,ExpenseType,VATRate,DocumentStatus
+    types[6]{name,kind,values,def}:
+      DocumentCategory,enum,"PROJECT=\"project\"|FINANCIAL=\"financial\"|TIMESHEET=\"timesheet\"|LEGAL=\"legal\"|TAX=\"tax\"|REPORT=\"report\"","-"
+      TimeScope,enum,"NONE=\"none\"|MONTHLY=\"monthly\"|QUARTERLY=\"quarterly\"|YEARLY=\"yearly\"|PROJECT=\"project\"|CUSTOM=\"custom\"","-"
+      BRCategory,enum,"PERSONNEL_EMPLOYMENT=\"personnel_employment\"|PERSONNEL_CIVIL=\"personnel_civil\"|MATERIALS=\"materials\"|EQUIPMENT=\"equipment\"|EXTERNAL_SERVICES=\"external_services\"|RELATED_SERVICES=\"related_services\"|IP_PURCHASE=\"ip_purchase\"|DEPRECIATION=\"depreciation\"|OTHER=\"other\"","-"
+      ExpenseType,enum,"INVOICE=\"invoice\"|RECEIPT=\"receipt\"|CONTRACT=\"contract\"|PAYROLL=\"payroll\"|OTHER=\"other\"","-"
+      VATRate,enum,"VAT_23=\"23\"|VAT_8=\"8\"|VAT_5=\"5\"|VAT_0=\"0\"|ZW=\"zw\"|NP=\"np\"","-"
+      DocumentStatus,enum,"PENDING=\"pending\"|PROCESSING=\"processing\"|COMPLETED=\"completed\"|FAILED=\"failed\"|VALIDATED=\"validated\"|REJECTED=\"rejected\"","-"
+    classes[6]{name,bases,decorators,props,methods}:
+      DocumentCategory,str|Enum,-,0,0
+      TimeScope,str|Enum,-,0,0
+      BRCategory,str|Enum,-,0,1
+      ExpenseType,str|Enum,-,0,0
+      VATRate,str|Enum,-,0,1
+      DocumentStatus,str|Enum,-,0,0
+    class_details:
+      DocumentCategory:
+        doc: Categories of B+R documents
+      TimeScope:
+        doc: Time scope for document generation
+      BRCategory:
+        doc: B+R expense categories according to Polish tax law (art.
+        methods[1]{name,sig,decorators,async,lines}:
+          nexus_component,()->str,property,false,12
+      ExpenseType:
+        doc: Types of expense documents
+      VATRate:
+        doc: Polish VAT rates
+        methods[1]{name,sig,decorators,async,lines}:
+          rate,()->float,property,false,5
+      DocumentStatus:
+        doc: Status of document processing
+  libs/md-render/tests/__init__.py:
+  libs/md-render/tests/test_converter.py:
+    imports[3]: pytest,md_render.md2html,md_render.MarkdownRenderer
+    exports[2]: TestMd2Html,TestMarkdownRenderer
+    classes[2]{name,bases,decorators,props,methods}:
+      TestMd2Html,-,-,0,5
+      TestMarkdownRenderer,-,-,0,2
+    class_details:
+      TestMd2Html:
+        doc: Tests for md2html function
+        methods[5]{name,sig,decorators,async,lines}:
+          test_basic_conversion,()->None,-,false,8
+          test_table_conversion,()->None,-,false,12
+          test_code_block,()->None,-,false,11
+          test_custom_title,()->None,-,false,5
+          test_include_toc,()->None,-,false,9
+      TestMarkdownRenderer:
+        doc: Tests for MarkdownRenderer class
+        methods[2]{name,sig,decorators,async,lines}:
+          test_render_fragment,()->None,-,false,6
+          test_render_with_footnotes,()->None,-,false,9
+  libs/md-render/src/md_render/__init__.py:
+    imports[8]: converter.md2html,converter.html2pdf,converter.md2pdf,converter.MarkdownRenderer,converter.PDFRenderer,styles.get_default_css,styles.get_br_document_css,styles.StylePreset
+  libs/md-render/src/md_render/styles.py:
+    imports[1]: enum.Enum
+    exports[5]: StylePreset,get_default_css,get_br_document_css,get_minimal_css,get_style_preset
+    types[1]{name,kind,values,def}:
+      StylePreset,enum,"DEFAULT=\"default\"|BR_DOCUMENT=\"br_document\"|MINIMAL=\"minimal\"|PRINT=\"print\"","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      StylePreset,str|Enum,-,0,0
+    class_details:
+      StylePreset:
+        doc: Available style presets
+    functions[4]{name,sig,decorators,async,category,lines}:
+      get_default_css,()->str,-,false,-,165
+      get_br_document_css,()->str,-,false,-,179
+      get_minimal_css,()->str,-,false,-,30
+      get_style_preset,"(preset:StylePreset)->str",-,false,-,11
+    function_docs:
+      get_default_css: retrieves default css
+      get_br_document_css: retrieves br document css
+      get_minimal_css: retrieves minimal css
+      get_style_preset: retrieves style preset
+  libs/md-render/src/md_render/converter.py:
+    imports[14]: io,pathlib.Path,typing.Optional,typing.Union,markdown,markdown.extensions.codehilite,markdown.extensions.tables,markdown.extensions.toc,markdown.extensions.fenced_code,jinja2.Template,weasyprint.HTML,weasyprint.CSS,styles.get_default_css,styles.get_br_document_css
+    exports[6]: HTML_TEMPLATE,MarkdownRenderer,PDFRenderer,md2html,html2pdf,md2pdf
+    const[1]{n,t,v,keys}:
+      HTML_TEMPLATE,str,"\"\"\"<!DOCTYPE html> <html lang=\"pl\"> <head>     <meta charset=\"UTF-8\">     <meta name=\"viewport\" content=\"width=device...","-"
+    classes[2]{name,bases,decorators,props,methods}:
+      MarkdownRenderer,-,-,0,3
+      PDFRenderer,-,-,0,3
+    class_details:
+      MarkdownRenderer:
+        doc: Configurable Markdown to HTML renderer
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(extensions:Optional[list]=None;extension_configs:Optional[dict]=None;css:Optional[str]=None)->None",-,false,39
+          render,"(md_content:str;title:str='Dokument';include_toc:bool=False;footnotes:Optional[str]=None)->str",-,false,37
+          render_fragment,"(md_content:str)->str",-,false,12
+      PDFRenderer:
+        doc: HTML to PDF renderer using WeasyPrint
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(base_url:Optional[str]=None;css:Optional[str]=None)->None",-,false,14
+          render,"(html_content:str;output_path:Optional[Union[str;Path]]=None)->bytes",-,false,27
+          render_to_file,"(html_content:str;output_path:Union[str;Path])->Path",-,false,26
+    functions[3]{name,sig,decorators,async,category,lines}:
+      md2html,"(md_content:str;title:str='Dokument';css:Optional[str]=None;include_toc:bool=False)->str",-,false,-,20
+      html2pdf,"(html_content:str;output_path:Optional[Union[str;Path]]=None;css:Optional[str]=None)->bytes",-,false,-,18
+      md2pdf,"(md_content:str;output_path:Optional[Union[str;Path]]=None;title:str='Dokument';css:Optional[str]=None;include_toc:bool=False)->bytes",-,false,-,22
+    function_docs:
+      md2html: md2html
+      html2pdf: html2pdf
+      md2pdf: md2pdf
+  libs/br-llm-client/tests/__init__.py:
+  libs/br-llm-client/tests/test_prompts.py:
+    imports[3]: pytest,br_llm_client.PromptBuilder,br_llm_client.BR_PROMPTS
+    exports[2]: TestPromptBuilder,TestBRPrompts
+    classes[2]{name,bases,decorators,props,methods}:
+      TestPromptBuilder,-,-,0,5
+      TestBRPrompts,-,-,0,4
+    class_details:
+      TestPromptBuilder:
+        doc: Tests for PromptBuilder
+        methods[5]{name,sig,decorators,async,lines}:
+          test_get_template,()->None,-,false,6
+          test_get_unknown_template,()->None,-,false,5
+          test_build_expense_qualification,()->None,-,false,15
+          test_build_document_review,()->None,-,false,12
+          test_build_nexus_explanation,()->None,-,false,15
+      TestBRPrompts:
+        doc: Tests for BR_PROMPTS dictionary
+        methods[4]{name,sig,decorators,async,lines}:
+          test_all_prompts_have_required_fields,()->None,-,false,5
+          test_expense_qualification_exists,()->None,-,false,2
+          test_document_review_exists,()->None,-,false,2
+          test_nexus_explanation_exists,()->None,-,false,2
+  libs/br-llm-client/src/br_llm_client/fallback.py:
+    imports[9]: dataclasses.dataclass,dataclasses.field,typing.Any,typing.Dict,typing.List,typing.Optional,structlog,client.LLMClient,client.LLMResponse
+    exports[3]: ModelConfig,FallbackChain,create_default_chain
+    classes[2]{name,bases,decorators,props,methods}:
+      ModelConfig,-,dataclass,0,1
+      FallbackChain,-,-,0,4
+    class_details:
+      ModelConfig:
+        doc: Configuration for a single model
+        fields[7]{n,t,default,factory}:
+          provider,str,"-","-"
+          model,str,"-","-"
+          priority,int,"0","-"
+          api_key,"Optional[str]",None,"-"
+          base_url,"Optional[str]",None,"-"
+          timeout,float,"60.0","-"
+          max_retries,int,"1","-"
+        methods[1]{name,sig,decorators,async,lines}:
+          to_client,()->LLMClient,-,false,9
+      FallbackChain:
+        doc: Chain of LLM models with automatic fallback.
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(models:Optional[List[ModelConfig]]=None;default_temperature:float=0.7;default_max_tokens:int=2000)->None",-,false,18
+          add_model,"(config:ModelConfig)->None",-,false,4
+          _get_client,"(config:ModelConfig)->LLMClient",-,false,6
+          generate,"(prompt:str;system_prompt:Optional[str]=None;temperature:Optional[float]=None;max_tokens:Optional[int]=None)->LLMResponse",-,true,83
+    functions[1]{name,sig,decorators,async,category,lines}:
+      create_default_chain,()->FallbackChain,-,false,-,30
+    function_docs:
+      create_default_chain: creates default chain
+  libs/br-llm-client/src/br_llm_client/prompts.py:
+    imports[4]: dataclasses.dataclass,typing.Any,typing.Dict,typing.Optional
+    exports[3]: PromptTemplate,BR_PROMPTS,PromptBuilder
+    const[1]{n,t,v,keys}:
+      BR_PROMPTS,Dict,"{     \"expense_qualification\": PromptTemplate(         name=\"expense_qualification\",         description=\"Qualify exp...","-"
+    classes[2]{name,bases,decorators,props,methods}:
+      PromptTemplate,-,dataclass,0,1
+      PromptBuilder,-,-,0,6
+    class_details:
+      PromptTemplate:
+        doc: Template for LLM prompts
+        fields[4]{n,t,default,factory}:
+          name,str,"-","-"
+          system_prompt,str,"-","-"
+          user_prompt_template,str,"-","-"
+          description,str,"\"\"","-"
+        methods[1]{name,sig,decorators,async,lines}:
+          format,"()->tuple[str, str]",-,false,3
+      PromptBuilder:
+        doc: Builder for LLM prompts with B+R context
+        methods[6]{name,sig,decorators,async,lines}:
+          __init__,"(templates:Optional[Dict[str;PromptTemplate]]=None)->None",-,false,2
+          get_template,"(name:str)->Optional[PromptTemplate]",-,false,3
+          build,"(template_name:str)->tuple[str, str]",-,false,6
+          build_expense_qualification,"(description:str;amount:float;vendor:str;category:str;date:str)->tuple[str, str]",-,false,17
+          build_document_review,"(document_content:str;document_type:str;year:int)->tuple[str, str]",-,false,13
+          build_nexus_explanation,"(a:float;b:float;c:float;d:float;nexus:float)->tuple[str, str]",-,false,17
+  libs/br-llm-client/src/br_llm_client/__init__.py:
+    imports[6]: client.LLMClient,client.LLMResponse,fallback.FallbackChain,fallback.ModelConfig,prompts.PromptBuilder,prompts.BR_PROMPTS
+  libs/br-llm-client/src/br_llm_client/client.py:
+    imports[11]: os,dataclasses.dataclass,dataclasses.field,datetime,typing.Any,typing.Dict,typing.List,typing.Optional,typing.Union,httpx,structlog
+    exports[2]: LLMResponse,LLMClient
+    classes[2]{name,bases,decorators,props,methods}:
+      LLMResponse,-,dataclass,0,1
+      LLMClient,-,-,0,7
+    class_details:
+      LLMResponse:
+        doc: Response from LLM
+        fields[7]{n,t,default,factory}:
+          content,str,"-","-"
+          model,str,"-","-"
+          provider,str,"-","-"
+          tokens_used,int,"0","-"
+          latency_ms,float,"0","-"
+          metadata,"Dict[str, Any]","-",dict
+          error,"Optional[str]",None,"-"
+        methods[1]{name,sig,decorators,async,lines}:
+          success,()->bool,property,false,2
+      LLMClient:
+        doc: Unified LLM client supporting multiple providers.
+        methods[7]{name,sig,decorators,async,lines}:
+          __init__,"(provider:str='openai';model:str='gpt-4o-mini';api_key:Optional[str]=None;base_url:Optional[str]=None;timeout:float=60.0)->None",-,false,25
+          _get_api_key,"()->Optional[str]",-,false,10
+          _get_base_url,()->str,-,false,10
+          generate,"(prompt:str;system_prompt:Optional[str]=None;temperature:float=0.7;max_tokens:int=2000)->LLMResponse",-,true,67
+          _generate_openai,"(prompt:str;system_prompt:Optional[str];temperature:float;max_tokens:int)->LLMResponse",-,true,53
+          _generate_anthropic,"(prompt:str;system_prompt:Optional[str];temperature:float;max_tokens:int)->LLMResponse",-,true,45
+          _generate_ollama,"(prompt:str;system_prompt:Optional[str];temperature:float;max_tokens:int)->LLMResponse",-,true,40
+  libs/br-variable-api/src/br_variable_api/auth.py:
+    imports[20]: os,hashlib,secrets,abc.ABC,abc.abstractmethod,dataclasses.dataclass,datetime,datetime.timedelta,enum.Enum,typing.Any,typing.Dict,typing.List,typing.Optional,typing.Tuple,fastapi.Depends
+    exports[12]: AuthMethod,AuthContext,SECRET_KEY,ALGORITHM,ACCESS_TOKEN_EXPIRE_MINUTES,AuthProvider,APIKeyAuth,BasicAuth,SessionAuth,SSHKeyAuth
+    const[3]{n,t,v,keys}:
+      SECRET_KEY,"-","os.getenv(\"JWT_SECRET_KEY\", secrets.token_urlsafe(32))","-"
+      ALGORITHM,str,"\"HS256\"","-"
+      ACCESS_TOKEN_EXPIRE_MINUTES,int,"60","-"
+    types[1]{name,kind,values,def}:
+      AuthMethod,enum,"API_KEY=\"api_key\"|BASIC=\"basic\"|SESSION=\"session\"|SSH_KEY=\"ssh_key\"|ANONYMOUS=\"anonymous\"","-"
+    classes[8]{name,bases,decorators,props,methods}:
+      AuthMethod,str|Enum,-,0,0
+      AuthContext,-,dataclass,0,2
+      AuthProvider,ABC,-,0,1
+      APIKeyAuth,AuthProvider,-,0,2
+      BasicAuth,AuthProvider,-,0,2
+      SessionAuth,AuthProvider,-,0,1
+      SSHKeyAuth,AuthProvider,-,0,2
+      MultiAuth,-,-,0,2
+    class_details:
+      AuthMethod:
+        doc: Supported authentication methods
+      AuthContext:
+        doc: Authentication context
+        fields[5]{n,t,default,factory}:
+          method,AuthMethod,"-","-"
+          user_id,"Optional[str]",None,"-"
+          username,"Optional[str]",None,"-"
+          scopes,"List[str]",None,"-"
+          expires_at,"Optional[datetime]",None,"-"
+        methods[2]{name,sig,decorators,async,lines}:
+          __post_init__,()->None,-,false,3
+          has_scope,"(scope:str)->bool",-,false,2
+      AuthProvider:
+        doc: Abstract authentication provider
+        methods[1]{name,sig,decorators,async,lines}:
+          authenticate,"(request:Request)->Optional[AuthContext]",abstractmethod,true,3
+      APIKeyAuth:
+        doc: API Key authentication
+        methods[2]{name,sig,decorators,async,lines}:
+          __init__,"(valid_keys:Optional[Dict[str;Dict[str;Any]]]=None)->None",-,false,18
+          authenticate,"(request:Request)->Optional[AuthContext]",-,true,21
+      BasicAuth:
+        doc: HTTP Basic authentication
+        methods[2]{name,sig,decorators,async,lines}:
+          __init__,"(users:Optional[Dict[str;Dict[str;Any]]]=None)->None",-,false,17
+          authenticate,"(request:Request)->Optional[AuthContext]",-,true,24
+      SessionAuth:
+        doc: Session/JWT token authentication
+        methods[1]{name,sig,decorators,async,lines}:
+          authenticate,"(request:Request)->Optional[AuthContext]",-,true,24
+      SSHKeyAuth:
+        doc: SSH key-based authentication for CLI access
+        methods[2]{name,sig,decorators,async,lines}:
+          __init__,"(authorized_keys:Optional[Dict[str;Dict[str;Any]]]=None)->None",-,false,8
+          authenticate,"(request:Request)->Optional[AuthContext]",-,true,17
+      MultiAuth:
+        doc: Combined authentication supporting multiple methods
+        methods[2]{name,sig,decorators,async,lines}:
+          __init__,"(providers:Optional[List[AuthProvider]]=None;allow_anonymous:bool=False;anonymous_scopes:Optional[List[str]]=None)->None",-,false,13
+          __call__,"(request:Request)->AuthContext",-,true,20
+    functions[1]{name,sig,decorators,async,category,lines}:
+      create_access_token,"(user_id:str;username:str;scopes:List[str];expires_delta:Optional[timedelta]=None)->str",-,false,-,17
+    function_docs:
+      create_access_token: creates access token
+  libs/br-variable-api/src/br_variable_api/__init__.py:
+    imports[10]: router.create_variable_router,auth.AuthMethod,auth.APIKeyAuth,auth.BasicAuth,auth.SessionAuth,auth.SSHKeyAuth,auth.get_current_auth,models.VariableResponse,models.InvoiceVariableResponse,models.ProjectVariableResponse
+  libs/br-variable-api/src/br_variable_api/router.py:
+    imports[20]: typing.Any,typing.Dict,typing.List,typing.Optional,fastapi.APIRouter,fastapi.Depends,fastapi.HTTPException,fastapi.Query,fastapi.Request,sqlalchemy.ext.asyncio.AsyncSession,structlog,auth.AuthContext,auth.MultiAuth,auth.get_current_auth,models.VariableResponse
+    exports[1]: create_variable_router
+    functions[2]{name,sig,decorators,async,category,lines}:
+      create_variable_router,"(get_db:Any;data_registry:Any;auth:Optional[MultiAuth]=None;prefix:str='/api')->APIRouter",-,false,-,313
+      _format_invoice_plain_text,"(data:dict)->str",-,false,-,13
+    function_docs:
+      create_variable_router: creates variable router
+      _format_invoice_plain_text: formats invoice plain text
+  libs/br-variable-api/src/br_variable_api/models.py:
+    imports[7]: datetime,typing.Any,typing.Dict,typing.List,typing.Optional,pydantic.BaseModel,pydantic.Field
+    exports[7]: VariableResponse,ProjectVariableResponse,InvoiceVariableResponse,InvoiceDataResponse,NexusCalculationResponse,VariableListResponse,AuthInfoResponse
+    classes[7]{name,bases,decorators,props,methods}:
+      VariableResponse,BaseModel,-,7,0
+      ProjectVariableResponse,BaseModel,-,3,0
+      InvoiceVariableResponse,BaseModel,-,4,0
+      InvoiceDataResponse,BaseModel,-,6,0
+      NexusCalculationResponse,BaseModel,-,9,1
+      VariableListResponse,BaseModel,-,4,0
+      AuthInfoResponse,BaseModel,-,4,0
+    class_details:
+      VariableResponse:
+        doc: Response for a single variable
+        properties[7]: "name: str","value: Any","source: str","path: str","fetched_at: datetime","description: Optional[str]","unit: Optional[str]"
+      ProjectVariableResponse:
+        doc: Response for project-level variable
+        properties[3]: "project_id: str","variable: VariableResponse","verification_url: str"
+      InvoiceVariableResponse:
+        doc: Response for invoice-level variable
+        properties[4]: "invoice_id: str","variable: VariableResponse","ocr_source: Optional[str]","document_id: Optional[str]"
+      InvoiceDataResponse:
+        doc: Response for full invoice data
+        properties[6]: "invoice_id: str","format: str","data: Any","document_id: Optional[str]","ocr_confidence: Optional[float]","fetched_at: datetime"
+      NexusCalculationResponse:
+        doc: Response for Nexus indicator calculation
+        properties[9]: "project_id: str","year: int","a_direct: float","b_unrelated: float","c_related: float","d_ip: float","nexus: float","formula: str","verification_urls: Dict[str, str]"
+        methods[1]{name,sig,decorators,async,lines}:
+          is_valid,()->bool,property,false,2
+      VariableListResponse:
+        doc: Response for listing available variables
+        properties[4]: "project_id: Optional[str]","variables: List[Dict[str, Any]]","total: int","base_url: str"
+      AuthInfoResponse:
+        doc: Response for authentication info
+        properties[4]: "method: str","user: Optional[str]","scopes: List[str]","expires_at: Optional[datetime]"
+  libs/br-validators/tests/__init__.py:
+  libs/br-validators/tests/test_pipeline.py:
+    imports[6]: pytest,br_validators.create_default_pipeline,br_validators.StructureValidator,br_validators.LegalValidator,br_validators.FinancialValidator,br_validators.ValidationContext
+    exports[6]: SAMPLE_PROJECT_CARD,SAMPLE_NEXUS,TestStructureValidator,TestLegalValidator,TestFinancialValidator,TestValidationPipeline
+    const[2]{n,t,v,keys}:
+      SAMPLE_PROJECT_CARD,str,"\"\"\" # Karta Projektu B+R  ## Identyfikacja  **Nazwa projektu:** System zarządzania dokumentacją B+R **NIP:** 588-191-...","-"
+      SAMPLE_NEXUS,str,"\"\"\" # Obliczenie Nexus  ## Składniki  - a (koszty bezpośrednie): 50000 - b (usługi zewnętrzne): 10000 - c (podmioty p...","-"
+    classes[4]{name,bases,decorators,props,methods}:
+      TestStructureValidator,-,pytest.mark.asyncio,0,3
+      TestLegalValidator,-,pytest.mark.asyncio,0,2
+      TestFinancialValidator,-,pytest.mark.asyncio,0,3
+      TestValidationPipeline,-,pytest.mark.asyncio,0,2
+    class_details:
+      TestStructureValidator:
+        doc: Tests for StructureValidator
+        methods[3]{name,sig,decorators,async,lines}:
+          test_valid_project_card,()->None,-,true,11
+          test_missing_title,()->None,-,true,11
+          test_too_short,()->None,-,true,10
+      TestLegalValidator:
+        doc: Tests for LegalValidator
+        methods[2]{name,sig,decorators,async,lines}:
+          test_valid_nip,()->None,-,true,11
+          test_invalid_nip,()->None,-,true,10
+      TestFinancialValidator:
+        doc: Tests for FinancialValidator
+        methods[3]{name,sig,decorators,async,lines}:
+          test_valid_nexus,()->None,-,true,11
+          test_nexus_exceeds_one,()->None,-,true,10
+          test_negative_amount,()->None,-,true,11
+      TestValidationPipeline:
+        doc: Tests for ValidationPipeline
+        methods[2]{name,sig,decorators,async,lines}:
+          test_full_pipeline,()->None,-,true,13
+          test_quick_validate,()->None,-,true,9
+  libs/br-validators/src/br_validators/base.py:
+    imports[13]: abc.ABC,abc.abstractmethod,dataclasses.dataclass,dataclasses.field,datetime,enum.Enum,typing.Any,typing.Dict,typing.List,typing.Optional,br_core.types.ValidationIssue,br_core.types.ValidationResult,br_core.types.ValidationSeverity
+    exports[3]: ValidationStage,ValidationContext,BaseValidator
+    types[1]{name,kind,values,def}:
+      ValidationStage,enum,"STRUCTURE=\"structure\"|LEGAL=\"legal\"|FINANCIAL=\"financial\"|LLM_REVIEW=\"llm_review\"|FINAL=\"final\"","-"
+    classes[3]{name,bases,decorators,props,methods}:
+      ValidationStage,str|Enum,-,0,0
+      ValidationContext,-,dataclass,0,7
+      BaseValidator,ABC,-,1,6
+    class_details:
+      ValidationStage:
+        doc: Stages of validation pipeline
+      ValidationContext:
+        doc: Context passed through validation pipeline
+        fields[10]{n,t,default,factory}:
+          document_type,str,"-","-"
+          content,str,"-","-"
+          project_id,"Optional[str]",None,"-"
+          year,"Optional[int]",None,"-"
+          month,"Optional[int]",None,"-"
+          metadata,"Dict[str, Any]","-",dict
+          data,"Dict[str, Any]","-",dict
+          current_stage,ValidationStage,ValidationStage.STRUCTURE,"-"
+          all_issues,"List[ValidationIssue]","-",list
+          stage_results,"Dict[str, ValidationResult]","-",dict
+        methods[7]{name,sig,decorators,async,lines}:
+          add_issue,"(issue:ValidationIssue)->None",-,false,3
+          add_issues,"(issues:List[ValidationIssue])->None",-,false,3
+          has_errors,()->bool,property,false,3
+          error_count,()->int,property,false,3
+          warning_count,()->int,property,false,3
+          get_stage_result,"(stage:ValidationStage)->Optional[ValidationResult]",-,false,3
+          set_stage_result,"(stage:ValidationStage;result:ValidationResult)->None",-,false,3
+      BaseValidator:
+        doc: Abstract base class for validators
+        properties[1]: "stage: ValidationStage"
+        methods[6]{name,sig,decorators,async,lines}:
+          __init__,"(config:Optional[Dict[str;Any]]=None)->None",-,false,2
+          validate,"(context:ValidationContext)->ValidationResult",abstractmethod,true,11
+          create_issue,"(severity:ValidationSeverity;message:str;code:str='';location:Optional[str]=None;suggestion:Optional[str]=None)->ValidationIssue",-,false,16
+          error,"(message:str;code:str='')->ValidationIssue",-,false,3
+          warning,"(message:str;code:str='')->ValidationIssue",-,false,3
+          info,"(message:str;code:str='')->ValidationIssue",-,false,3
+  libs/br-validators/src/br_validators/structure.py:
+    imports[10]: re,typing.Any,typing.Dict,typing.List,typing.Optional,br_core.types.ValidationResult,br_core.types.ValidationSeverity,base.BaseValidator,base.ValidationContext,base.ValidationStage
+    exports[3]: REQUIRED_SECTIONS,REQUIRED_FIELDS,StructureValidator
+    const[2]{n,t,v,keys}:
+      REQUIRED_SECTIONS,Dict,"{     \"project_card\": [         (\"Identyfikacja\", r\"##\\s*(Identyfikacja|Dane\\s+projektu)\", True),         (\"Opis proj...","-"
+      REQUIRED_FIELDS,Dict,"{     \"project_card\": [         (\"NIP\", r\"\\bNIP[:\\s]*\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2}\\b\", True),         (\"Rok\"...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      StructureValidator,BaseValidator,-,0,1
+    class_details:
+      StructureValidator:
+        doc: Validates document structure and formatting
+        methods[1]{name,sig,decorators,async,lines}:
+          validate,"(context:ValidationContext)->ValidationResult",-,true,88
+  libs/br-validators/src/br_validators/financial.py:
+    imports[9]: re,decimal.Decimal,typing.List,typing.Tuple,br_core.types.ValidationResult,br_core.types.ValidationSeverity,base.BaseValidator,base.ValidationContext,base.ValidationStage
+    exports[1]: FinancialValidator
+    classes[1]{name,bases,decorators,props,methods}:
+      FinancialValidator,BaseValidator,-,0,4
+    class_details:
+      FinancialValidator:
+        doc: Validates financial calculations in B+R documents
+        methods[4]{name,sig,decorators,async,lines}:
+          validate,"(context:ValidationContext)->ValidationResult",-,true,83
+          _extract_amounts,"(content:str)->List[Tuple[float, str]]",-,false,18
+          _validate_nexus,"(content:str;context:ValidationContext)->List",-,false,66
+          _validate_totals,"(content:str;amounts:List[Tuple[float;str]])->List",-,false,32
+  libs/br-validators/src/br_validators/__init__.py:
+    imports[8]: base.BaseValidator,base.ValidationContext,base.ValidationStage,structure.StructureValidator,legal.LegalValidator,financial.FinancialValidator,pipeline.ValidationPipeline,pipeline.create_default_pipeline
+  libs/br-validators/src/br_validators/legal.py:
+    imports[8]: re,typing.List,br_core.types.ValidationResult,br_core.types.ValidationSeverity,br_core.validators.validate_nip,base.BaseValidator,base.ValidationContext,base.ValidationStage
+    exports[3]: VALID_BR_CATEGORIES,LEGAL_REFERENCES,LegalValidator
+    const[2]{n,t,v,keys}:
+      VALID_BR_CATEGORIES,Dict,"{     \"personnel_employment\": \"Wynagrodzenia (UoP)\",     \"personnel_civil\": \"Umowy cywilnoprawne\",     \"materials\": \"...","-"
+      LEGAL_REFERENCES,List,"[     (r\"art\\.?\\s*18d\", \"Artykuł 18d ustawy o CIT\"),     (r\"IP\\s*Box|art\\.?\\s*24d\", \"Przepisy IP Box\"),     (r\"B\\+R|B...","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      LegalValidator,BaseValidator,-,0,1
+    class_details:
+      LegalValidator:
+        doc: Validates legal compliance of B+R documentation
+        methods[1]{name,sig,decorators,async,lines}:
+          validate,"(context:ValidationContext)->ValidationResult",-,true,117
+  libs/br-validators/src/br_validators/pipeline.py:
+    imports[14]: typing.Any,typing.Dict,typing.List,typing.Optional,structlog,br_core.types.ValidationResult,br_core.types.ValidationSeverity,br_core.types.ValidationIssue,base.BaseValidator,base.ValidationContext,base.ValidationStage,structure.StructureValidator,legal.LegalValidator,financial.FinancialValidator
+    exports[2]: ValidationPipeline,create_default_pipeline
+    classes[1]{name,bases,decorators,props,methods}:
+      ValidationPipeline,-,-,0,4
+    class_details:
+      ValidationPipeline:
+        doc: Orchestrates multi-stage validation of B+R documents.
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(validators:Optional[List[BaseValidator]]=None;stop_on_error:bool=False)->None",-,false,14
+          add_validator,"(validator:BaseValidator)->None",-,false,3
+          validate,"(content:str;document_type:str;project_id:Optional[str]=None;year:Optional[int]=None;month:Optional[int]=None;metadata:Optional[Dict[str;Any]]=None)->Dict[str, Any]",-,true,111
+          validate_quick,"(content:str;document_type:str)->bool",-,true,9
+    functions[1]{name,sig,decorators,async,category,lines}:
+      create_default_pipeline,"(include_llm:bool=False;stop_on_error:bool=False)->ValidationPipeline",-,false,-,24
+    function_docs:
+      create_default_pipeline: creates default pipeline
+  libs/br-data-sources/src/br_data_sources/variable_tracker.py:
+    imports[7]: dataclasses.dataclass,dataclasses.field,datetime,typing.Any,typing.Dict,typing.List,typing.Optional
+    exports[2]: TrackedVariable,VariableTracker
+    classes[2]{name,bases,decorators,props,methods}:
+      TrackedVariable,-,dataclass,0,4
+      VariableTracker,-,-,0,7
+    class_details:
+      TrackedVariable:
+        doc: A variable tracked with its source URL for verification
+        fields[7]{n,t,default,factory}:
+          name,str,"-","-"
+          value,Any,"-","-"
+          source_name,str,"-","-"
+          source_url,str,"-","-"
+          path,str,"\"\"","-"
+          description,"Optional[str]",None,"-"
+          fetched_at,datetime,"-",datetime.now
+        methods[4]{name,sig,decorators,async,lines}:
+          to_footnote_ref,"(index:int)->str",-,false,3
+          to_footnote_def,"(index:int)->str",-,false,3
+          to_inline_ref,()->str,-,false,3
+          to_dict,()->dict,-,false,9
+      VariableTracker:
+        doc: Track all variables used in document generation.
+        methods[7]{name,sig,decorators,async,lines}:
+          __init__,"(base_url:str='http://localhost:81';project_id:Optional[str]=None)->None",-,false,9
+          track,"(name:str;value:Any;source_name:str;path:str='';description:Optional[str]=None)->TrackedVariable",-,false,44
+          track_invoice,"(invoice_id:str;variable_name:str;value:Any)->TrackedVariable",-,false,29
+          get_footnotes_markdown,()->str,-,false,22
+          get_footnote_refs,"()->Dict[str, str]",-,false,11
+          to_json,"()->List[dict]",-,false,3
+          clear,()->None,-,false,4
+  libs/br-data-sources/src/br_data_sources/base.py:
+    imports[9]: abc.ABC,abc.abstractmethod,dataclasses.dataclass,dataclasses.field,datetime,typing.Any,typing.Dict,typing.List,typing.Optional
+    exports[2]: DataSourceResult,DataSource
+    classes[2]{name,bases,decorators,props,methods}:
+      DataSourceResult,-,dataclass,0,2
+      DataSource,ABC,-,0,4
+    class_details:
+      DataSourceResult:
+        doc: Result from a data source query
+        fields[7]{n,t,default,factory}:
+          data,Any,"-","-"
+          source_type,str,"-","-"
+          source_name,str,"-","-"
+          query_info,str,"-","-"
+          fetched_at,datetime,"-",datetime.now
+          error,"Optional[str]",None,"-"
+          variables,"Dict[str, Any]","-",dict
+        methods[2]{name,sig,decorators,async,lines}:
+          success,()->bool,property,false,2
+          to_dict,()->dict,-,false,9
+      DataSource:
+        doc: Abstract base class for data sources
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;description:str='')->None",-,false,3
+          fetch,"(params:Dict[str;Any])->DataSourceResult",abstractmethod,true,3
+          get_schema,"()->Dict[str, Any]",abstractmethod,false,3
+          get_api_url,"(params:Dict[str;Any];base_url:str='http://localhost:81')->str",-,false,8
+  libs/br-data-sources/src/br_data_sources/registry.py:
+    imports[9]: typing.Any,typing.Dict,typing.List,typing.Optional,sqlalchemy.ext.asyncio.AsyncSession,base.DataSource,base.DataSourceResult,sql.SQLDataSource,rest.RESTDataSource
+    exports[2]: DataSourceRegistry,get_data_registry
+    classes[1]{name,bases,decorators,props,methods}:
+      DataSourceRegistry,-,-,0,7
+    class_details:
+      DataSourceRegistry:
+        doc: Registry for all available data sources
+        methods[7]{name,sig,decorators,async,lines}:
+          __new__,()->None,-,false,6
+          _initialize_default_sources,()->None,-,false,123
+          register,"(source:DataSource)->None",-,false,3
+          get,"(name:str)->Optional[DataSource]",-,false,3
+          list_sources,"()->List[Dict[str, Any]]",-,false,3
+          fetch,"(source_name:str;params:Dict[str;Any];db:Optional[AsyncSession]=None)->DataSourceResult",-,true,20
+          fetch_multiple,"(source_configs:List[Dict[str;Any]];db:Optional[AsyncSession]=None)->Dict[str, DataSourceResult]",-,true,12
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_data_registry,()->DataSourceRegistry,-,false,-,6
+    function_docs:
+      get_data_registry: retrieves data registry
+  libs/br-data-sources/src/br_data_sources/__init__.py:
+    imports[9]: base.DataSource,base.DataSourceResult,sql.SQLDataSource,rest.RESTDataSource,curl.CurlDataSource,registry.DataSourceRegistry,registry.get_data_registry,variable_tracker.VariableTracker,variable_tracker.TrackedVariable
+  libs/br-data-sources/src/br_data_sources/curl.py:
+    imports[7]: asyncio,json,typing.Any,typing.Dict,structlog,base.DataSource,base.DataSourceResult
+    exports[1]: CurlDataSource
+    classes[1]{name,bases,decorators,props,methods}:
+      CurlDataSource,DataSource,-,0,3
+    class_details:
+      CurlDataSource:
+        doc: Execute curl commands for external data fetching
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;curl_template:str;description:str='';parse_json:bool=True;timeout:float=30.0)->None",-,false,12
+          fetch,"(params:Dict[str;Any])->DataSourceResult",-,true,56
+          get_schema,"()->Dict[str, Any]",-,false,8
+  libs/br-data-sources/src/br_data_sources/sql.py:
+    imports[8]: typing.Any,typing.Dict,typing.Optional,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,base.DataSource,base.DataSourceResult
+    exports[1]: SQLDataSource
+    classes[1]{name,bases,decorators,props,methods}:
+      SQLDataSource,DataSource,-,0,4
+    class_details:
+      SQLDataSource:
+        doc: SQL-based data source for PostgreSQL queries
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;query_template:str;description:str='';params_schema:Optional[Dict[str;str]]=None)->None",-,false,10
+          fetch,"(params:Dict[str;Any];db:Optional[AsyncSession]=None)->DataSourceResult",-,true,51
+          _extract_variables,"(data:list)->Dict[str, Any]",-,false,24
+          get_schema,"()->Dict[str, Any]",-,false,10
+  libs/br-data-sources/src/br_data_sources/rest.py:
+    imports[7]: typing.Any,typing.Dict,typing.Optional,httpx,structlog,base.DataSource,base.DataSourceResult
+    exports[1]: RESTDataSource
+    classes[1]{name,bases,decorators,props,methods}:
+      RESTDataSource,DataSource,-,0,4
+    class_details:
+      RESTDataSource:
+        doc: REST API data source
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;url_template:str;method:str='GET';description:str='';headers:Optional[Dict[str;str]]=None;timeout:float=30.0)->None",-,false,14
+          fetch,"(params:Dict[str;Any])->DataSourceResult",-,true,59
+          get_schema,"()->Dict[str, Any]",-,false,9
+          get_api_url,"(params:Dict[str;Any];base_url:str='')->str",-,false,6
   tests/unit/test_extractors.py:
     imports[4]: pytest,datetime.date,src.ocr.extractors.InvoiceExtractor,src.ocr.extractors.get_extractor
     exports[4]: TestInvoiceExtractor,TestDateParsing,TestAmountParsing,TestExtractorFactory
@@ -621,6 +1436,76 @@ module_details:
         methods[1]{name,sig,decorators,async,lines}:
           test_complete_monthly_workflow_with_integrations,"(client:AsyncClient)->None",pytest.mark.e2e|pytest.mark.slow,true,135
   tests/e2e/__init__.py:
+  tests/e2e/test_doc_generator_e2e.py:
+    imports[11]: asyncio,json,re,datetime,decimal.Decimal,typing.Any,typing.Dict,typing.List,typing.Optional,pytest,httpx
+    exports[12]: BASE_URL,API_BASE,DOC_GENERATOR_PAGE,DOCUMENT_PATTERNS,DocumentValidator,HTMLValidator,http_client,TestDocGeneratorAPI,TestDocumentValidation,TestHTMLRendering
+    const[4]{n,t,v,keys}:
+      BASE_URL,str,"\"http://localhost:81\"","-"
+      API_BASE,"-","f\"{BASE_URL}/api\"","-"
+      DOC_GENERATOR_PAGE,"-","f\"{BASE_URL}/?page=doc-generator&logs_tab=api&year=2025&month=12\"","-"
+      DOCUMENT_PATTERNS,Dict,"{     \"project_card\": {         \"required_sections\": [             r\"#\\s+Karta\\s+Projekt\",             r\"##\\s+Identyf...","-"
+    classes[7]{name,bases,decorators,props,methods}:
+      DocumentValidator,-,-,0,8
+      HTMLValidator,-,-,0,5
+      TestDocGeneratorAPI,-,pytest.mark.asyncio,0,4
+      TestDocumentValidation,-,pytest.mark.asyncio,0,4
+      TestHTMLRendering,-,pytest.mark.asyncio,0,2
+      TestVariableAPI,-,pytest.mark.asyncio,0,3
+      TestDocGeneratorPage,-,pytest.mark.asyncio,0,2
+    class_details:
+      DocumentValidator:
+        doc: Validates generated document content
+        methods[8]{name,sig,decorators,async,lines}:
+          __init__,"(content:str;doc_type:str)->None",-,false,4
+          validate_structure,()->bool,-,false,14
+          validate_fields,()->bool,-,false,14
+          validate_calculations,()->bool,-,false,29
+          validate_nip,()->bool,-,false,15
+          _validate_nip_checksum,"(nip:str)->bool",-,false,6
+          validate_nexus,()->bool,-,false,21
+          validate_all,"()->Dict[str, Any]",-,false,16
+      HTMLValidator:
+        doc: Validates HTML rendering of documents
+        methods[5]{name,sig,decorators,async,lines}:
+          __init__,"(html_content:str)->None",-,false,3
+          validate_structure,()->bool,-,false,15
+          validate_tables,()->bool,-,false,21
+          validate_encoding,()->bool,-,false,24
+          validate_all,"()->Dict[str, Any]",-,false,13
+      TestDocGeneratorAPI:
+        doc: Tests for Document Generator API
+        methods[4]{name,sig,decorators,async,lines}:
+          test_list_templates,(http_client)->None,-,true,16
+          test_get_template_detail,(http_client)->None,-,true,9
+          test_list_data_sources,(http_client)->None,-,true,14
+          test_generate_document,(http_client)->None,-,true,39
+      TestDocumentValidation:
+        doc: Tests for document content validation
+        methods[4]{name,sig,decorators,async,lines}:
+          test_project_card_structure,(http_client)->None,-,true,16
+          test_expense_registry_calculations,(http_client)->None,-,true,16
+          test_nexus_calculation_validity,(http_client)->None,-,true,16
+          test_nip_validation,(http_client)->None,-,true,15
+      TestHTMLRendering:
+        doc: Tests for HTML rendering
+        methods[2]{name,sig,decorators,async,lines}:
+          test_html_structure,(http_client)->None,-,true,27
+          test_polish_encoding,(http_client)->None,-,true,19
+      TestVariableAPI:
+        doc: Tests for Variable API integration
+        methods[3]{name,sig,decorators,async,lines}:
+          test_variable_access,(http_client)->None,-,true,21
+          test_nexus_api,(http_client)->None,-,true,20
+          test_invoice_variable,(http_client)->None,-,true,11
+      TestDocGeneratorPage:
+        doc: Tests for the doc-generator web page
+        methods[2]{name,sig,decorators,async,lines}:
+          test_page_loads,(http_client)->None,-,true,7
+          test_page_has_generator_ui,(http_client)->None,-,true,10
+    functions[1]{name,sig,decorators,async,category,lines}:
+      http_client,()->None,pytest.fixture,false,-,3
+    function_docs:
+      http_client: http client
   tests/integration/test_api.py:
     imports[2]: pytest,httpx.AsyncClient
     exports[7]: TestHealthEndpoints,TestProjectsAPI,TestExpensesAPI,TestDocumentsAPI,TestReportsAPI,TestClarificationsAPI,TestAuthAPI
@@ -892,59 +1777,6 @@ module_details:
       get_demo_document: retrieves demo document
       list_categories: list categories
       get_filter_options: retrieves filter options
-  src/doc_generator/templates.py:
-    imports[10]: dataclasses.dataclass,dataclasses.field,typing.Any,typing.Dict,typing.List,typing.Optional,typing.Callable,datetime,enum.Enum,json
-    exports[6]: DocumentCategory,TimeScope,TemplateDataRequirement,DocumentTemplate,TemplateRegistry,get_template_registry
-    types[2]{name,kind,values,def}:
-      DocumentCategory,enum,"PROJECT=\"project\"|FINANCIAL=\"financial\"|TIMESHEET=\"timesheet\"|LEGAL=\"legal\"|TAX=\"tax\"|REPORT=\"report\"","-"
-      TimeScope,enum,"NONE=\"none\"|MONTHLY=\"monthly\"|QUARTERLY=\"quarterly\"|YEARLY=\"yearly\"|PROJECT=\"project\"|CUSTOM=\"custom\"","-"
-    classes[5]{name,bases,decorators,props,methods}:
-      DocumentCategory,str|Enum,-,0,0
-      TimeScope,str|Enum,-,0,0
-      TemplateDataRequirement,-,dataclass,0,0
-      DocumentTemplate,-,dataclass,0,2
-      TemplateRegistry,-,-,0,7
-    class_details:
-      DocumentCategory:
-      TimeScope:
-      TemplateDataRequirement:
-        doc: Defines a data source requirement for a template
-        fields[4]{n,t,default,factory}:
-          source_name,str,"-","-"
-          required_params,"List[str]","-","-"
-          optional_params,"List[str]","-",list
-          description,str,"\"\"","-"
-      DocumentTemplate:
-        doc: Document template definition
-        fields[11]{n,t,default,factory}:
-          id,str,"-","-"
-          name,str,"-","-"
-          description,str,"-","-"
-          category,DocumentCategory,"-","-"
-          time_scope,TimeScope,"-","-"
-          data_requirements,"List[TemplateDataRequirement]","-","-"
-          template_content,str,"-","-"
-          demo_content,"Optional[str]",None,"-"
-          llm_prompt,"Optional[str]",None,"-"
-          output_format,str,"\"markdown\"","-"
-          version,str,"\"1.0\"","-"
-        methods[2]{name,sig,decorators,async,lines}:
-          get_required_params,"()->List[str]",-,false,6
-          to_dict,"()->Dict[str, Any]",-,false,11
-      TemplateRegistry:
-        doc: Registry for document templates
-        methods[7]{name,sig,decorators,async,lines}:
-          __new__,()->None,-,false,6
-          _initialize_templates,()->None,-,false,889
-          register,"(template:DocumentTemplate)->None",-,false,3
-          get,"(template_id:str)->Optional[DocumentTemplate]",-,false,3
-          list_templates,"()->List[Dict[str, Any]]",-,false,3
-          get_by_category,"(category:DocumentCategory)->List[DocumentTemplate]",-,false,3
-          get_by_time_scope,"(scope:TimeScope)->List[DocumentTemplate]",-,false,3
-    functions[1]{name,sig,decorators,async,category,lines}:
-      get_template_registry,()->TemplateRegistry,-,false,-,3
-    function_docs:
-      get_template_registry: retrieves template registry
   src/ocr/extractors.py:
     imports[8]: re,typing.Dict,typing.Any,typing.Optional,typing.List,datetime,datetime.date,structlog
     exports[4]: validate_nip,validate_regon,InvoiceExtractor,get_extractor
@@ -1242,7 +2074,7 @@ module_details:
       get_db: retrieves db
       get_db_context: retrieves db context
   src/api/main.py:
-    imports[20]: os,datetime,contextlib.asynccontextmanager,typing.Optional,structlog,fastapi.FastAPI,fastapi.Request,fastapi.middleware.cors.CORSMiddleware,fastapi.responses.JSONResponse,routers.documents,routers.expenses,routers.projects,routers.reports,routers.auth,routers.clarifications
+    imports[20]: os,datetime,contextlib.asynccontextmanager,typing.Optional,structlog,fastapi.FastAPI,fastapi.Request,fastapi.middleware.cors.CORSMiddleware,fastapi.responses.JSONResponse,routers.projects,routers.reports,routers.auth,routers.clarifications,routers.integrations,routers.logs
     exports[5]: lifespan,global_exception_handler,health_check,root,metrics
     functions[5]{name,sig,decorators,async,category,lines}:
       lifespan,"(app:FastAPI)->None",asynccontextmanager,true,-,17
@@ -1358,44 +2190,6 @@ module_details:
       get_uncertainty_generator,()->UncertaintyGenerator,-,false,-,6
     function_docs:
       get_uncertainty_generator: retrieves uncertainty generator
-  src/api/services/doc_generator.py:
-    imports[11]: os,json,subprocess,datetime,pathlib.Path,typing.Optional,typing.Dict,typing.Any,typing.List,httpx,structlog
-    exports[5]: LLM_REFINEMENT_PROMPT,DocumentVersionControl,BR_EXPENSE_DOC_PROMPT,ExpenseDocumentGenerator,get_doc_generator
-    const[2]{n,t,v,keys}:
-      LLM_REFINEMENT_PROMPT,str,"\"\"\"Jesteś ekspertem w dokumentacji B+R (ulga badawczo-rozwojowa w Polsce).  Poniższy dokument B+R zawiera błędy/ostrz...","-"
-      BR_EXPENSE_DOC_PROMPT,str,"\"\"\"Jesteś ekspertem w przygotowywaniu dokumentacji do polskiej ulgi badawczo-rozwojowej (B+R). Generujesz profesjonal...","-"
-    classes[2]{name,bases,decorators,props,methods}:
-      DocumentVersionControl,-,-,0,4
-      ExpenseDocumentGenerator,-,-,0,14
-    class_details:
-      DocumentVersionControl:
-        doc: Simple file-based version control for documents.
-        methods[4]{name,sig,decorators,async,lines}:
-          __init__,"(repo_path:Path)->None",-,false,4
-          commit_file,"(file_path:Path;message:str)->Optional[str]",-,false,32
-          get_file_history,"(file_path:Path;limit:int=20)->List[Dict[str, Any]]",-,false,27
-          get_file_at_commit,"(file_path:Path;commit:str)->Optional[str]",-,false,13
-      ExpenseDocumentGenerator:
-        doc: Generator dokumentacji B+R dla wydatków.
-        methods[14]{name,sig,decorators,async,lines}:
-          __init__,"(llm_service_url:Optional[str]=None)->None",-,false,5
-          generate_expense_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]]=None)->Dict[str, Any]",-,true,39
-          _build_expense_prompt,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,60
-          _generate_with_llm,"(prompt:str)->str",-,true,21
-          _generate_from_template,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,138
-          _save_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];content:str)->Path",-,false,30
-          get_document_history,"(project_id:str;filename:str)->List[Dict[str, Any]]",-,false,4
-          get_document_at_version,"(project_id:str;filename:str;commit:str)->Optional[str]",-,false,4
-          refine_with_llm,"(content:str;validation_issues:List[Dict[str;Any]];max_iterations:int=3)->Dict[str, Any]",-,true,106
-          generate_project_summary,"(project:Dict[str;Any];expenses:list[Dict[str;Any]];timesheet_data:Optional[Dict[str;Any]]=None;contractors:Optional[list[Dict[str;Any]]]=None;revenues:Optional[list[Dict[str;Any]]]=None)->Dict[str, Any]",-,true,65
-          _generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float)->str",-,false,248
-          _build_expense_details,"(expenses:list;company_nip:str='5881918662')->str",-,false,80
-          _format_doc_link,"(expense:Dict[str;Any])->str",-,false,7
-          _build_expense_list,"(expenses:list)->str",-,false,11
-    functions[1]{name,sig,decorators,async,category,lines}:
-      get_doc_generator,()->ExpenseDocumentGenerator,-,false,-,6
-    function_docs:
-      get_doc_generator: retrieves doc generator
   src/api/services/justification_generator.py:
     imports[9]: typing.Optional,typing.List,typing.Dict,typing.Any,pydantic.BaseModel,pydantic.Field,structlog,httpx,os
     exports[5]: ExpenseContext,ProjectContext,JustificationResult,ExpenseJustificationGenerator,get_justification_generator
@@ -1542,7 +2336,7 @@ module_details:
           delete_expense,"(expense_id:str)->bool",-,true,24
           validate_expense,"(expense_id:str)->Dict[str, Any]",-,true,18
           categorize_expense,"(expense_id:str;apply:bool=False)->Dict[str, Any]",-,true,44
-          process_all,"(project_id:str;year:Optional[int]=None;month:Optional[int]=None)->Dict[str, Any]",-,true,265
+          process_all,"(project_id:str;year:Optional[int]=None;month:Optional[int]=None)->Dict[str, Any]",-,true,264
           get_summary,"(project_id:Optional[str]=None;year:Optional[int]=None)->Dict[str, Any]",-,true,50
           _row_to_dict,"(row)->Dict[str, Any]",-,false,30
     functions[1]{name,sig,decorators,async,category,lines}:
@@ -2010,164 +2804,43 @@ module_details:
       get_annual_ip_box_summary: retrieves annual ip box summary
       export_expenses_excel: export expenses excel
       export_monthly_report_excel: export monthly report excel
-  src/api/routers/documents.py:
-    imports[20]: json,uuid,datetime,typing.Optional,typing.List,pathlib.Path,httpx,aiofiles,fastapi.APIRouter,fastapi.UploadFile,fastapi.File,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks
-    exports[23]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,DocumentNoteUpsert,ensure_document_notes_table,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr,list_document_notes
-    const[1]{n,t,v,keys}:
-      UPLOAD_DIR,"-","Path(\"/app/uploads\")","-"
+  src/api/routers/variable_api.py:
+    imports[16]: typing.Any,typing.Dict,typing.List,typing.Optional,datetime,fastapi.APIRouter,fastapi.Depends,fastapi.HTTPException,fastapi.Query,fastapi.Request,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog
+    exports[11]: VariableResponse,ProjectVariableResponse,InvoiceDataResponse,NexusResponse,get_base_url,get_project_variable,get_project_variable_with_path,get_invoice_variable,get_invoice_data,get_nexus_calculation
     classes[4]{name,bases,decorators,props,methods}:
-      DocumentResponse,BaseModel,-,9,0
-      DocumentUploadResponse,BaseModel,-,4,0
-      DocumentNoteUpsert,BaseModel,-,1,0
-      DocumentDetailResponse,BaseModel,-,10,0
+      VariableResponse,BaseModel,-,6,0
+      ProjectVariableResponse,BaseModel,-,3,0
+      InvoiceDataResponse,BaseModel,-,5,0
+      NexusResponse,BaseModel,-,9,0
     class_details:
-      DocumentResponse:
-        doc: Document response model
-        properties[9]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","extracted_data: Optional[dict]","mime_type: Optional[str]","file_url: Optional[str]","created_at: datetime"
-      DocumentUploadResponse:
-        doc: Upload response
-        properties[4]: "document_id: str","filename: str","status: str","message: str"
-      DocumentNoteUpsert:
-        properties[1]: "notes: Optional[str]"
-      DocumentDetailResponse:
-        doc: Extended document response with OCR text
-        properties[10]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","ocr_text: Optional[str]","extracted_data: Optional[dict]","validation_errors: Optional[list]","created_at: datetime","updated_at: Optional[datetime]"
-    functions[18]{name,sig,decorators,async,category,lines}:
-      ensure_document_notes_table,"(db:AsyncSession)->None",-,true,-,13
-      upload_document,"(background_tasks:BackgroundTasks;file:UploadFile=File(...);project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001');document_type:str=Query(default='invoice');db:AsyncSession=Depends(get_db))->None",router.post,true,-,68
-      detect_invoice_type,"(extracted_data:dict;our_nip:str='5881918662')->str",-,false,-,48
-      create_expense_from_document,"(doc_id:str;extracted_data:dict;doc_type:str)->None",-,true,-,160
-      process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,101
-      list_document_notes,"(project_id:Optional[str]=Query(default=None);limit:int=Query(default=200; le=500);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,53
-      get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,27
-      list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,45
-      download_document_file,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,27
-      upsert_document_notes,"(document_id:str;payload:DocumentNoteUpsert;db:AsyncSession=Depends(get_db))->None",router.put,true,-,27
-      reprocess_document,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
-      delete_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,33
-      update_document,"(document_id:str;db:AsyncSession=Depends(get_db);document_type:Optional[str]=None;ocr_status:Optional[str]=None;extracted_data:Optional[dict]=None)->None",router.patch,true,-,38
-      llm_extract_fields,"(document_id:str;request:dict;db:AsyncSession=Depends(get_db))->None",router.post,true,-,91
-      get_document_detail,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,34
-      sync_expenses_from_documents,"(background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,37
-      check_document_duplicates,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,80
-      re_extract_document_data,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,60
+      VariableResponse:
+        doc: Response for a single variable
+        properties[6]: "name: str","value: Any","source: str","path: str","fetched_at: datetime","verification_url: str"
+      ProjectVariableResponse:
+        doc: Response for project-level variable
+        properties[3]: "project_id: str","variable: VariableResponse","footnote: str"
+      InvoiceDataResponse:
+        doc: Response for invoice data
+        properties[5]: "invoice_id: str","format: str","data: Any","document_id: Optional[str]","ocr_confidence: Optional[float]"
+      NexusResponse:
+        doc: Response for Nexus calculation
+        properties[9]: "project_id: str","year: int","a_direct: float","b_unrelated: float","c_related: float","d_ip: float","nexus: float","formula: str","verification_urls: Dict[str, str]"
+    functions[7]{name,sig,decorators,async,category,lines}:
+      get_base_url,"(request:Request)->str",-,false,-,3
+      get_project_variable,"(project_id:str;source_name:str;path:Optional[str]=Query(None; description='Variable path within source');request:Request=None;db:AsyncSession=Depends(get_db))->ProjectVariableResponse",router.get,true,-,125
+      get_project_variable_with_path,"(project_id:str;source_name:str;path:str;request:Request=None;db:AsyncSession=Depends(get_db))->ProjectVariableResponse",router.get,true,-,19
+      get_invoice_variable,"(invoice_id:str;variable_name:str;request:Request=None;db:AsyncSession=Depends(get_db))->VariableResponse",router.get,true,-,43
+      get_invoice_data,"(invoice_id:str;format:str=Query('json'; description='Output format: json; plain_text; ocr');db:AsyncSession=Depends(get_db))->InvoiceDataResponse",router.get,true,-,53
+      get_nexus_calculation,"(project_id:str;year:Optional[int]=None;request:Request=None;db:AsyncSession=Depends(get_db))->NexusResponse",router.get,true,-,77
+      list_available_variables,"(request:Request=None)->Dict[str, Any]",router.get,true,-,64
     function_docs:
-      ensure_document_notes_table: ensure document notes table
-      upload_document: upload document
-      detect_invoice_type: detect invoice type
-      create_expense_from_document: creates expense from document
-      process_document_ocr: processes document ocr
-      list_document_notes: list document notes
-      get_document: retrieves document
-      list_documents: list documents
-      download_document_file: download document file
-      upsert_document_notes: upsert document notes
-      reprocess_document: reprocess document
-      delete_document: deletes document
-      update_document: updates document
-      llm_extract_fields: llm extract fields
-      get_document_detail: retrieves document detail
-      sync_expenses_from_documents: sync expenses from documents
-      check_document_duplicates: checks document duplicates
-      re_extract_document_data: re extract document data
-  src/api/routers/expenses.py:
-    imports[20]: uuid,datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,httpx,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession
-    exports[40]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,ProcessAllRequest,BRCategory,BR_CATEGORIES,get_br_categories,process_all_expenses,create_expense,validate_expense_pipeline
-    const[1]{n,t,v,keys}:
-      BR_CATEGORIES,List,"[     BRCategory(         code=\"personnel_employment\",         name=\"Wynagrodzenia pracowników (umowa o pracę)\",     ...","-"
-    classes[6]{name,bases,decorators,props,methods}:
-      ExpenseCreate,BaseModel,-,12,0
-      ExpenseResponse,BaseModel,-,26,0
-      ExpenseClassifyRequest,BaseModel,-,7,0
-      ProcessAllRequest,BaseModel,-,3,0
-      BRCategory,BaseModel,-,5,0
-      ExpenseStatusUpdate,BaseModel,-,1,0
-    class_details:
-      ExpenseCreate:
-        doc: Create expense request
-        properties[12]: "document_id: Optional[str]","project_id: str","invoice_number: Optional[str]","invoice_date: Optional[date]","vendor_name: Optional[str]","vendor_nip: Optional[str]","net_amount: Decimal","vat_amount: Decimal","gross_amount: Decimal","currency: str"
-      ExpenseResponse:
-        doc: Expense response
-        properties[26]: "id: str","project_id: str","document_id: Optional[str]","invoice_number: Optional[str]","invoice_date: Optional[date]","vendor_name: Optional[str]","vendor_nip: Optional[str]","net_amount: float","vat_amount: float","gross_amount: float"
-      ExpenseClassifyRequest:
-        doc: Manual classification request
-        properties[7]: "br_qualified: Optional[bool]","br_category: Optional[str]","br_qualification_reason: Optional[str]","br_deduction_rate: Optional[float]","ip_qualified: Optional[bool]","ip_category: Optional[str]","nexus_category: Optional[str]"
-      ProcessAllRequest:
-        properties[3]: "project_id: str","fiscal_year: Optional[int]","month: Optional[int]"
-      BRCategory:
-        doc: B+R expense category
-        properties[5]: "code: str","name: str","description: str","deduction_rate: float","examples: List[str]"
-      ExpenseStatusUpdate:
-        doc: Status update request
-        properties[1]: "status: str"
-    functions[33]{name,sig,decorators,async,category,lines}:
-      get_br_categories,()->None,router.get,true,-,3
-      process_all_expenses,"(request:ProcessAllRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,11
-      create_expense,"(expense:ExpenseCreate;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
-      validate_expense_pipeline,"(expense_data:dict)->None",router.post,true,-,13
-      categorize_expense,"(description:str=Query(...);vendor_name:Optional[str]=Query(default=None);amount:Optional[float]=Query(default=None))->None",router.post,true,-,26
-      validate_invoice_number,"(invoice_number:str=Query(...))->None",router.post,true,-,12
-      convert_currency_to_pln,"(amount:Decimal=Query(...);currency:str=Query(...);expense_date:date=Query(...))->None",router.post,true,-,20
-      validate_all_expenses,"(project_id:str=Query(default='00000000-0000-0000-0000-000000000001');db:AsyncSession=Depends(get_db))->None",router.get,true,-,62
-      get_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,48
-      list_expenses,"(project_id:Optional[str]=Query(default=None);br_qualified:Optional[bool]=Query(default=None);ip_qualified:Optional[bool]=Query(default=None);status:Optional[str]=Query(default=None);year:Optional[int]=Query(default=None);month:Optional[int]=Query(default=None);...+1)->None",router.get,true,-,86
-      classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,68
-      trigger_auto_classification,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,17
-      update_expense_status,"(expense_id:str;status_update:ExpenseStatusUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,24
-      delete_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,17
-      generate_expense_justification,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,75
-      update_expense_vendor,"(expense_id:str;vendor_name:str=Query(...);vendor_nip:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.put,true,-,46
-      generate_expense_documentation,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,67
-      generate_project_documentation_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,164
-      list_revenues,"(project_id:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,47
-      create_revenue,"(revenue:dict;db:AsyncSession=Depends(get_db))->None",router.post,true,-,43
-      classify_revenue,"(revenue_id:str;classification:dict;db:AsyncSession=Depends(get_db))->None",router.put,true,-,83
-      reclassify_invoice,"(invoice_id:str;from_type:str=Query(...; description='Current type: expense or revenue');to_type:str=Query(...; description='Target type: expense or revenue');reason:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.post,true,-,28
-      get_invoice_history,"(invoice_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,16
-      list_project_documentation,"(project_id:str)->None",router.get,true,-,19
-      get_documentation_content,"(project_id:str;filename:str)->None",router.get,true,-,15
-      get_documentation_history,"(project_id:str;filename:str)->None",router.get,true,-,15
-      get_documentation_version,"(project_id:str;filename:str;commit:str)->None",router.get,true,-,19
-      refine_documentation_with_llm,"(project_id:str;filename:str)->None",router.post,true,-,61
-      get_documentation_pdf,"(project_id:str;filename:str)->None",router.get,true,-,107
-      classify_expense_with_llm,"(expense_id:str)->None",-,true,-,87
-      get_br_classifier_system_prompt,()->str,-,false,-,37
-      build_classification_prompt,(expense_row)->str,-,false,-,21
-      parse_llm_classification,"(response:str)->dict",-,false,-,19
-    function_docs:
-      get_br_categories: retrieves br categories
-      process_all_expenses: processes all expenses
-      create_expense: creates expense
-      validate_expense_pipeline: validates expense pipeline
-      categorize_expense: categorize expense
-      validate_invoice_number: validates invoice number
-      convert_currency_to_pln: converts currency to pln
-      validate_all_expenses: validates all expenses
-      get_expense: retrieves expense
-      list_expenses: list expenses
-      classify_expense_manually: classify expense manually
-      trigger_auto_classification: trigger auto classification
-      update_expense_status: updates expense status
-      delete_expense: deletes expense
-      generate_expense_justification: creates expense justification
-      update_expense_vendor: updates expense vendor
-      generate_expense_documentation: creates expense documentation
-      generate_project_documentation_summary: creates project documentation summary
-      list_revenues: list revenues
-      create_revenue: creates revenue
-      classify_revenue: classify revenue
-      reclassify_invoice: reclassify invoice
-      get_invoice_history: retrieves invoice history
-      list_project_documentation: list project documentation
-      get_documentation_content: retrieves documentation content
-      get_documentation_history: retrieves documentation history
-      get_documentation_version: retrieves documentation version
-      refine_documentation_with_llm: refine documentation with llm
-      get_documentation_pdf: retrieves documentation pdf
-      classify_expense_with_llm: classify expense with llm
-      get_br_classifier_system_prompt: retrieves br classifier system prompt
-      build_classification_prompt: creates classification prompt
-      parse_llm_classification: parses llm classification
+      get_base_url: retrieves base url
+      get_project_variable: retrieves project variable
+      get_project_variable_with_path: retrieves project variable with path
+      get_invoice_variable: retrieves invoice variable
+      get_invoice_data: retrieves invoice data
+      get_nexus_calculation: retrieves nexus calculation
+      list_available_variables: list available variables
   src/api/cqrs/commands.py:
     imports[12]: dataclasses.dataclass,typing.Optional,typing.Dict,typing.Any,abc.ABC,abc.abstractmethod,sqlalchemy.text,sqlalchemy.ext.asyncio.AsyncSession,events.EventStore,events.InvoiceClassifiedEvent,events.InvoiceReclassifiedEvent,events.get_event_store
     exports[9]: Command,ClassifyExpenseCommand,ClassifyRevenueCommand,ReclassifyInvoiceCommand,CommandHandler,ExpenseCommandHandler,RevenueCommandHandler,ReclassifyInvoiceHandler,get_command_handler
@@ -2532,6 +3205,322 @@ module_details:
       create_jpk_from_expenses,"(expenses:List[Dict[str;Any]];header:JPKHeader)->JPKExporter",-,false,-,30
     function_docs:
       create_jpk_from_expenses: creates jpk from expenses
+  src/api/routers/expenses/documentation.py:
+    imports[10]: pathlib.Path,typing.Optional,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.responses.Response,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db
+    exports[7]: generate_expense_documentation,generate_project_documentation_summary,list_project_documentation,get_documentation_content,get_documentation_history,get_documentation_version,get_documentation_pdf
+    functions[8]{name,sig,decorators,async,category,lines}:
+      generate_expense_documentation,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,63
+      generate_project_documentation_summary,"(project_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,143
+      list_project_documentation,"(project_id:str)->None",router.get,true,-,17
+      get_documentation_content,"(project_id:str;filename:str)->None",router.get,true,-,12
+      get_documentation_history,"(project_id:str;filename:str)->None",router.get,true,-,11
+      get_documentation_version,"(project_id:str;filename:str;commit:str)->None",router.get,true,-,14
+      get_documentation_pdf,"(project_id:str;filename:str)->None",router.get,true,-,29
+      _markdown_to_html,"(md_content:str)->str",-,false,-,65
+    function_docs:
+      generate_expense_documentation: creates expense documentation
+      generate_project_documentation_summary: creates project documentation summary
+      list_project_documentation: list project documentation
+      get_documentation_content: retrieves documentation content
+      get_documentation_history: retrieves documentation history
+      get_documentation_version: retrieves documentation version
+      get_documentation_pdf: retrieves documentation pdf
+      _markdown_to_html: markdown to html
+  src/api/routers/expenses/__init__.py:
+    imports[6]: fastapi.APIRouter,crud.crud_router,validation.validation_router,classification.classification_router,revenues.revenues_router,documentation.documentation_router
+  src/api/routers/expenses/validation.py:
+    imports[13]: datetime.date,typing.Optional,decimal.Decimal,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,validators.InvoiceValidator,validators.CurrencyConverter
+    exports[5]: validate_expense_pipeline,categorize_expense,validate_invoice_number,convert_currency_to_pln,validate_all_expenses
+    functions[5]{name,sig,decorators,async,category,lines}:
+      validate_expense_pipeline,"(expense_data:dict)->None",router.post,true,-,9
+      categorize_expense,"(description:str=Query(...);vendor_name:Optional[str]=Query(default=None);amount:Optional[float]=Query(default=None))->None",router.post,true,-,23
+      validate_invoice_number,"(invoice_number:str=Query(...))->None",router.post,true,-,9
+      convert_currency_to_pln,"(amount:Decimal=Query(...);currency:str=Query(...);expense_date:date=Query(...))->None",router.post,true,-,17
+      validate_all_expenses,"(project_id:str=Query(default='00000000-0000-0000-0000-000000000001');db:AsyncSession=Depends(get_db))->None",router.get,true,-,56
+    function_docs:
+      validate_expense_pipeline: validates expense pipeline
+      categorize_expense: categorize expense
+      validate_invoice_number: validates invoice number
+      convert_currency_to_pln: converts currency to pln
+      validate_all_expenses: validates all expenses
+  src/api/routers/expenses/models.py:
+    imports[7]: datetime,datetime.date,typing.Optional,typing.List,decimal.Decimal,pydantic.BaseModel,pydantic.Field
+    exports[7]: ExpenseCreate,ExpenseResponse,ExpenseClassifyRequest,ProcessAllRequest,ExpenseStatusUpdate,BRCategory,BR_CATEGORIES
+    const[1]{n,t,v,keys}:
+      BR_CATEGORIES,List,"[     BRCategory(         code=\"personnel_employment\",         name=\"Wynagrodzenia pracowników (umowa o pracę)\",     ...","-"
+    classes[6]{name,bases,decorators,props,methods}:
+      ExpenseCreate,BaseModel,-,12,0
+      ExpenseResponse,BaseModel,-,26,0
+      ExpenseClassifyRequest,BaseModel,-,7,0
+      ProcessAllRequest,BaseModel,-,3,0
+      ExpenseStatusUpdate,BaseModel,-,1,0
+      BRCategory,BaseModel,-,5,0
+    class_details:
+      ExpenseCreate:
+        doc: Create expense request
+        properties[12]: "document_id: Optional[str]","project_id: str","invoice_number: Optional[str]","invoice_date: Optional[date]","vendor_name: Optional[str]","vendor_nip: Optional[str]","net_amount: Decimal","vat_amount: Decimal","gross_amount: Decimal","currency: str"
+      ExpenseResponse:
+        doc: Expense response
+        properties[26]: "id: str","project_id: str","document_id: Optional[str]","invoice_number: Optional[str]","invoice_date: Optional[date]","vendor_name: Optional[str]","vendor_nip: Optional[str]","net_amount: float","vat_amount: float","gross_amount: float"
+      ExpenseClassifyRequest:
+        doc: Manual classification request
+        properties[7]: "br_qualified: Optional[bool]","br_category: Optional[str]","br_qualification_reason: Optional[str]","br_deduction_rate: Optional[float]","ip_qualified: Optional[bool]","ip_category: Optional[str]","nexus_category: Optional[str]"
+      ProcessAllRequest:
+        properties[3]: "project_id: str","fiscal_year: Optional[int]","month: Optional[int]"
+      ExpenseStatusUpdate:
+        doc: Status update request
+        properties[1]: "status: str"
+      BRCategory:
+        doc: B+R expense category
+        properties[5]: "code: str","name: str","description: str","deduction_rate: float","examples: List[str]"
+  src/api/routers/expenses/revenues.py:
+    imports[10]: uuid,typing.Optional,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db
+    exports[5]: list_revenues,create_revenue,classify_revenue,reclassify_invoice,get_invoice_history
+    functions[5]{name,sig,decorators,async,category,lines}:
+      list_revenues,"(project_id:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,47
+      create_revenue,"(revenue:dict;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
+      classify_revenue,"(revenue_id:str;classification:dict;db:AsyncSession=Depends(get_db))->None",router.put,true,-,80
+      reclassify_invoice,"(invoice_id:str;from_type:str=Query(...; description='Current type: expense or revenue');to_type:str=Query(...; description='Target type: expense or revenue');reason:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.post,true,-,24
+      get_invoice_history,"(invoice_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,12
+    function_docs:
+      list_revenues: list revenues
+      create_revenue: creates revenue
+      classify_revenue: classify revenue
+      reclassify_invoice: reclassify invoice
+      get_invoice_history: retrieves invoice history
+  src/api/routers/expenses/crud.py:
+    imports[19]: uuid,typing.Optional,typing.List,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,services.expense_service.get_expense_service,models.ExpenseCreate,models.ExpenseResponse
+    exports[8]: get_br_categories,process_all_expenses,create_expense,get_expense,list_expenses,update_expense_status,delete_expense,update_expense_vendor
+    functions[9]{name,sig,decorators,async,category,lines}:
+      _row_to_expense_response,(row)->ExpenseResponse,-,false,-,30
+      get_br_categories,()->None,router.get,true,-,3
+      process_all_expenses,"(request:ProcessAllRequest;db:AsyncSession=Depends(get_db))->None",router.post,true,-,12
+      create_expense,"(expense:ExpenseCreate;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,40
+      get_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,21
+      list_expenses,"(project_id:Optional[str]=Query(default=None);br_qualified:Optional[bool]=Query(default=None);ip_qualified:Optional[bool]=Query(default=None);status:Optional[str]=Query(default=None);year:Optional[int]=Query(default=None);month:Optional[int]=Query(default=None);...+1)->None",router.get,true,-,56
+      update_expense_status,"(expense_id:str;status_update:ExpenseStatusUpdate;db:AsyncSession=Depends(get_db))->None",router.put,true,-,24
+      delete_expense,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,17
+      update_expense_vendor,"(expense_id:str;vendor_name:str=Query(...);vendor_nip:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.put,true,-,39
+    function_docs:
+      _row_to_expense_response: row to expense response
+      get_br_categories: retrieves br categories
+      process_all_expenses: processes all expenses
+      create_expense: creates expense
+      get_expense: retrieves expense
+      list_expenses: list expenses
+      update_expense_status: updates expense status
+      delete_expense: deletes expense
+      update_expense_vendor: updates expense vendor
+  src/api/routers/expenses/classification.py:
+    imports[16]: json,httpx,typing.Optional,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.BackgroundTasks,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,database.get_db_context,config.settings,models.ExpenseClassifyRequest,models.ExpenseResponse
+    exports[4]: classify_expense_manually,trigger_auto_classification,generate_expense_justification,classify_expense_with_llm
+    functions[7]{name,sig,decorators,async,category,lines}:
+      classify_expense_manually,"(expense_id:str;classification:ExpenseClassifyRequest;db:AsyncSession=Depends(get_db))->None",router.put,true,-,68
+      trigger_auto_classification,"(expense_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,15
+      generate_expense_justification,"(expense_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,68
+      classify_expense_with_llm,"(expense_id:str)->None",-,true,-,80
+      _get_br_classifier_system_prompt,()->str,-,false,-,31
+      _build_classification_prompt,(expense_row)->str,-,false,-,20
+      _parse_llm_classification,"(response:str)->dict",-,false,-,16
+    function_docs:
+      classify_expense_manually: classify expense manually
+      trigger_auto_classification: trigger auto classification
+      generate_expense_justification: creates expense justification
+      classify_expense_with_llm: classify expense with llm
+      _get_br_classifier_system_prompt: retrieves br classifier system prompt
+      _build_classification_prompt: creates classification prompt
+      _parse_llm_classification: parses llm classification
+  src/api/routers/documents/notes.py:
+    imports[10]: typing.Optional,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,models.DocumentNoteUpsert
+    exports[3]: ensure_document_notes_table,list_document_notes,upsert_document_notes
+    functions[3]{name,sig,decorators,async,category,lines}:
+      ensure_document_notes_table,"(db:AsyncSession)->None",-,true,-,12
+      list_document_notes,"(project_id:Optional[str]=Query(default=None);limit:int=Query(default=200; le=500);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,52
+      upsert_document_notes,"(document_id:str;payload:DocumentNoteUpsert;db:AsyncSession=Depends(get_db))->None",router.put,true,-,28
+    function_docs:
+      ensure_document_notes_table: ensure document notes table
+      list_document_notes: list document notes
+      upsert_document_notes: upsert document notes
+  src/api/routers/documents/__init__.py:
+    imports[6]: fastapi.APIRouter,upload.upload_router,upload.detect_invoice_type,crud.crud_router,notes.notes_router,extraction.extraction_router
+  src/api/routers/documents/extraction.py:
+    imports[13]: json,typing.Optional,httpx,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,config.settings,upload.create_expense_from_document
+    exports[4]: llm_extract_fields,re_extract_document_data,sync_expenses_from_documents,check_document_duplicates
+    functions[4]{name,sig,decorators,async,category,lines}:
+      llm_extract_fields,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,80
+      re_extract_document_data,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.post,true,-,20
+      sync_expenses_from_documents,"(project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001');db:AsyncSession=Depends(get_db))->None",router.post,true,-,32
+      check_document_duplicates,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,46
+    function_docs:
+      llm_extract_fields: llm extract fields
+      re_extract_document_data: re extract document data
+      sync_expenses_from_documents: sync expenses from documents
+      check_document_duplicates: checks document duplicates
+  src/api/routers/documents/upload.py:
+    imports[20]: json,uuid,pathlib.Path,typing.Optional,httpx,aiofiles,fastapi.APIRouter,fastapi.UploadFile,fastapi.File,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text
+    exports[5]: UPLOAD_DIR,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr
+    const[1]{n,t,v,keys}:
+      UPLOAD_DIR,"-","Path(\"/app/uploads\")","-"
+    functions[4]{name,sig,decorators,async,category,lines}:
+      upload_document,"(background_tasks:BackgroundTasks;file:UploadFile=File(...);project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001');document_type:str=Query(default='invoice');db:AsyncSession=Depends(get_db))->None",router.post,true,-,41
+      detect_invoice_type,"(extracted_data:dict;our_nip:str='5881918662')->str",-,false,-,23
+      create_expense_from_document,"(doc_id:str;extracted_data:dict;doc_type:str)->None",-,true,-,113
+      process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,50
+    function_docs:
+      upload_document: upload document
+      detect_invoice_type: detect invoice type
+      create_expense_from_document: creates expense from document
+      process_document_ocr: processes document ocr
+  src/api/routers/documents/models.py:
+    imports[4]: datetime,typing.Optional,typing.List,pydantic.BaseModel
+    exports[4]: DocumentResponse,DocumentUploadResponse,DocumentNoteUpsert,DocumentDetailResponse
+    classes[4]{name,bases,decorators,props,methods}:
+      DocumentResponse,BaseModel,-,9,0
+      DocumentUploadResponse,BaseModel,-,4,0
+      DocumentNoteUpsert,BaseModel,-,1,0
+      DocumentDetailResponse,BaseModel,-,12,0
+    class_details:
+      DocumentResponse:
+        doc: Document response model
+        properties[9]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","extracted_data: Optional[dict]","mime_type: Optional[str]","file_url: Optional[str]","created_at: datetime"
+      DocumentUploadResponse:
+        doc: Upload response
+        properties[4]: "document_id: str","filename: str","status: str","message: str"
+      DocumentNoteUpsert:
+        properties[1]: "notes: Optional[str]"
+      DocumentDetailResponse:
+        doc: Detailed document response with extracted data
+        properties[12]: "id: str","filename: str","document_type: str","ocr_status: str","ocr_confidence: Optional[float]","ocr_text: Optional[str]","extracted_data: Optional[dict]","mime_type: Optional[str]","file_url: Optional[str]","created_at: datetime"
+  src/api/routers/documents/crud.py:
+    imports[16]: pathlib.Path,typing.Optional,typing.List,fastapi.APIRouter,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks,fastapi.responses.FileResponse,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.text,structlog,database.get_db,models.DocumentResponse,upload.UPLOAD_DIR
+    exports[7]: get_document,list_documents,download_document_file,reprocess_document,delete_document,update_document,get_document_detail
+    functions[7]{name,sig,decorators,async,category,lines}:
+      get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,20
+      list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,38
+      download_document_file,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,20
+      reprocess_document,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,23
+      delete_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,22
+      update_document,"(document_id:str;updates:dict;db:AsyncSession=Depends(get_db))->None",router.patch,true,-,30
+      get_document_detail,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,28
+    function_docs:
+      get_document: retrieves document
+      list_documents: list documents
+      download_document_file: download document file
+      reprocess_document: reprocess document
+      delete_document: deletes document
+      update_document: updates document
+      get_document_detail: retrieves document detail
+  src/api/services/doc_generator/llm.py:
+    imports[8]: os,typing.Dict,typing.Any,typing.List,httpx,structlog,prompts.BR_EXPENSE_DOC_PROMPT,prompts.LLM_REFINEMENT_PROMPT
+    exports[2]: generate_with_llm,refine_with_llm
+    functions[2]{name,sig,decorators,async,category,lines}:
+      generate_with_llm,"(prompt:str;llm_service_url:str)->str",-,true,-,21
+      refine_with_llm,"(content:str;validation_issues:List[Dict[str;Any]];max_iterations:int=3)->Dict[str, Any]",-,true,-,105
+    function_docs:
+      generate_with_llm: creates with llm
+      refine_with_llm: refine with llm
+  src/api/services/doc_generator/generator.py:
+    imports[14]: os,datetime,pathlib.Path,typing.Optional,typing.Dict,typing.Any,typing.List,structlog,version_control.DocumentVersionControl,llm.generate_with_llm,llm.refine_with_llm,templates.build_expense_prompt,templates.generate_expense_template,templates.generate_summary_template
+    exports[2]: ExpenseDocumentGenerator,get_doc_generator
+    classes[1]{name,bases,decorators,props,methods}:
+      ExpenseDocumentGenerator,-,-,0,7
+    class_details:
+      ExpenseDocumentGenerator:
+        doc: Generator dokumentacji B+R dla wydatków.
+        methods[7]{name,sig,decorators,async,lines}:
+          __init__,"(llm_service_url:Optional[str]=None)->None",-,false,5
+          generate_expense_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]]=None)->Dict[str, Any]",-,true,39
+          _save_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];content:str)->Path",-,false,30
+          get_document_history,"(project_id:str;filename:str)->List[Dict[str, Any]]",-,false,4
+          get_document_at_version,"(project_id:str;filename:str;commit:str)->Optional[str]",-,false,4
+          refine_documentation,"(content:str;validation_issues:List[Dict[str;Any]];max_iterations:int=3)->Dict[str, Any]",-,true,10
+          generate_project_summary,"(project:Dict[str;Any];expenses:List[Dict[str;Any]];timesheet_data:Optional[Dict[str;Any]]=None;contractors:Optional[List[Dict[str;Any]]]=None;revenues:Optional[List[Dict[str;Any]]]=None)->Dict[str, Any]",-,true,71
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_doc_generator,()->ExpenseDocumentGenerator,-,false,-,6
+    function_docs:
+      get_doc_generator: retrieves doc generator
+  src/api/services/doc_generator/prompts.py:
+    exports[5]: BR_EXPENSE_DOC_PROMPT,LLM_REFINEMENT_PROMPT,CATEGORY_NAMES,CATEGORY_NAMES_WITH_RATES,MONTH_NAMES_PL
+    const[5]{n,t,v,keys}:
+      BR_EXPENSE_DOC_PROMPT,str,"\"\"\"Jesteś ekspertem w przygotowywaniu dokumentacji do polskiej ulgi badawczo-rozwojowej (B+R). Generujesz profesjonal...","-"
+      LLM_REFINEMENT_PROMPT,str,"\"\"\"Jesteś ekspertem w dokumentacji B+R (ulga badawczo-rozwojowa w Polsce).  Poniższy dokument B+R zawiera błędy/ostrz...","-"
+      CATEGORY_NAMES,Dict,"-",personnel_employment|Wynagrodzenia pracowników (umowa o pracę)|personnel_civil|Wynagrodzenia (umowy cywilnoprawne)|materials|Materiały i surowce|equipment|Sprzęt specjalistyczny|depreciation|Amortyzacja
+      CATEGORY_NAMES_WITH_RATES,Dict,"-",personnel_employment|Wynagrodzenia pracowników (umowa o pracę) - 200%|personnel_civil|Wynagrodzenia (umowy cywilnoprawne) - 200%|materials|Materiały i surowce - 100%|equipment|Sprzęt specjalistyczny - 100%|depreciation|Amortyzacja - 100%
+      MONTH_NAMES_PL,Dict,"-",Styczeń|Luty|Marzec|Kwiecień|Maj|Czerwiec|Lipiec|Sierpień|Wrzesień|Październik
+  src/api/services/doc_generator/__init__.py:
+    imports[15]: generator.ExpenseDocumentGenerator,generator.get_doc_generator,version_control.DocumentVersionControl,prompts.BR_EXPENSE_DOC_PROMPT,prompts.LLM_REFINEMENT_PROMPT,prompts.CATEGORY_NAMES,prompts.CATEGORY_NAMES_WITH_RATES,prompts.MONTH_NAMES_PL,llm.generate_with_llm,llm.refine_with_llm,templates.build_expense_prompt,templates.generate_expense_template,templates.generate_summary_template,templates.build_expense_details,templates.format_doc_link
+  src/api/services/doc_generator/templates.py:
+    imports[8]: datetime,typing.Optional,typing.Dict,typing.Any,typing.List,prompts.CATEGORY_NAMES,prompts.CATEGORY_NAMES_WITH_RATES,prompts.MONTH_NAMES_PL
+    exports[8]: build_expense_prompt,generate_expense_template,generate_summary_template,build_expense_details,build_timesheet_section,build_contractors_section,build_revenues_section,format_doc_link
+    functions[8]{name,sig,decorators,async,category,lines}:
+      build_expense_prompt,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,-,47
+      generate_expense_template,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,-,126
+      generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float;...+1)->str",-,false,-,150
+      build_expense_details,"(expenses:list;company_nip:str='5881918662')->str",-,false,-,66
+      build_timesheet_section,"(timesheet_data:Optional[Dict[str;Any]])->str",-,false,-,51
+      build_contractors_section,"(contractors:Optional[List[Dict[str;Any]]])->str",-,false,-,15
+      build_revenues_section,"(revenues:Optional[List[Dict[str;Any]]];total_gross:float)->tuple",-,false,-,33
+      format_doc_link,"(expense:Dict[str;Any])->str",-,false,-,7
+    function_docs:
+      build_expense_prompt: creates expense prompt
+      generate_expense_template: creates expense template
+      generate_summary_template: creates summary template
+      build_expense_details: creates expense details
+      build_timesheet_section: creates timesheet section
+      build_contractors_section: creates contractors section
+      build_revenues_section: creates revenues section
+      format_doc_link: formats doc link
+  src/api/services/doc_generator/version_control.py:
+    imports[8]: json,datetime,pathlib.Path,typing.Optional,typing.Dict,typing.Any,typing.List,structlog
+    exports[1]: DocumentVersionControl
+    classes[1]{name,bases,decorators,props,methods}:
+      DocumentVersionControl,-,-,0,4
+    class_details:
+      DocumentVersionControl:
+        doc: Simple file-based version control for documents.
+        methods[4]{name,sig,decorators,async,lines}:
+          __init__,"(repo_path:Path)->None",-,false,4
+          commit_file,"(file_path:Path;message:str)->Optional[str]",-,false,32
+          get_file_history,"(file_path:Path;limit:int=20)->List[Dict[str, Any]]",-,false,27
+          get_file_at_commit,"(file_path:Path;commit:str)->Optional[str]",-,false,13
+  src/api/services/doc_generator/footnotes.py:
+    imports[8]: dataclasses.dataclass,dataclasses.field,datetime,typing.Any,typing.Dict,typing.List,typing.Optional,re
+    exports[4]: VariableFootnote,FootnoteTracker,add_footnotes_to_document,generate_document_with_tracking
+    classes[2]{name,bases,decorators,props,methods}:
+      VariableFootnote,-,dataclass,0,3
+      FootnoteTracker,-,-,0,8
+    class_details:
+      VariableFootnote:
+        doc: A variable with its source URL for footnote generation
+        fields[7]{n,t,default,factory}:
+          name,str,"-","-"
+          value,Any,"-","-"
+          source_name,str,"-","-"
+          path,str,"\"\"","-"
+          base_url,str,"\"http://localhost:81\"","-"
+          project_id,"Optional[str]",None,"-"
+          invoice_id,"Optional[str]",None,"-"
+        methods[3]{name,sig,decorators,async,lines}:
+          source_url,()->str,property,false,11
+          to_footnote_ref,"(index:int)->str",-,false,3
+          to_footnote_def,"(index:int)->str",-,false,3
+      FootnoteTracker:
+        doc: Tracks all variables used in document generation and generates footnotes.
+        methods[8]{name,sig,decorators,async,lines}:
+          __init__,"(project_id:Optional[str]=None;base_url:str='http://localhost:81')->None",-,false,9
+          track,"(name:str;value:Any;source_name:str;path:str='';invoice_id:Optional[str]=None)->str",-,false,35
+          track_nexus,"(component:str;value:float)->str",-,false,8
+          track_expense,"(field:str;value:Any;invoice_id:str)->str",-,false,9
+          get_footnotes_section,()->str,-,false,24
+          get_verification_table,()->str,-,false,25
+          clear,()->None,-,false,4
+          count,()->int,property,false,3
+    functions[2]{name,sig,decorators,async,category,lines}:
+      add_footnotes_to_document,"(content:str;variables:Dict[str;Dict[str;Any]];project_id:str;base_url:str='http://localhost:81')->str",-,false,-,48
+      generate_document_with_tracking,"(template:str;context:Dict[str;Any];project_id:str;base_url:str='http://localhost:81';tracked_variables:Optional[List[str]]=None)->tuple[str, FootnoteTracker]",-,false,-,48
+    function_docs:
+      add_footnotes_to_document: creates footnotes to document
+      generate_document_with_tracking: creates document with tracking
   src/integrations/accounting/fakturownia.py:
     imports[13]: typing.List,typing.Dict,typing.Any,typing.Optional,datetime.date,httpx,structlog,base.BaseAccountingClient,base.Invoice,base.InvoiceItem,base.InvoiceType,base.InvoiceStatus,base.AccountingDocument
     exports[1]: FakturowniaClient
@@ -2900,9 +3889,109 @@ module_details:
           create_folder,"(folder_path:str)->bool",-,true,17
           get_file_info,"(remote_path:str)->Optional[CloudFile]",-,true,35
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
+  src/doc_generator/templates/base.py:
+    imports[7]: dataclasses.dataclass,dataclasses.field,typing.Any,typing.Dict,typing.List,typing.Optional,enum.Enum
+    exports[4]: DocumentCategory,TimeScope,TemplateDataRequirement,DocumentTemplate
+    types[2]{name,kind,values,def}:
+      DocumentCategory,enum,"PROJECT=\"project\"|FINANCIAL=\"financial\"|TIMESHEET=\"timesheet\"|LEGAL=\"legal\"|TAX=\"tax\"|REPORT=\"report\"","-"
+      TimeScope,enum,"NONE=\"none\"|MONTHLY=\"monthly\"|QUARTERLY=\"quarterly\"|YEARLY=\"yearly\"|PROJECT=\"project\"|CUSTOM=\"custom\"","-"
+    classes[4]{name,bases,decorators,props,methods}:
+      DocumentCategory,str|Enum,-,0,0
+      TimeScope,str|Enum,-,0,0
+      TemplateDataRequirement,-,dataclass,0,0
+      DocumentTemplate,-,dataclass,0,2
+    class_details:
+      DocumentCategory:
+      TimeScope:
+      TemplateDataRequirement:
+        doc: Defines a data source requirement for a template
+        fields[4]{n,t,default,factory}:
+          source_name,str,"-","-"
+          required_params,"List[str]","-","-"
+          optional_params,"List[str]","-",list
+          description,str,"\"\"","-"
+      DocumentTemplate:
+        doc: Document template definition
+        fields[11]{n,t,default,factory}:
+          id,str,"-","-"
+          name,str,"-","-"
+          description,str,"-","-"
+          category,DocumentCategory,"-","-"
+          time_scope,TimeScope,"-","-"
+          data_requirements,"List[TemplateDataRequirement]","-","-"
+          template_content,str,"-","-"
+          demo_content,"Optional[str]",None,"-"
+          llm_prompt,"Optional[str]",None,"-"
+          output_format,str,"\"markdown\"","-"
+          version,str,"\"1.0\"","-"
+        methods[2]{name,sig,decorators,async,lines}:
+          get_required_params,"()->List[str]",-,false,6
+          to_dict,"()->Dict[str, Any]",-,false,11
+  src/doc_generator/templates/project.py:
+    imports[5]: typing.List,base.DocumentTemplate,base.DocumentCategory,base.TimeScope,base.TemplateDataRequirement
+    exports[3]: get_project_templates,PROJECT_CARD_TEMPLATE,PROJECT_CARD_DEMO
+    const[2]{n,t,v,keys}:
+      PROJECT_CARD_TEMPLATE,str,"\"\"\"# KARTA PROJEKTOWA BADAWCZO-ROZWOJOWA  ## 1. IDENTYFIKACJA PROJEKTU  | Pole | Wartość | |------|---------| | **Naz...","-"
+      PROJECT_CARD_DEMO,str,"\"\"\"# KARTA PROJEKTOWA BADAWCZO-ROZWOJOWA  ## 1. IDENTYFIKACJA PROJEKTU  | Pole | Wartość | |------|---------| | **Naz...","-"
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_project_templates,"()->List[DocumentTemplate]",-,false,-,38
+    function_docs:
+      get_project_templates: retrieves project templates
+  src/doc_generator/templates/registry.py:
+    imports[9]: typing.Any,typing.Dict,typing.List,typing.Optional,base.DocumentTemplate,project.get_project_templates,financial.get_financial_templates,tax.get_tax_templates,legal.get_legal_templates
+    exports[2]: TemplateRegistry,get_template_registry
+    classes[1]{name,bases,decorators,props,methods}:
+      TemplateRegistry,-,-,0,6
+    class_details:
+      TemplateRegistry:
+        doc: Registry for document templates
+        methods[6]{name,sig,decorators,async,lines}:
+          __new__,()->None,-,false,6
+          _initialize_templates,()->None,-,false,17
+          register,"(template:DocumentTemplate)->None",-,false,3
+          get,"(template_id:str)->Optional[DocumentTemplate]",-,false,3
+          list_templates,"()->List[Dict[str, Any]]",-,false,3
+          get_by_category,"(category:str)->List[DocumentTemplate]",-,false,3
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_template_registry,()->TemplateRegistry,-,false,-,6
+    function_docs:
+      get_template_registry: retrieves template registry
+  src/doc_generator/templates/financial.py:
+    imports[5]: typing.List,base.DocumentTemplate,base.DocumentCategory,base.TimeScope,base.TemplateDataRequirement
+    exports[3]: get_financial_templates,TIMESHEET_MONTHLY_TEMPLATE,EXPENSE_REGISTRY_TEMPLATE
+    const[2]{n,t,v,keys}:
+      TIMESHEET_MONTHLY_TEMPLATE,str,"\"\"\"# REJESTR CZASU PRACY - PROJEKT B+R  **Projekt:** {{project.name}} ({{project.code or 'BR-' + year|string}})  **Ok...","-"
+      EXPENSE_REGISTRY_TEMPLATE,str,"\"\"\"# EWIDENCJA WYDATKÓW B+R  **Projekt:** {{project.name}} ({{project.code or 'BR-' + year|string}})  **Okres:** {% i...","-"
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_financial_templates,"()->List[DocumentTemplate]",-,false,-,51
+    function_docs:
+      get_financial_templates: retrieves financial templates
+  src/doc_generator/templates/__init__.py:
+    imports[6]: base.DocumentCategory,base.TimeScope,base.TemplateDataRequirement,base.DocumentTemplate,registry.TemplateRegistry,registry.get_template_registry
+  src/doc_generator/templates/legal.py:
+    imports[5]: typing.List,base.DocumentTemplate,base.DocumentCategory,base.TimeScope,base.TemplateDataRequirement
+    exports[2]: get_legal_templates,BR_CONTRACT_TEMPLATE
+    const[1]{n,t,v,keys}:
+      BR_CONTRACT_TEMPLATE,str,"\"\"\"# UMOWA O ŚWIADCZENIE USŁUG BADAWCZO-ROZWOJOWYCH  Nr umowy: _____________________  zawarta w dniu {{generated_date...","-"
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_legal_templates,"()->List[DocumentTemplate]",-,false,-,17
+    function_docs:
+      get_legal_templates: retrieves legal templates
+  src/doc_generator/templates/tax.py:
+    imports[5]: typing.List,base.DocumentTemplate,base.DocumentCategory,base.TimeScope,base.TemplateDataRequirement
+    exports[5]: get_tax_templates,NEXUS_CALCULATION_TEMPLATE,BR_ANNUAL_SUMMARY_TEMPLATE,IP_BOX_PROCEDURE_TEMPLATE,TAX_INTERPRETATION_REQUEST_TEMPLATE
+    const[4]{n,t,v,keys}:
+      NEXUS_CALCULATION_TEMPLATE,str,"\"\"\"# OBLICZENIE WSKAŹNIKA NEXUS - IP BOX  **Projekt:** {{project.name}}{% if project.code %} ({{project.code}}){% end...","-"
+      BR_ANNUAL_SUMMARY_TEMPLATE,str,"\"\"\"# ROCZNE PODSUMOWANIE DZIAŁALNOŚCI B+R  ## Informacje ogólne  | Pole | Wartość | |------|---------| | **Projekt** ...","-"
+      IP_BOX_PROCEDURE_TEMPLATE,str,"\"\"\"# PROCEDURA WEWNĘTRZNA - STOSOWANIE IP BOX  **Podmiot:** _____________________  **NIP:** _____________________  **...","-"
+      TAX_INTERPRETATION_REQUEST_TEMPLATE,str,"\"\"\"# WNIOSEK O WYDANIE INTERPRETACJI INDYWIDUALNEJ  **Do:** Dyrektor Krajowej Informacji Skarbowej  **Wnioskodawca:**...","-"
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_tax_templates,"()->List[DocumentTemplate]",-,false,-,59
+    function_docs:
+      get_tax_templates: retrieves tax templates
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[176]: createProject,loadReports,closeConfirmModal,showToast,editProject,pollDocumentStatus,updateGitProjectMapping,apiCall,uploadAllReports,createWorker
+    exports[176]: switchLogTab,saveExtractedData,reclassifyWithLLM,createProject,updateProviderOptions,startLogStreamForPage,fillFieldsWithLLM,displayGitAuthors,copyLogs,updateTimesheetCell
     const[7]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
@@ -3265,6 +4354,211 @@ module_details:
       loadDocAnnotations: retrieves doc annotations
       getDocTypeIcon: retrieves doc type icon
       saveDocAnnotation: caches doc annotation
+  web/static/js/modules/reports.js:
+    exports[8]: exportAllExpenses,regenerateReport,generateMonthlyReport,exportReport,loadReports,processAllExpensesForYear,regenerateAllMonthlyReports,showReportDetails
+    functions[8]{name,sig,decorators,async,category,lines}:
+      loadReports,()->None,-,true,-,52
+      showReportDetails,(year;month)->None,-,true,-,8
+      regenerateReport,(year;month)->None,-,true,-,19
+      regenerateAllMonthlyReports,()->None,-,true,-,25
+      generateMonthlyReport,()->None,-,true,-,18
+      exportReport,(year;month)->None,-,true,-,18
+      exportAllExpenses,()->None,-,true,-,19
+      processAllExpensesForYear,()->None,-,true,-,22
+    function_docs:
+      loadReports: retrieves reports
+      showReportDetails: show report details
+      regenerateReport: regenerate report
+      regenerateAllMonthlyReports: regenerate all monthly reports
+      generateMonthlyReport: creates monthly report
+      exportReport: export report
+      exportAllExpenses: export all expenses
+      processAllExpensesForYear: processes all expenses for year
+  web/static/js/modules/dashboard.js:
+    exports[19]: saveDashboardLayout,loadRecentDocsModule,loadClarificationsModule,loadDashboardModules,loadDashboard,toggleDashboardConfig,addDashboardModule,getModuleName,loadTopVendorsModule,loadCategoryModule
+    const[1]{n,t,v,keys}:
+      DEFAULT_DASHBOARD_LAYOUT,"-","-","-"
+    functions[19]{name,sig,decorators,async,category,lines}:
+      getDashboardLayout,()->None,-,false,-,4
+      saveDashboardLayout,(layout)->None,-,false,-,3
+      toggleDashboardConfig,()->None,-,false,-,5
+      updateModuleSelect,()->None,-,false,-,10
+      getModuleName,(id)->None,-,false,-,13
+      addDashboardModule,(moduleId)->None,-,false,-,9
+      removeDashboardModule,(moduleId)->None,-,false,-,5
+      resetDashboardConfig,()->None,-,false,-,5
+      renderDashboard,()->None,-,false,-,18
+      loadDashboard,()->None,-,true,-,3
+      loadDashboardModules,()->None,-,true,-,41
+      loadSummaryModule,(container;summary)->None,-,false,-,22
+      loadRecentDocsModule,(container)->None,-,true,-,17
+      loadCategoryModule,(container;summary)->None,-,false,-,13
+      loadTopVendorsModule,(container)->None,-,true,-,17
+      loadTimesheetModule,(container)->None,-,true,-,13
+      loadGitActivityModule,(container)->None,-,true,-,13
+      loadMonthlyTrendModule,(container)->None,-,true,-,18
+      loadClarificationsModule,(container)->None,-,true,-,14
+    function_docs:
+      getDashboardLayout: retrieves dashboard layout
+      saveDashboardLayout: caches dashboard layout
+      toggleDashboardConfig: toggle dashboard config
+      updateModuleSelect: updates module select
+      getModuleName: retrieves module name
+      addDashboardModule: creates dashboard module
+      removeDashboardModule: deletes dashboard module
+      resetDashboardConfig: reset dashboard config
+      renderDashboard: formats dashboard
+      loadDashboard: retrieves dashboard
+      loadDashboardModules: retrieves dashboard modules
+      loadSummaryModule: retrieves summary module
+      loadRecentDocsModule: retrieves recent docs module
+      loadCategoryModule: retrieves category module
+      loadTopVendorsModule: retrieves top vendors module
+      loadTimesheetModule: retrieves timesheet module
+      loadGitActivityModule: retrieves git activity module
+      loadMonthlyTrendModule: retrieves monthly trend module
+      loadClarificationsModule: retrieves clarifications module
+  web/static/js/modules/core.js:
+    exports[13]: navigateTo,formatCurrency,getUrlParam,confirmModalCancel,setPageInUrl,openConfirmModal,getPageFromUrl,setUrlParam,showToast,formatDate
+    const[2]{n,t,v,keys}:
+      API_BASE,"-","-","-"
+      PROJECT_ID,"-","-","-"
+    functions[13]{name,sig,decorators,async,category,lines}:
+      getPageFromUrl,()->None,-,false,-,4
+      getUrlParam,(key)->None,-,false,-,4
+      setUrlParam,(key;value)->None,-,false,-,14
+      setPageInUrl,(page)->None,-,false,-,3
+      closeConfirmModal,()->None,-,false,-,4
+      confirmModalCancel,()->None,-,false,-,10
+      openConfirmModal,()->None,-,false,-,33
+      navigateTo,(page)->None,-,false,-,30
+      apiCall,(endpoint)->None,-,true,-,43
+      showToast,(message)->None,-,false,-,8
+      createToastContainer,()->None,-,false,-,7
+      formatCurrency,(amount)->None,-,false,-,4
+      formatDate,(dateStr)->None,-,false,-,4
+    function_docs:
+      getPageFromUrl: retrieves page from url
+      getUrlParam: retrieves url param
+      setUrlParam: updates url param
+      setPageInUrl: updates page in url
+      closeConfirmModal: stops confirm modal
+      confirmModalCancel: validates modal cancel
+      openConfirmModal: starts confirm modal
+      navigateTo: navigate to
+      apiCall: api call
+      showToast: show toast
+      createToastContainer: creates toast container
+      formatCurrency: formats currency
+      formatDate: formats date
+  web/static/js/modules/doc-generator.js:
+    exports[12]: showDocTemplateDetail,getCategoryName,filterDocCategory,closeDocDetailModal,loadDocTemplates,copyDocContent,renderDocTemplates,previewDocumentData,getTimeScopeName,downloadDocContent
+    functions[12]{name,sig,decorators,async,category,lines}:
+      loadDocTemplates,()->None,-,true,-,22
+      renderDocCategories,()->None,-,false,-,14
+      getCategoryName,(category)->None,-,false,-,9
+      filterDocCategory,(category)->None,-,false,-,5
+      renderDocTemplates,()->None,-,false,-,24
+      getTimeScopeName,(scope)->None,-,false,-,8
+      showDocTemplateDetail,(templateId)->None,-,true,-,32
+      closeDocDetailModal,()->None,-,false,-,3
+      generateDocument,(templateId;projectId;year;month)->None,-,true,-,36
+      previewDocumentData,(templateId;projectId;year;month)->None,-,true,-,19
+      copyDocContent,()->None,-,false,-,8
+      downloadDocContent,(filename)->None,-,false,-,10
+    function_docs:
+      loadDocTemplates: retrieves doc templates
+      renderDocCategories: formats doc categories
+      getCategoryName: retrieves category name
+      filterDocCategory: filters doc category
+      renderDocTemplates: formats doc templates
+      getTimeScopeName: retrieves time scope name
+      showDocTemplateDetail: show doc template detail
+      closeDocDetailModal: stops doc detail modal
+      generateDocument: creates document
+      previewDocumentData: preview document data
+      copyDocContent: copy doc content
+      downloadDocContent: download doc content
+  web/static/js/modules/config.js:
+    exports[4]: testOCRConnection,saveAIConfig,testLLMConnection,loadAIConfig
+    functions[4]{name,sig,decorators,async,category,lines}:
+      loadAIConfig,()->None,-,true,-,16
+      saveAIConfig,()->None,-,true,-,22
+      testLLMConnection,()->None,-,true,-,14
+      testOCRConnection,()->None,-,true,-,14
+    function_docs:
+      loadAIConfig: retrieves ai config
+      saveAIConfig: caches ai config
+      testLLMConnection: checks llm connection
+      testOCRConnection: checks ocr connection
+  web/static/js/modules/upload.js:
+    exports[8]: uploadFile,getDocTypeName,setupUploadListeners,deleteDocument,loadRecentDocuments,retryOcr,handleFiles,pollDocumentStatus
+    functions[8]{name,sig,decorators,async,category,lines}:
+      setupUploadListeners,()->None,-,false,-,22
+      handleFiles,(files)->None,-,false,-,3
+      uploadFile,(file)->None,-,true,-,43
+      pollDocumentStatus,(docId;itemId)->None,-,true,-,38
+      loadRecentDocuments,()->None,-,true,-,41
+      deleteDocument,(docId)->None,-,true,-,16
+      retryOcr,(docId)->None,-,true,-,9
+      getDocTypeName,(type)->None,-,false,-,9
+    function_docs:
+      setupUploadListeners: initializes upload listeners
+      handleFiles: handles files
+      uploadFile: upload file
+      pollDocumentStatus: poll document status
+      loadRecentDocuments: retrieves recent documents
+      deleteDocument: deletes document
+      retryOcr: retry ocr
+      getDocTypeName: retrieves doc type name
+  web/static/js/modules/logs.js:
+    exports[10]: captureLog,closeGlobalLogs,initLogging,toggleGlobalLogs,escapeHtml,downloadGlobalLogs,filterGlobalLogs,clearGlobalLogs,copyGlobalLogs,updateLogOverlay
+    functions[10]{name,sig,decorators,async,category,lines}:
+      initLogging,()->None,-,false,-,20
+      captureLog,(level;args)->None,-,false,-,15
+      updateLogOverlay,(entry)->None,-,false,-,15
+      escapeHtml,(text)->None,-,false,-,5
+      toggleGlobalLogs,()->None,-,false,-,10
+      closeGlobalLogs,()->None,-,false,-,4
+      clearGlobalLogs,()->None,-,false,-,5
+      copyGlobalLogs,()->None,-,false,-,8
+      downloadGlobalLogs,()->None,-,false,-,11
+      filterGlobalLogs,(level)->None,-,false,-,8
+    function_docs:
+      initLogging: creates logging
+      captureLog: capture log
+      updateLogOverlay: updates log overlay
+      escapeHtml: escape html
+      toggleGlobalLogs: toggle global logs
+      closeGlobalLogs: stops global logs
+      clearGlobalLogs: deletes global logs
+      copyGlobalLogs: copy global logs
+      downloadGlobalLogs: download global logs
+      filterGlobalLogs: filters global logs
+  web/static/js/modules/projects.js:
+    exports[10]: viewProjectDocs,loadProjects,getProjectName,createProject,editProject,deleteProject,viewProjectExpenses,loadProjectsForFilter,showCreateProjectModal,generateProjectSummary
+    functions[10]{name,sig,decorators,async,category,lines}:
+      loadProjects,()->None,-,true,-,44
+      showCreateProjectModal,()->None,-,false,-,7
+      createProject,(name;description;fiscalYear)->None,-,true,-,10
+      editProject,(id)->None,-,true,-,17
+      deleteProject,(id)->None,-,true,-,10
+      viewProjectExpenses,(projectId)->None,-,false,-,7
+      loadProjectsForFilter,()->None,-,true,-,17
+      getProjectName,(projectId)->None,-,false,-,4
+      viewProjectDocs,(projectId)->None,-,true,-,7
+      generateProjectSummary,(projectId)->None,-,true,-,16
+    function_docs:
+      loadProjects: retrieves projects
+      showCreateProjectModal: show create project modal
+      createProject: creates project
+      editProject: updates project
+      deleteProject: deletes project
+      viewProjectExpenses: view project expenses
+      loadProjectsForFilter: retrieves projects for filter
+      getProjectName: retrieves project name
+      viewProjectDocs: view project docs
+      generateProjectSummary: creates project summary
   brgenerator/tests/conftest.py:
     imports[4]: pytest,os,unittest.mock.AsyncMock,unittest.mock.MagicMock
     exports[4]: env_setup,mock_llm_client,temp_output_dir,sample_yaml_form

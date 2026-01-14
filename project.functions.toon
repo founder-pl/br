@@ -1,6 +1,6 @@
 project: br
-generated: "2026-01-14T08:29:07.093001"
-modules[114]{path,lang,items}:
+generated: "2026-01-14T10:36:33.970104"
+modules[184]{path,lang,items}:
   src/__init__.py,python,0
   tests/conftest.py,python,20
   tests/__init__.py,python,0
@@ -11,6 +11,43 @@ modules[114]{path,lang,items}:
   cli/validate_documentation.py,python,6
   cli/generate_sample_invoices.py,python,4
   cli/br_cli.py,python,13
+  libs/br-core/tests/__init__.py,python,0
+  libs/br-core/tests/test_validators.py,python,17
+  libs/br-core/src/br_core/__init__.py,python,0
+  libs/br-core/src/br_core/types.py,python,12
+  libs/br-core/src/br_core/formatters.py,python,8
+  libs/br-core/src/br_core/validators.py,python,7
+  libs/br-core/src/br_core/enums.py,python,2
+  libs/md-render/tests/__init__.py,python,0
+  libs/md-render/tests/test_converter.py,python,7
+  libs/md-render/src/md_render/__init__.py,python,0
+  libs/md-render/src/md_render/styles.py,python,4
+  libs/md-render/src/md_render/converter.py,python,9
+  libs/br-llm-client/tests/__init__.py,python,0
+  libs/br-llm-client/tests/test_prompts.py,python,9
+  libs/br-llm-client/src/br_llm_client/fallback.py,python,6
+  libs/br-llm-client/src/br_llm_client/prompts.py,python,7
+  libs/br-llm-client/src/br_llm_client/__init__.py,python,0
+  libs/br-llm-client/src/br_llm_client/client.py,python,8
+  libs/br-variable-api/src/br_variable_api/auth.py,python,13
+  libs/br-variable-api/src/br_variable_api/__init__.py,python,0
+  libs/br-variable-api/src/br_variable_api/router.py,python,2
+  libs/br-variable-api/src/br_variable_api/models.py,python,1
+  libs/br-validators/tests/__init__.py,python,0
+  libs/br-validators/tests/test_pipeline.py,python,10
+  libs/br-validators/src/br_validators/base.py,python,13
+  libs/br-validators/src/br_validators/structure.py,python,1
+  libs/br-validators/src/br_validators/financial.py,python,4
+  libs/br-validators/src/br_validators/__init__.py,python,0
+  libs/br-validators/src/br_validators/legal.py,python,1
+  libs/br-validators/src/br_validators/pipeline.py,python,5
+  libs/br-data-sources/src/br_data_sources/variable_tracker.py,python,11
+  libs/br-data-sources/src/br_data_sources/base.py,python,6
+  libs/br-data-sources/src/br_data_sources/registry.py,python,8
+  libs/br-data-sources/src/br_data_sources/__init__.py,python,0
+  libs/br-data-sources/src/br_data_sources/curl.py,python,3
+  libs/br-data-sources/src/br_data_sources/sql.py,python,4
+  libs/br-data-sources/src/br_data_sources/rest.py,python,4
   tests/unit/test_extractors.py,python,25
   tests/unit/__init__.py,python,0
   tests/unit/test_validators.py,python,26
@@ -19,6 +56,7 @@ modules[114]{path,lang,items}:
   tests/e2e/test_scenarios.py,python,6
   tests/e2e/test_integrations_e2e.py,python,12
   tests/e2e/__init__.py,python,0
+  tests/e2e/test_doc_generator_e2e.py,python,29
   tests/integration/test_api.py,python,19
   tests/integration/__init__.py,python,0
   tests/integration/test_sql_fixes.py,python,11
@@ -28,7 +66,6 @@ modules[114]{path,lang,items}:
   src/doc_generator/data_sources.py,python,18
   src/doc_generator/__init__.py,python,0
   src/doc_generator/router.py,python,9
-  src/doc_generator/templates.py,python,10
   src/ocr/extractors.py,python,10
   src/ocr/engines.py,python,13
   src/ocr/__init__.py,python,3
@@ -51,7 +88,6 @@ modules[114]{path,lang,items}:
   src/api/validators/currency_converter.py,python,4
   src/api/validators/invoice_validator.py,python,2
   src/api/services/uncertainty_generator.py,python,6
-  src/api/services/doc_generator.py,python,19
   src/api/services/justification_generator.py,python,8
   src/api/services/excel_exporter.py,python,7
   src/api/services/__init__.py,python,0
@@ -71,8 +107,7 @@ modules[114]{path,lang,items}:
   src/api/routers/logs.py,python,9
   src/api/routers/git_timesheet.py,python,13
   src/api/routers/reports.py,python,8
-  src/api/routers/documents.py,python,18
-  src/api/routers/expenses.py,python,33
+  src/api/routers/variable_api.py,python,7
   src/api/cqrs/commands.py,python,7
   src/api/cqrs/events.py,python,11
   src/api/cqrs/__init__.py,python,0
@@ -80,6 +115,26 @@ modules[114]{path,lang,items}:
   src/api/integrations/__init__.py,python,0
   src/api/integrations/ksef_client.py,python,11
   src/api/integrations/jpk_export.py,python,14
+  src/api/routers/expenses/documentation.py,python,8
+  src/api/routers/expenses/__init__.py,python,0
+  src/api/routers/expenses/validation.py,python,5
+  src/api/routers/expenses/models.py,python,0
+  src/api/routers/expenses/revenues.py,python,5
+  src/api/routers/expenses/crud.py,python,9
+  src/api/routers/expenses/classification.py,python,7
+  src/api/routers/documents/notes.py,python,3
+  src/api/routers/documents/__init__.py,python,0
+  src/api/routers/documents/extraction.py,python,4
+  src/api/routers/documents/upload.py,python,4
+  src/api/routers/documents/models.py,python,0
+  src/api/routers/documents/crud.py,python,7
+  src/api/services/doc_generator/llm.py,python,2
+  src/api/services/doc_generator/generator.py,python,8
+  src/api/services/doc_generator/prompts.py,python,0
+  src/api/services/doc_generator/__init__.py,python,0
+  src/api/services/doc_generator/templates.py,python,8
+  src/api/services/doc_generator/version_control.py,python,4
+  src/api/services/doc_generator/footnotes.py,python,13
   src/integrations/accounting/fakturownia.py,python,13
   src/integrations/accounting/base.py,python,11
   src/integrations/accounting/__init__.py,python,0
@@ -92,8 +147,23 @@ modules[114]{path,lang,items}:
   src/integrations/cloud/google_s3.py,python,29
   src/integrations/cloud/__init__.py,python,0
   src/integrations/cloud/nextcloud.py,python,13
+  src/doc_generator/templates/base.py,python,2
+  src/doc_generator/templates/project.py,python,1
+  src/doc_generator/templates/registry.py,python,7
+  src/doc_generator/templates/financial.py,python,1
+  src/doc_generator/templates/__init__.py,python,0
+  src/doc_generator/templates/legal.py,python,1
+  src/doc_generator/templates/tax.py,python,1
   web/static/js/markdown-renderer.js,javascript,0
   web/static/js/app.js,javascript,176
+  web/static/js/modules/reports.js,javascript,8
+  web/static/js/modules/dashboard.js,javascript,19
+  web/static/js/modules/core.js,javascript,13
+  web/static/js/modules/doc-generator.js,javascript,12
+  web/static/js/modules/config.js,javascript,4
+  web/static/js/modules/upload.js,javascript,8
+  web/static/js/modules/logs.js,javascript,10
+  web/static/js/modules/projects.js,javascript,10
   brgenerator/tests/conftest.py,python,4
   brgenerator/tests/__init__.py,python,0
   brgenerator/tests/test_validators.py,python,16
@@ -243,6 +313,242 @@ function_details:
       cmd_expense_qualify,function,(args) -> None,157-169,false,13,1,Mark expense as B+R qualified.
       cmd_timesheet_list,function,(args) -> None,172-180,false,9,2,List timesheet entries.
       main,function,() -> None,183-274,false,92,4,main
+  libs/br-core/tests/test_validators.py:
+    functions[17]{name,kind,sig,loc,async,lines,cc,does}:
+      TestValidateNIP.test_valid_nip,method,() -> None,15-19,false,5,1,checks valid nip
+      TestValidateNIP.test_valid_nip_with_separators,method,() -> None,21-24,false,4,1,checks valid nip with separators
+      TestValidateNIP.test_invalid_nip_wrong_checksum,method,() -> None,26-29,false,4,1,checks invalid nip wrong checksum
+      TestValidateNIP.test_invalid_nip_too_short,method,() -> None,31-34,false,4,1,checks invalid nip too short
+      TestValidateNIP.test_invalid_nip_empty,method,() -> None,36-39,false,4,1,checks invalid nip empty
+      TestValidateNIP.test_invalid_nip_non_numeric,method,() -> None,41-43,false,3,1,checks invalid nip non numeric
+      TestValidateDateRange.test_valid_date_range,method,() -> None,49-52,false,4,1,checks valid date range
+      TestValidateDateRange.test_same_date,method,() -> None,54-56,false,3,1,checks same date
+      TestValidateDateRange.test_invalid_range_reversed,method,() -> None,58-61,false,4,1,checks invalid range reversed
+      TestValidateFiscalYear.test_valid_current_year,method,() -> None,67-69,false,3,1,checks valid current year
+      TestValidateFiscalYear.test_valid_past_year,method,() -> None,71-73,false,3,1,checks valid past year
+      TestValidateFiscalYear.test_invalid_too_old,method,() -> None,75-78,false,4,1,checks invalid too old
+      TestValidateFiscalYear.test_invalid_future_year,method,() -> None,80-83,false,4,1,checks invalid future year
+      TestValidateNexus.test_valid_nexus,method,() -> None,89-91,false,3,1,checks valid nexus
+      TestValidateNexus.test_nexus_exactly_one,method,() -> None,93-95,false,3,1,checks nexus exactly one
+      TestValidateNexus.test_invalid_nexus_greater_than_one,method,() -> None,97-100,false,4,1,checks invalid nexus greater than one
+      TestValidateNexus.test_invalid_nexus_negative,method,() -> None,102-105,false,4,1,checks invalid nexus negative
+  libs/br-core/src/br_core/types.py:
+    functions[12]{name,kind,sig,loc,async,lines,cc,does}:
+      ValidationIssue.to_dict,method,() -> dict,31-39,false,9,1,converts dict
+      ValidationResult.errors,method,"() -> List[ValidationIssue]",52-53,false,2,3,errors
+      ValidationResult.warnings,method,"() -> List[ValidationIssue]",56-57,false,2,3,warnings
+      ValidationResult.to_dict,method,() -> dict,59-67,false,9,2,converts dict
+      Success.is_success,method,() -> bool,77-78,false,2,1,is success
+      Success.is_failure,method,() -> bool,81-82,false,2,1,is failure
+      Failure.is_success,method,() -> bool,93-94,false,2,1,is success
+      Failure.is_failure,method,() -> bool,97-98,false,2,1,is failure
+      VariableReference.to_footnote,method,"(index:int) -> str",113-115,false,3,1,Generate markdown footnote reference
+      VariableReference.to_footnote_definition,method,"(index:int) -> str",117-119,false,3,1,Generate markdown footnote definition
+      DocumentContext.add_variable,method,"(name:str, value:Any, path:str) -> VariableReference",131-136,false,6,1,Add a tracked variable with source URL
+      DocumentContext.get_footnotes,method,() -> str,138-143,false,6,2,Generate all footnotes for the document
+  libs/br-core/src/br_core/formatters.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      format_currency,function,"(value:Optional[Union[int,float,Decimal,str]], currency:str='PLN', show_currency:bool=True) -> str",15-45,false,31,7,Format a number as Polish currency.
+      format_date,function,"(value:Optional[Union[str,datetime,date]], format_str:str='%Y-%m-%d') -> str",48-68,false,21,4,Format a date value.
+      format_date_pl,function,"(value:Optional[Union[str,datetime,date]]) -> str",71-73,false,3,1,Format date in Polish format (DD.MM.YYYY)
+      format_month_pl,function,"(month:int, year:Optional[int]=None) -> str",76-90,false,15,2,Format month name in Polish.
+      format_nip,function,"(nip:str) -> str",93-106,false,14,4,Format NIP with standard separators.
+      format_percent,function,"(value:Optional[Union[int,float,Decimal]], decimals:int=1) -> str",109-133,false,25,4,Format a decimal or fraction as percentage.
+      format_hours,function,"(hours:Optional[Union[int,float]]) -> str",136-155,false,20,6,Format hours with proper Polish declension.
+      format_nexus,function,"(nexus:Optional[Union[float,Decimal]]) -> str",158-170,false,13,2,Format Nexus indicator value.
+  libs/br-core/src/br_core/validators.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      validate_nip,function,"(nip:str) -> Tuple[bool, Optional[str]]",11-48,false,38,7,Validate Polish NIP (Tax Identification Number).
+      validate_nip_issue,function,"(nip:str) -> Optional[ValidationIssue]",51-69,false,19,3,Validate NIP and return ValidationIssue if invalid.
+      validate_date_range,function,"(start_date:Union[str,date,datetime], end_date:Union[str,date,datetime]) -> Tuple[bool, Optional[str]]",72-104,false,33,3,Validate that start_date is before end_date.
+      validate_fiscal_year,function,"(year:int, allow_future:bool=False) -> Tuple[bool, Optional[str]]",107-132,false,26,5,Validate fiscal year.
+      validate_amount,function,"(amount:Union[int,float,str], min_value:float=0, max_value:Optional[float]=None, field_name:str='Kwota') -> Tuple[bool, Optional[str]]",135-164,false,30,5,Validate monetary amount.
+      validate_percentage,function,"(value:Union[int,float,str], field_name:str='Wartość procentowa') -> Tuple[bool, Optional[str]]",167-193,false,27,4,Validate percentage value (0-100 or 0-1).
+      validate_nexus,function,"(nexus:Union[float,str]) -> Tuple[bool, Optional[str]]",196-217,false,22,4,Validate Nexus indicator value.
+  libs/br-core/src/br_core/enums.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      BRCategory.nexus_component,method,() -> str,40-51,false,12,5,Return Nexus formula component for this category
+      VATRate.rate,method,() -> float,73-77,false,5,2,Get VAT rate as decimal
+  libs/md-render/tests/test_converter.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      TestMd2Html.test_basic_conversion,method,() -> None,9-16,false,8,1,checks basic conversion
+      TestMd2Html.test_table_conversion,method,() -> None,18-29,false,12,1,checks table conversion
+      TestMd2Html.test_code_block,method,() -> None,31-41,false,11,1,checks code block
+      TestMd2Html.test_custom_title,method,() -> None,43-47,false,5,1,checks custom title
+      TestMd2Html.test_include_toc,method,() -> None,49-57,false,9,1,checks include toc
+      TestMarkdownRenderer.test_render_fragment,method,() -> None,63-68,false,6,1,checks render fragment
+      TestMarkdownRenderer.test_render_with_footnotes,method,() -> None,70-78,false,9,1,checks render with footnotes
+  libs/md-render/src/md_render/styles.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      get_default_css,function,() -> str,15-179,false,165,1,Get default CSS for HTML documents
+      get_br_document_css,function,() -> str,182-360,false,179,1,Get CSS styled for B+R documentation
+      get_minimal_css,function,() -> str,363-392,false,30,1,Get minimal CSS for simple documents
+      get_style_preset,function,"(preset:StylePreset) -> str",395-405,false,11,5,Get CSS for a style preset
+  libs/md-render/src/md_render/converter.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      md2html,function,"(md_content:str, title:str='Dokument', css:Optional[str]=None, include_toc:bool=False) -> str",209-228,false,20,1,Convert Markdown to HTML document.
+      html2pdf,function,"(html_content:str, output_path:Optional[Union[str,Path]]=None, css:Optional[str]=None) -> bytes",231-248,false,18,1,Convert HTML to PDF.
+      md2pdf,function,"(md_content:str, output_path:Optional[Union[str,Path]]=None, title:str='Dokument', css:Optional[str]=None, include_toc:bool=False) -> bytes",251-272,false,22,1,Convert Markdown directly to PDF.
+      MarkdownRenderer.__init__,method,"(extensions:Optional[list]=None, extension_configs:Optional[dict]=None, css:Optional[str]=None) -> None",43-81,false,39,4,Initialize Markdown renderer.
+      MarkdownRenderer.render,method,"(md_content:str, title:str='Dokument', include_toc:bool=False, footnotes:Optional[str]=None) -> str",83-119,false,37,3,Render Markdown to HTML.
+      MarkdownRenderer.render_fragment,method,"(md_content:str) -> str",121-132,false,12,1,Render Markdown to HTML fragment (no wrapper).
+      PDFRenderer.__init__,method,"(base_url:Optional[str]=None, css:Optional[str]=None) -> None",138-151,false,14,1,Initialize PDF renderer.
+      PDFRenderer.render,method,"(html_content:str, output_path:Optional[Union[str,Path]]=None) -> bytes",153-179,false,27,3,Render HTML to PDF.
+      PDFRenderer.render_to_file,method,"(html_content:str, output_path:Union[str,Path]) -> Path",181-206,false,26,2,Render HTML to PDF file.
+  libs/br-llm-client/tests/test_prompts.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      TestPromptBuilder.test_get_template,method,() -> None,9-14,false,6,1,checks get template
+      TestPromptBuilder.test_get_unknown_template,method,() -> None,16-20,false,5,1,checks get unknown template
+      TestPromptBuilder.test_build_expense_qualification,method,() -> None,22-36,false,15,2,checks build expense qualification
+      TestPromptBuilder.test_build_document_review,method,() -> None,38-49,false,12,1,checks build document review
+      TestPromptBuilder.test_build_nexus_explanation,method,() -> None,51-65,false,15,1,checks build nexus explanation
+      TestBRPrompts.test_all_prompts_have_required_fields,method,() -> None,71-75,false,5,2,checks all prompts have required fields
+      TestBRPrompts.test_expense_qualification_exists,method,() -> None,77-78,false,2,1,checks expense qualification exists
+      TestBRPrompts.test_document_review_exists,method,() -> None,80-81,false,2,1,checks document review exists
+      TestBRPrompts.test_nexus_explanation_exists,method,() -> None,83-84,false,2,1,checks nexus explanation exists
+  libs/br-llm-client/src/br_llm_client/fallback.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      create_default_chain,function,() -> FallbackChain,167-196,false,30,1,Create default fallback chain for B+R system.
+      ModelConfig.to_client,method,() -> LLMClient,24-32,false,9,1,Create LLMClient from config
+      FallbackChain.__init__,method,"(models:Optional[List[ModelConfig]]=None, default_temperature:float=0.7, default_max_tokens:int=2000) -> None",51-68,false,18,2,Initialize fallback chain.
+      FallbackChain.add_model,method,"(config:ModelConfig) -> None",70-73,false,4,1,Add model to chain
+      FallbackChain._get_client,method,"(config:ModelConfig) -> LLMClient",75-80,false,6,2,Get or create client for model
+      FallbackChain.generate,method,"(prompt:str, system_prompt:Optional[str]=None, temperature:Optional[float]=None, max_tokens:Optional[int]=None) -> LLMResponse",82-164,true,83,7,Generate text using fallback chain.
+  libs/br-llm-client/src/br_llm_client/prompts.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      PromptTemplate.format,method,"() -> tuple[str, str]",16-18,false,3,1,Format prompt with variables
+      PromptBuilder.__init__,method,"(templates:Optional[Dict[str,PromptTemplate]]=None) -> None",142-143,false,2,2,creates
+      PromptBuilder.get_template,method,"(name:str) -> Optional[PromptTemplate]",145-147,false,3,1,Get template by name
+      PromptBuilder.build,method,"(template_name:str) -> tuple[str, str]",149-154,false,6,2,Build prompt from template
+      PromptBuilder.build_expense_qualification,method,"(description:str, amount:float, vendor:str, category:str, date:str) -> tuple[str, str]",156-172,false,17,1,Build expense qualification prompt
+      PromptBuilder.build_document_review,method,"(document_content:str, document_type:str, year:int) -> tuple[str, str]",174-186,false,13,1,Build document review prompt
+      PromptBuilder.build_nexus_explanation,method,"(a:float, b:float, c:float, d:float, nexus:float) -> tuple[str, str]",188-204,false,17,1,Build Nexus explanation prompt
+  libs/br-llm-client/src/br_llm_client/client.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      LLMResponse.success,method,() -> bool,26-27,false,2,2,success
+      LLMClient.__init__,method,"(provider:str='openai', model:str='gpt-4o-mini', api_key:Optional[str]=None, base_url:Optional[str]=None, timeout:float=60.0) -> None",42-66,false,25,3,Initialize LLM client.
+      LLMClient._get_api_key,method,"() -> Optional[str]",68-77,false,10,2,Get API key from environment
+      LLMClient._get_base_url,method,() -> str,79-88,false,10,1,Get base URL for provider
+      LLMClient.generate,method,"(prompt:str, system_prompt:Optional[str]=None, temperature:float=0.7, max_tokens:int=2000) -> LLMResponse",90-156,true,67,4,Generate text completion.
+      LLMClient._generate_openai,method,"(prompt:str, system_prompt:Optional[str], temperature:float, max_tokens:int) -> LLMResponse",158-210,true,53,4,Generate using OpenAI-compatible API
+      LLMClient._generate_anthropic,method,"(prompt:str, system_prompt:Optional[str], temperature:float, max_tokens:int) -> LLMResponse",212-256,true,45,2,Generate using Anthropic API
+      LLMClient._generate_ollama,method,"(prompt:str, system_prompt:Optional[str], temperature:float, max_tokens:int) -> LLMResponse",258-297,true,40,2,Generate using Ollama API
+  libs/br-variable-api/src/br_variable_api/auth.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      create_access_token,function,"(user_id:str, username:str, scopes:List[str], expires_delta:Optional[timedelta]=None) -> str",266-282,false,17,2,Create JWT access token
+      AuthContext.__post_init__,method,() -> None,46-48,false,3,2,creates init
+      AuthContext.has_scope,method,"(scope:str) -> bool",50-51,false,2,2,has scope
+      AuthProvider.authenticate,method,"(request:Request) -> Optional[AuthContext]",70-72,true,3,1,Authenticate request and return context
+      APIKeyAuth.__init__,method,"(valid_keys:Optional[Dict[str,Dict[str,Any]]]=None) -> None",78-95,false,18,4,Initialize with valid API keys.
+      APIKeyAuth.authenticate,method,"(request:Request) -> Optional[AuthContext]",97-117,true,21,4,validates
+      BasicAuth.__init__,method,"(users:Optional[Dict[str,Dict[str,Any]]]=None) -> None",123-139,false,17,4,Initialize with users.
+      BasicAuth.authenticate,method,"(request:Request) -> Optional[AuthContext]",141-164,true,24,6,validates
+      SessionAuth.authenticate,method,"(request:Request) -> Optional[AuthContext]",170-193,true,24,6,validates
+      SSHKeyAuth.__init__,method,"(authorized_keys:Optional[Dict[str,Dict[str,Any]]]=None) -> None",199-206,false,8,2,Initialize with authorized SSH public keys.
+      SSHKeyAuth.authenticate,method,"(request:Request) -> Optional[AuthContext]",208-224,true,17,3,validates
+      MultiAuth.__init__,method,"(providers:Optional[List[AuthProvider]]=None, allow_anonymous:bool=False, anonymous_scopes:Optional[List[str]]=None) -> None",230-242,false,13,3,creates
+      MultiAuth.__call__,method,"(request:Request) -> AuthContext",244-263,true,20,4,call
+  libs/br-variable-api/src/br_variable_api/router.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      create_variable_router,function,"(get_db:Any, data_registry:Any, auth:Optional[MultiAuth]=None, prefix:str='/api') -> APIRouter",22-334,false,313,2,Create FastAPI router for Variable API.
+      _format_invoice_plain_text,function,"(data:dict) -> str",337-349,false,13,2,Format invoice data as plain text
+  libs/br-variable-api/src/br_variable_api/models.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      NexusCalculationResponse.is_valid,method,() -> bool,63-64,false,2,1,is valid
+  libs/br-validators/tests/test_pipeline.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      TestStructureValidator.test_valid_project_card,method,() -> None,62-72,true,11,1,checks valid project card
+      TestStructureValidator.test_missing_title,method,() -> None,74-84,true,11,2,checks missing title
+      TestStructureValidator.test_too_short,method,() -> None,86-95,true,10,2,checks too short
+      TestLegalValidator.test_valid_nip,method,() -> None,102-112,true,11,2,checks valid nip
+      TestLegalValidator.test_invalid_nip,method,() -> None,114-123,true,10,2,checks invalid nip
+      TestFinancialValidator.test_valid_nexus,method,() -> None,130-140,true,11,3,checks valid nexus
+      TestFinancialValidator.test_nexus_exceeds_one,method,() -> None,142-151,true,10,2,checks nexus exceeds one
+      TestFinancialValidator.test_negative_amount,method,() -> None,153-163,true,11,2,checks negative amount
+      TestValidationPipeline.test_full_pipeline,method,() -> None,170-182,true,13,1,checks full pipeline
+      TestValidationPipeline.test_quick_validate,method,() -> None,184-192,true,9,1,checks quick validate
+  libs/br-validators/src/br_validators/base.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      ValidationContext.add_issue,method,"(issue:ValidationIssue) -> None",38-40,false,3,1,Add a validation issue
+      ValidationContext.add_issues,method,"(issues:List[ValidationIssue]) -> None",42-44,false,3,1,Add multiple validation issues
+      ValidationContext.has_errors,method,() -> bool,47-49,false,3,2,Check if there are any blocking errors
+      ValidationContext.error_count,method,() -> int,52-54,false,3,3,Count of errors
+      ValidationContext.warning_count,method,() -> int,57-59,false,3,3,Count of warnings
+      ValidationContext.get_stage_result,method,"(stage:ValidationStage) -> Optional[ValidationResult]",61-63,false,3,1,Get result for a specific stage
+      ValidationContext.set_stage_result,method,"(stage:ValidationStage, result:ValidationResult) -> None",65-67,false,3,1,Set result for a stage
+      BaseValidator.__init__,method,"(config:Optional[Dict[str,Any]]=None) -> None",75-76,false,2,2,creates
+      BaseValidator.validate,method,"(context:ValidationContext) -> ValidationResult",79-89,true,11,1,Validate the document content.
+      BaseValidator.create_issue,method,"(severity:ValidationSeverity, message:str, code:str='', location:Optional[str]=None, suggestion:Optional[str]=None) -> ValidationIssue",91-106,false,16,1,Helper to create validation issue
+      BaseValidator.error,method,"(message:str, code:str='') -> ValidationIssue",108-110,false,3,1,Create error issue
+      BaseValidator.warning,method,"(message:str, code:str='') -> ValidationIssue",112-114,false,3,1,Create warning issue
+      BaseValidator.info,method,"(message:str, code:str='') -> ValidationIssue",116-118,false,3,1,Create info issue
+  libs/br-validators/src/br_validators/structure.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      StructureValidator.validate,method,"(context:ValidationContext) -> ValidationResult",64-151,true,88,17,Validate document structure
+  libs/br-validators/src/br_validators/financial.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      FinancialValidator.validate,method,"(context:ValidationContext) -> ValidationResult",20-102,true,83,17,Validate financial data
+      FinancialValidator._extract_amounts,method,"(content:str) -> List[Tuple[float, str]]",104-121,false,18,3,Extract monetary amounts from content
+      FinancialValidator._validate_nexus,method,"(content:str, context:ValidationContext) -> List",123-188,false,66,12,Validate Nexus indicator
+      FinancialValidator._validate_totals,method,"(content:str, amounts:List[Tuple[float,str]]) -> List",190-221,false,32,9,Validate that totals match sum of items
+  libs/br-validators/src/br_validators/legal.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      LegalValidator.validate,method,"(context:ValidationContext) -> ValidationResult",40-156,true,117,30,Validate legal compliance
+  libs/br-validators/src/br_validators/pipeline.py:
+    functions[5]{name,kind,sig,loc,async,lines,cc,does}:
+      create_default_pipeline,function,"(include_llm:bool=False, stop_on_error:bool=False) -> ValidationPipeline",170-193,false,24,1,Create default validation pipeline.
+      ValidationPipeline.__init__,method,"(validators:Optional[List[BaseValidator]]=None, stop_on_error:bool=False) -> None",28-41,false,14,2,Initialize validation pipeline.
+      ValidationPipeline.add_validator,method,"(validator:BaseValidator) -> None",43-45,false,3,1,Add a validator to the pipeline
+      ValidationPipeline.validate,method,"(content:str, document_type:str, project_id:Optional[str]=None, year:Optional[int]=None, month:Optional[int]=None, metadata:Optional[Dict[str,Any]]=None, data:Optional[Dict[str,Any]]=None) -> Dict[str, Any]",47-157,true,111,15,Run full validation pipeline.
+      ValidationPipeline.validate_quick,method,"(content:str, document_type:str) -> bool",159-167,true,9,1,Quick validation - just check if document passes basic validation.
+  libs/br-data-sources/src/br_data_sources/variable_tracker.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      TrackedVariable.to_footnote_ref,method,"(index:int) -> str",22-24,false,3,1,Generate markdown footnote reference
+      TrackedVariable.to_footnote_def,method,"(index:int) -> str",26-28,false,3,1,Generate markdown footnote definition
+      TrackedVariable.to_inline_ref,method,() -> str,30-32,false,3,1,Generate inline markdown reference
+      TrackedVariable.to_dict,method,() -> dict,34-42,false,9,1,converts dict
+      VariableTracker.__init__,method,"(base_url:str='http://localhost:81', project_id:Optional[str]=None) -> None",52-60,false,9,1,creates
+      VariableTracker.track,method,"(name:str, value:Any, source_name:str, path:str='', description:Optional[str]=None) -> TrackedVariable",62-105,false,44,4,Track a variable with its source.
+      VariableTracker.track_invoice,method,"(invoice_id:str, variable_name:str, value:Any) -> TrackedVariable",107-135,false,29,1,Track an invoice-specific variable.
+      VariableTracker.get_footnotes_markdown,method,() -> str,137-158,false,22,3,Generate markdown footnotes section.
+      VariableTracker.get_footnote_refs,method,"() -> Dict[str, str]",160-170,false,11,2,Get mapping of variable names to footnote references.
+      VariableTracker.to_json,method,"() -> List[dict]",172-174,false,3,2,Export all tracked variables as JSON
+      VariableTracker.clear,method,() -> None,176-179,false,4,1,Clear all tracked variables
+  libs/br-data-sources/src/br_data_sources/base.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      DataSourceResult.success,method,() -> bool,22-23,false,2,1,success
+      DataSourceResult.to_dict,method,() -> dict,25-33,false,9,1,converts dict
+      DataSource.__init__,method,"(name:str, description:str='') -> None",39-41,false,3,1,creates
+      DataSource.fetch,method,"(params:Dict[str,Any]) -> DataSourceResult",44-46,true,3,1,Fetch data from the source
+      DataSource.get_schema,method,"() -> Dict[str, Any]",49-51,false,3,1,Return schema/description of available data
+      DataSource.get_api_url,method,"(params:Dict[str,Any], base_url:str='http://localhost:81') -> str",53-60,false,8,3,Get API URL for accessing this data source.
+  libs/br-data-sources/src/br_data_sources/registry.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      get_data_registry,function,() -> DataSourceRegistry,198-203,false,6,2,Get singleton instance of data source registry
+      DataSourceRegistry.__new__,method,() -> None,17-22,false,6,2,creates
+      DataSourceRegistry._initialize_default_sources,method,() -> None,24-146,false,123,1,Initialize default SQL data sources for B+R documentation
+      DataSourceRegistry.register,method,"(source:DataSource) -> None",148-150,false,3,1,Register a new data source
+      DataSourceRegistry.get,method,"(name:str) -> Optional[DataSource]",152-154,false,3,1,Get a data source by name
+      DataSourceRegistry.list_sources,method,"() -> List[Dict[str, Any]]",156-158,false,3,2,List all available data sources with their schemas
+      DataSourceRegistry.fetch,method,"(source_name:str, params:Dict[str,Any], db:Optional[AsyncSession]=None) -> DataSourceResult",160-179,true,20,3,Fetch data from a single source
+      DataSourceRegistry.fetch_multiple,method,"(source_configs:List[Dict[str,Any]], db:Optional[AsyncSession]=None) -> Dict[str, DataSourceResult]",181-192,true,12,2,Fetch data from multiple sources
+  libs/br-data-sources/src/br_data_sources/curl.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      CurlDataSource.__init__,method,"(name:str, curl_template:str, description:str='', parse_json:bool=True, timeout:float=30.0) -> None",17-28,false,12,1,creates
+      CurlDataSource.fetch,method,"(params:Dict[str,Any]) -> DataSourceResult",30-85,true,56,6,Fetch data by executing curl command.
+      CurlDataSource.get_schema,method,"() -> Dict[str, Any]",87-94,false,8,1,Return schema description
+  libs/br-data-sources/src/br_data_sources/sql.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      SQLDataSource.__init__,method,"(name:str, query_template:str, description:str='', params_schema:Optional[Dict[str,str]]=None) -> None",17-26,false,10,2,creates
+      SQLDataSource.fetch,method,"(params:Dict[str,Any], db:Optional[AsyncSession]=None) -> DataSourceResult",28-78,true,51,4,Fetch data from PostgreSQL.
+      SQLDataSource._extract_variables,method,"(data:list) -> Dict[str, Any]",80-103,false,24,12,Extract key variables from data for tracking
+      SQLDataSource.get_schema,method,"() -> Dict[str, Any]",105-114,false,10,2,Return schema description
+  libs/br-data-sources/src/br_data_sources/rest.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      RESTDataSource.__init__,method,"(name:str, url_template:str, method:str='GET', description:str='', headers:Optional[Dict[str,str]]=None, timeout:float=30.0) -> None",16-29,false,14,2,creates
+      RESTDataSource.fetch,method,"(params:Dict[str,Any]) -> DataSourceResult",31-89,true,59,6,Fetch data from REST API.
+      RESTDataSource.get_schema,method,"() -> Dict[str, Any]",91-99,false,9,1,Return schema description
+      RESTDataSource.get_api_url,method,"(params:Dict[str,Any], base_url:str='') -> str",101-106,false,6,2,Get actual API URL with parameters
   tests/unit/test_extractors.py:
     functions[25]{name,kind,sig,loc,async,lines,cc,does}:
       TestInvoiceExtractor.extractor,method,() -> None,13-14,false,2,1,extractor
@@ -342,6 +648,37 @@ function_details:
       TestIntegrationErrorHandlingE2E.test_wrong_integration_type_for_operation,method,"(client:AsyncClient) -> None",469-491,true,23,1,Test error handling when using wrong integration type for operation
       TestIntegrationErrorHandlingE2E.test_nonexistent_integration_error,method,"(client:AsyncClient) -> None",495-499,true,5,1,Test error handling for nonexistent integration
       TestFullIntegrationBusinessScenarioE2E.test_complete_monthly_workflow_with_integrations,method,"(client:AsyncClient) -> None",508-642,true,135,4,"Complete monthly B+R workflow with integrations:"
+  tests/e2e/test_doc_generator_e2e.py:
+    functions[29]{name,kind,sig,loc,async,lines,cc,does}:
+      http_client,function,() -> None,290-292,false,3,1,HTTP client for tests
+      DocumentValidator.__init__,method,"(content:str, doc_type:str) -> None",76-79,false,4,1,creates
+      DocumentValidator.validate_structure,method,() -> bool,81-94,false,14,5,Validate document has required sections
+      DocumentValidator.validate_fields,method,() -> bool,96-109,false,14,5,Validate document has required fields
+      DocumentValidator.validate_calculations,method,() -> bool,111-139,false,29,8,Validate financial calculations are correct
+      DocumentValidator.validate_nip,method,() -> bool,141-155,false,15,7,Validate NIP numbers in document
+      DocumentValidator._validate_nip_checksum,method,"(nip:str) -> bool",157-162,false,6,3,Validate NIP checksum
+      DocumentValidator.validate_nexus,method,() -> bool,164-184,false,21,6,Validate Nexus indicator value
+      DocumentValidator.validate_all,method,"() -> Dict[str, Any]",186-201,false,16,1,Run all validations and return summary
+      HTMLValidator.__init__,method,"(html_content:str) -> None",207-209,false,3,1,creates
+      HTMLValidator.validate_structure,method,() -> bool,211-225,false,15,3,Validate HTML structure
+      HTMLValidator.validate_tables,method,() -> bool,227-247,false,21,5,Validate table rendering
+      HTMLValidator.validate_encoding,method,() -> bool,249-272,false,24,6,Validate proper encoding of Polish characters
+      HTMLValidator.validate_all,method,"() -> Dict[str, Any]",274-286,false,13,1,Run all HTML validations
+      TestDocGeneratorAPI.test_list_templates,method,(http_client) -> None,299-314,true,16,2,Test listing available templates
+      TestDocGeneratorAPI.test_get_template_detail,method,(http_client) -> None,316-324,true,9,2,Test getting template details
+      TestDocGeneratorAPI.test_list_data_sources,method,(http_client) -> None,326-339,true,14,3,Test listing data sources
+      TestDocGeneratorAPI.test_generate_document,method,(http_client) -> None,341-379,true,39,3,Test document generation
+      TestDocumentValidation.test_project_card_structure,method,(http_client) -> None,386-401,true,16,2,Test project card document structure
+      TestDocumentValidation.test_expense_registry_calculations,method,(http_client) -> None,403-418,true,16,2,Test expense registry calculations
+      TestDocumentValidation.test_nexus_calculation_validity,method,(http_client) -> None,420-435,true,16,2,Test Nexus calculation document validity
+      TestDocumentValidation.test_nip_validation,method,(http_client) -> None,437-451,true,15,2,Test NIP numbers in documents
+      TestHTMLRendering.test_html_structure,method,(http_client) -> None,458-484,true,27,3,Test HTML output structure
+      TestHTMLRendering.test_polish_encoding,method,(http_client) -> None,486-504,true,19,6,Test Polish characters are properly encoded
+      TestVariableAPI.test_variable_access,method,(http_client) -> None,511-531,true,21,4,Test accessing variables via API
+      TestVariableAPI.test_nexus_api,method,(http_client) -> None,533-552,true,20,4,Test Nexus calculation API
+      TestVariableAPI.test_invoice_variable,method,(http_client) -> None,554-564,true,11,1,Test invoice variable access
+      TestDocGeneratorPage.test_page_loads,method,(http_client) -> None,571-577,true,7,1,Test that the page loads
+      TestDocGeneratorPage.test_page_has_generator_ui,method,(http_client) -> None,579-588,true,10,3,Test page has document generator UI elements
   tests/integration/test_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       TestHealthEndpoints.test_api_health,method,"(client:AsyncClient) -> None",13-21,true,9,1,Test API health endpoint
@@ -455,18 +792,6 @@ function_details:
       get_demo_document,function,"(template_id:str, engine:DocumentEngine=Depends(get_engine)) -> None",172-187,true,16,2,Get a demo version of a document template.
       list_categories,function,() -> None,191-202,true,12,1,List all document categories with descriptions
       get_filter_options,function,"(project_id:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",206-250,true,45,5,Get available filter options for document generation.
-  src/doc_generator/templates.py:
-    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
-      get_template_registry,function,() -> TemplateRegistry,999-1001,false,3,1,Get singleton instance of template registry
-      DocumentTemplate.get_required_params,method,"() -> List[str]",56-61,false,6,2,Get all required parameters across data sources
-      DocumentTemplate.to_dict,method,"() -> Dict[str, Any]",63-73,false,11,1,converts dict
-      TemplateRegistry.__new__,method,() -> None,81-86,false,6,2,creates
-      TemplateRegistry._initialize_templates,method,() -> None,88-976,false,889,1,Initialize all B+R and IP Box document templates
-      TemplateRegistry.register,method,"(template:DocumentTemplate) -> None",978-980,false,3,1,Register a new template
-      TemplateRegistry.get,method,"(template_id:str) -> Optional[DocumentTemplate]",982-984,false,3,1,Get a template by ID
-      TemplateRegistry.list_templates,method,"() -> List[Dict[str, Any]]",986-988,false,3,2,List all available templates with metadata
-      TemplateRegistry.get_by_category,method,"(category:DocumentCategory) -> List[DocumentTemplate]",990-992,false,3,3,Get all templates in a category
-      TemplateRegistry.get_by_time_scope,method,"(scope:TimeScope) -> List[DocumentTemplate]",994-996,false,3,3,Get all templates with a specific time scope
   src/ocr/extractors.py:
     functions[10]{name,kind,sig,loc,async,lines,cc,does}:
       validate_nip,function,"(nip:str) -> bool",13-33,false,21,6,Validate Polish NIP (tax identification number).
@@ -556,11 +881,11 @@ function_details:
       get_db_context,function,"() -> AsyncGenerator[AsyncSession, None]",68-78,true,11,2,Context manager for database session
   src/api/main.py:
     functions[5]{name,kind,sig,loc,async,lines,cc,does}:
-      lifespan,function,"(app:FastAPI) -> None",32-48,true,17,1,Application lifespan manager
-      global_exception_handler,function,"(request:Request, exc:Exception) -> None",133-141,true,9,1,global exception handler
-      health_check,function,() -> None,161-170,true,10,1,Health check endpoint
-      root,function,() -> None,175-185,true,11,1,Root endpoint with API info
-      metrics,function,() -> None,190-195,true,6,1,Basic metrics endpoint
+      lifespan,function,"(app:FastAPI) -> None",35-51,true,17,1,Application lifespan manager
+      global_exception_handler,function,"(request:Request, exc:Exception) -> None",137-145,true,9,1,global exception handler
+      health_check,function,() -> None,166-175,true,10,1,Health check endpoint
+      root,function,() -> None,180-190,true,11,1,Root endpoint with API info
+      metrics,function,() -> None,195-200,true,6,1,Basic metrics endpoint
   src/api/validators/expense_pipeline.py:
     functions[14]{name,kind,sig,loc,async,lines,cc,does}:
       get_validation_pipeline,function,() -> ExpenseValidationPipeline,439-444,false,6,2,Get or create validation pipeline instance.
@@ -595,27 +920,6 @@ function_details:
       UncertaintyGenerator._generate_with_llm,method,"(project:ProjectInputExtended) -> Optional[str]",91-118,true,28,12,Generate using LLM.
       UncertaintyGenerator._generate_from_template,method,"(project:ProjectInputExtended) -> UncertaintySection",120-197,false,78,7,Generate from template (fallback).
       UncertaintyGenerator._find_keywords,method,"(text:str) -> List[str]",199-202,false,4,3,Find B+R keywords in text.
-  src/api/services/doc_generator.py:
-    functions[19]{name,kind,sig,loc,async,lines,cc,does}:
-      get_doc_generator,function,() -> ExpenseDocumentGenerator,991-996,false,6,2,Get singleton instance of document generator.
-      DocumentVersionControl.__init__,method,"(repo_path:Path) -> None",52-55,false,4,1,creates
-      DocumentVersionControl.commit_file,method,"(file_path:Path, message:str) -> Optional[str]",57-88,false,32,2,Save a version of the file and return version hash.
-      DocumentVersionControl.get_file_history,method,"(file_path:Path, limit:int=20) -> List[Dict[str, Any]]",90-116,false,27,5,Get version history for a file.
-      DocumentVersionControl.get_file_at_commit,method,"(file_path:Path, commit:str) -> Optional[str]",118-130,false,13,3,Get file content at specific version.
-      ExpenseDocumentGenerator.__init__,method,"(llm_service_url:Optional[str]=None) -> None",153-157,false,5,2,creates
-      ExpenseDocumentGenerator.generate_expense_documentation,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]=None) -> Dict[str, Any]",159-197,true,39,2,Generate B+R documentation for a single expense.
-      ExpenseDocumentGenerator._build_expense_prompt,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]) -> str",199-258,false,60,5,Build prompt for expense documentation generation.
-      ExpenseDocumentGenerator._generate_with_llm,method,"(prompt:str) -> str",260-280,true,21,2,Generate documentation using LLM service.
-      ExpenseDocumentGenerator._generate_from_template,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]) -> str",282-419,false,138,9,Generate documentation from template (fallback).
-      ExpenseDocumentGenerator._save_documentation,method,"(expense:Dict[str,Any], project:Dict[str,Any], content:str) -> Path",421-450,false,30,2,Save documentation to file with version control.
-      ExpenseDocumentGenerator.get_document_history,method,"(project_id:str, filename:str) -> List[Dict[str, Any]]",452-455,false,4,1,Get version history for a document.
-      ExpenseDocumentGenerator.get_document_at_version,method,"(project_id:str, filename:str, commit:str) -> Optional[str]",457-460,false,4,1,Get document content at specific version.
-      ExpenseDocumentGenerator.refine_with_llm,method,"(content:str, validation_issues:List[Dict[str,Any]], max_iterations:int=3) -> Dict[str, Any]",462-567,true,106,10,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
-      ExpenseDocumentGenerator.generate_project_summary,method,"(project:Dict[str,Any], expenses:list[Dict[str,Any]], timesheet_data:Optional[Dict[str,Any]]=None, contractors:Optional[list[Dict[str,Any]]]=None, revenues:Optional[list[Dict[str,Any]]]=None) -> Dict[str, Any]",569-633,true,65,8,Generate summary documentation for entire project.
-      ExpenseDocumentGenerator._generate_summary_template,method,"(project:Dict[str,Any], expenses:list, by_category:Dict, total_gross:float, total_br:float, total_deduction:float, timesheet_data:Optional[Dict[str,Any]]=None) -> str",635-882,false,248,29,Generate comprehensive B+R project summary template.
-      ExpenseDocumentGenerator._build_expense_details,method,"(expenses:list, company_nip:str='5881918662') -> str",885-964,false,80,9,Build detailed expense descriptions with justifications.
-      ExpenseDocumentGenerator._format_doc_link,method,"(expense:Dict[str,Any]) -> str",966-972,false,7,4,Format document link for expense.
-      ExpenseDocumentGenerator._build_expense_list,method,"(expenses:list) -> str",974-984,false,11,5,Build expense list table for summary.
   src/api/services/justification_generator.py:
     functions[8]{name,kind,sig,loc,async,lines,cc,does}:
       get_justification_generator,function,() -> ExpenseJustificationGenerator,292-297,false,6,2,Get or create justification generator instance.
@@ -657,7 +961,7 @@ function_details:
       AuditTrailService.get_changes_report,method,"(aggregate_id:str) -> Dict[str, Any]",200-222,true,23,4,Generate a changes report for audit purposes.
   src/api/services/expense_service.py:
     functions[12]{name,kind,sig,loc,async,lines,cc,does}:
-      get_expense_service,function,"(db:AsyncSession) -> ExpenseService",678-680,false,3,1,Get expense service instance.
+      get_expense_service,function,"(db:AsyncSession) -> ExpenseService",677-679,false,3,1,Get expense service instance.
       ExpenseService.__init__,method,"(db:AsyncSession) -> None",34-39,false,6,1,creates
       ExpenseService.get_expense,method,"(expense_id:str) -> Optional[Dict[str, Any]]",41-61,true,21,2,Get expense by ID.
       ExpenseService.list_expenses,method,"(project_id:Optional[str]=None, year:Optional[int]=None, month:Optional[int]=None, br_qualified:Optional[bool]=None, status:Optional[str]=None, limit:int=100, offset:int=0) -> Tuple[List[Dict[str, Any]], int]",63-130,true,68,8,List expenses with filters.
@@ -666,9 +970,9 @@ function_details:
       ExpenseService.delete_expense,method,"(expense_id:str) -> bool",240-263,true,24,2,Delete expense.
       ExpenseService.validate_expense,method,"(expense_id:str) -> Dict[str, Any]",265-282,true,18,2,Run validation pipeline on expense.
       ExpenseService.categorize_expense,method,"(expense_id:str, apply:bool=False) -> Dict[str, Any]",284-327,true,44,5,Auto-categorize expense for B+R.
-      ExpenseService.process_all,method,"(project_id:str, year:Optional[int]=None, month:Optional[int]=None) -> Dict[str, Any]",329-593,true,265,68,processes all
-      ExpenseService.get_summary,method,"(project_id:Optional[str]=None, year:Optional[int]=None) -> Dict[str, Any]",595-644,true,50,5,Get expense summary statistics.
-      ExpenseService._row_to_dict,method,"(row) -> Dict[str, Any]",646-675,false,30,10,Convert database row to dictionary.
+      ExpenseService.process_all,method,"(project_id:str, year:Optional[int]=None, month:Optional[int]=None) -> Dict[str, Any]",329-592,true,264,68,processes all
+      ExpenseService.get_summary,method,"(project_id:Optional[str]=None, year:Optional[int]=None) -> Dict[str, Any]",594-643,true,50,5,Get expense summary statistics.
+      ExpenseService._row_to_dict,method,"(row) -> Dict[str, Any]",645-674,false,30,10,Convert database row to dictionary.
   src/api/models/project_extended.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
       UncertaintySection.is_sufficient,method,() -> bool,141-145,false,5,3,Check if section meets minimum requirements.
@@ -788,61 +1092,15 @@ function_details:
       get_annual_ip_box_summary,function,"(fiscal_year:int=Query(...), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",301-336,true,36,6,retrieves annual ip box summary
       export_expenses_excel,function,"(year:int=Query(...), month:Optional[int]=Query(default=None), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",344-424,true,81,12,"P3: Export expenses to Excel file."
       export_monthly_report_excel,function,"(year:int=Query(...), month:int=Query(..., ge=1, le=12), project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",428-522,true,95,11,"P3: Export monthly B+R report to Excel."
-  src/api/routers/documents.py:
-    functions[18]{name,kind,sig,loc,async,lines,cc,does}:
-      ensure_document_notes_table,function,"(db:AsyncSession) -> None",59-71,true,13,1,ensure document notes table
-      upload_document,function,"(background_tasks:BackgroundTasks, file:UploadFile=File(...), project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001'), document_type:str=Query(default='invoice'), db:AsyncSession=Depends(get_db)) -> None",75-142,true,68,2,Upload a document for OCR processing.
-      detect_invoice_type,function,"(extracted_data:dict, our_nip:str='5881918662') -> str",145-192,false,48,13,Detect if invoice is a cost (expense) or revenue invoice.
-      create_expense_from_document,function,"(doc_id:str, extracted_data:dict, doc_type:str) -> None",195-354,true,160,37,Create expense or revenue record from OCR-extracted document data
-      process_document_ocr,function,"(doc_id:str, file_path:str, document_type:str) -> None",357-457,true,101,4,Background task to process document with OCR service
-      list_document_notes,function,"(project_id:Optional[str]=Query(default=None), limit:int=Query(default=200, le=500), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",461-513,true,53,12,List all documents with their annotations
-      get_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",517-543,true,27,2,Get document details
-      list_documents,function,"(project_id:Optional[str]=Query(default=None), status:Optional[str]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",547-591,true,45,4,List documents with optional filtering
-      download_document_file,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",595-621,true,27,9,download document file
-      upsert_document_notes,function,"(document_id:str, payload:DocumentNoteUpsert, db:AsyncSession=Depends(get_db)) -> None",625-651,true,27,2,upsert document notes
-      reprocess_document,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",655-679,true,25,2,Reprocess document with OCR
-      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",683-715,true,33,2,Delete a document and optionally its related expenses/revenues
-      update_document,function,"(document_id:str, db:AsyncSession=Depends(get_db), document_type:Optional[str]=None, ocr_status:Optional[str]=None, extracted_data:Optional[dict]=None) -> None",719-756,true,38,10,Update document fields
-      llm_extract_fields,function,"(document_id:str, request:dict, db:AsyncSession=Depends(get_db)) -> None",760-850,true,91,11,Use LLM to extract/fill invoice fields from OCR text.
-      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",868-901,true,34,7,Get full document details including OCR text
-      sync_expenses_from_documents,function,"(background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",905-941,true,37,3,Create expense records for all completed invoice documents that don't have expen...
-      check_document_duplicates,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",945-1024,true,80,15,Check if a document might be a duplicate of another document.
-      re_extract_document_data,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",1028-1087,true,60,4,Re-run data extraction on a document using the current OCR text.
-  src/api/routers/expenses.py:
-    functions[33]{name,kind,sig,loc,async,lines,cc,does}:
-      get_br_categories,function,() -> None,180-182,true,3,1,Get list of B+R expense categories according to art.
-      process_all_expenses,function,"(request:ProcessAllRequest, db:AsyncSession=Depends(get_db)) -> None",186-196,true,11,1,processes all expenses
-      create_expense,function,"(expense:ExpenseCreate, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",200-239,true,40,1,Create a new expense record
-      validate_expense_pipeline,function,"(expense_data:dict) -> None",247-259,true,13,1,"P2: Run comprehensive validation pipeline on expense data."
-      categorize_expense,function,"(description:str=Query(...), vendor_name:Optional[str]=Query(default=None), amount:Optional[float]=Query(default=None)) -> None",263-288,true,26,1,"P2: Automatically categorize expense for B+R qualification."
-      validate_invoice_number,function,"(invoice_number:str=Query(...)) -> None",292-303,true,12,1,Validate invoice number against Polish standards.
-      convert_currency_to_pln,function,"(amount:Decimal=Query(...), currency:str=Query(...), expense_date:date=Query(...)) -> None",307-326,true,20,2,Convert foreign currency to PLN using NBP exchange rates.
-      validate_all_expenses,function,"(project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",330-391,true,62,13,Validate all expenses for a project.
-      get_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",399-446,true,48,10,Get expense details
-      list_expenses,function,"(project_id:Optional[str]=Query(default=None), br_qualified:Optional[bool]=Query(default=None), ip_qualified:Optional[bool]=Query(default=None), status:Optional[str]=Query(default=None), year:Optional[int]=Query(default=None), month:Optional[int]=Query(default=None), limit:int=Query(default=50, le=1000), offset:int=Query(default=0)) -> None",450-535,true,86,16,List expenses with filtering
-      classify_expense_manually,function,"(expense_id:str, classification:ExpenseClassifyRequest, db:AsyncSession=Depends(get_db)) -> None",539-606,true,68,11,Manually classify expense for B+R or IP Box
-      trigger_auto_classification,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",610-626,true,17,2,Trigger automatic LLM classification
-      update_expense_status,function,"(expense_id:str, status_update:ExpenseStatusUpdate, db:AsyncSession=Depends(get_db)) -> None",635-658,true,24,3,Update expense status
-      delete_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",662-678,true,17,2,Delete an expense
-      generate_expense_justification,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",682-756,true,75,7,Generate individualized B+R justification for an expense using LLM.
-      update_expense_vendor,function,"(expense_id:str, vendor_name:str=Query(...), vendor_nip:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",760-805,true,46,4,Update vendor information for an expense.
-      generate_expense_documentation,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",809-875,true,67,9,Generate B+R documentation for a single expense
-      generate_project_documentation_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",879-1042,true,164,20,Generate B+R documentation summary for entire project
-      list_revenues,function,"(project_id:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",1046-1092,true,47,12,List revenues (sales invoices) with optional project filter.
-      create_revenue,function,"(revenue:dict, db:AsyncSession=Depends(get_db)) -> None",1096-1138,true,43,1,Create a new revenue (sales invoice) from document.
-      classify_revenue,function,"(revenue_id:str, classification:dict, db:AsyncSession=Depends(get_db)) -> None",1142-1224,true,83,12,Classify a revenue for IP Box purposes.
-      reclassify_invoice,function,"(invoice_id:str, from_type:str=Query(..., description='Current type: expense or revenue'), to_type:str=Query(..., description='Target type: expense or revenue'), reason:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",1228-1255,true,28,2,Reclassify an invoice from expense to revenue or vice versa.
-      get_invoice_history,function,"(invoice_id:str, db:AsyncSession=Depends(get_db)) -> None",1259-1274,true,16,1,Get event history for an invoice (expenses or revenues).
-      list_project_documentation,function,"(project_id:str) -> None",1278-1296,true,19,3,List all generated documentation files for a project
-      get_documentation_content,function,"(project_id:str, filename:str) -> None",1300-1314,true,15,4,Get content of a specific documentation file
-      get_documentation_history,function,"(project_id:str, filename:str) -> None",1318-1332,true,15,2,Get version history for a documentation file
-      get_documentation_version,function,"(project_id:str, filename:str, commit:str) -> None",1336-1354,true,19,4,Get document content at specific version
-      refine_documentation_with_llm,function,"(project_id:str, filename:str) -> None",1358-1418,true,61,8,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
-      get_documentation_pdf,function,"(project_id:str, filename:str) -> None",1422-1528,true,107,23,Generate and return PDF from markdown documentation
-      classify_expense_with_llm,function,"(expense_id:str) -> None",1531-1617,true,87,4,Background task to classify expense using LLM
-      get_br_classifier_system_prompt,function,() -> str,1620-1656,false,37,1,System prompt for B+R expense classifier
-      build_classification_prompt,function,(expense_row) -> str,1659-1679,false,21,8,Build prompt for expense classification
-      parse_llm_classification,function,"(response:str) -> dict",1682-1700,false,19,4,Parse LLM response to classification dict
+  src/api/routers/variable_api.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      get_base_url,function,"(request:Request) -> str",60-62,false,3,1,Get base URL from request
+      get_project_variable,function,"(project_id:str, source_name:str, path:Optional[str]=Query(None, description='Variable path within source'), request:Request=None, db:AsyncSession=Depends(get_db)) -> ProjectVariableResponse",66-190,true,125,15,Get a variable for a project from a data source.
+      get_project_variable_with_path,function,"(project_id:str, source_name:str, path:str, request:Request=None, db:AsyncSession=Depends(get_db)) -> ProjectVariableResponse",194-212,true,19,1,Get a specific variable field from a data source.
+      get_invoice_variable,function,"(invoice_id:str, variable_name:str, request:Request=None, db:AsyncSession=Depends(get_db)) -> VariableResponse",216-258,true,43,5,Get a variable from an invoice.
+      get_invoice_data,function,"(invoice_id:str, format:str=Query('json', description='Output format: json, plain_text, ocr'), db:AsyncSession=Depends(get_db)) -> InvoiceDataResponse",262-314,true,53,9,Get full invoice data.
+      get_nexus_calculation,function,"(project_id:str, year:Optional[int]=None, request:Request=None, db:AsyncSession=Depends(get_db)) -> NexusResponse",318-394,true,77,11,Get Nexus indicator calculation for IP Box.
+      list_available_variables,function,"(request:Request=None) -> Dict[str, Any]",398-461,true,64,2,List all available variable sources.
   src/api/cqrs/commands.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
       get_command_handler,function,"(command_type:str, db:AsyncSession) -> CommandHandler",324-334,true,11,2,Factory function to get appropriate command handler.
@@ -903,6 +1161,121 @@ function_details:
       JPKExporter._add_purchase_record,method,"(root:Any, rec:JPKPurchaseRecord, lp:int) -> None",353-368,false,16,5,Add ZakupWiersz record.
       JPKExporter._add_control,method,"(root:Any) -> None",370-384,false,15,5,Add control totals.
       JPKExporter.validate,method,"() -> List[str]",386-413,false,28,12,Validate JPK data before export.
+  src/api/routers/expenses/documentation.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      generate_expense_documentation,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",20-82,true,63,9,Generate B+R documentation for a single expense
+      generate_project_documentation_summary,function,"(project_id:str, db:AsyncSession=Depends(get_db)) -> None",86-228,true,143,20,Generate B+R documentation summary for entire project
+      list_project_documentation,function,"(project_id:str) -> None",232-248,true,17,3,List all generated documentation files for a project
+      get_documentation_content,function,"(project_id:str, filename:str) -> None",252-263,true,12,4,Get content of a specific documentation file
+      get_documentation_history,function,"(project_id:str, filename:str) -> None",267-277,true,11,2,Get version history for a documentation file
+      get_documentation_version,function,"(project_id:str, filename:str, commit:str) -> None",281-294,true,14,4,Get document content at specific version
+      get_documentation_pdf,function,"(project_id:str, filename:str) -> None",298-326,true,29,5,Generate and return PDF from markdown documentation
+      _markdown_to_html,function,"(md_content:str) -> str",329-393,false,65,19,Convert markdown to HTML for PDF generation
+  src/api/routers/expenses/validation.py:
+    functions[5]{name,kind,sig,loc,async,lines,cc,does}:
+      validate_expense_pipeline,function,"(expense_data:dict) -> None",24-32,true,9,1,Run comprehensive validation pipeline on expense data.
+      categorize_expense,function,"(description:str=Query(...), vendor_name:Optional[str]=Query(default=None), amount:Optional[float]=Query(default=None)) -> None",36-58,true,23,1,Automatically categorize expense for B+R qualification.
+      validate_invoice_number,function,"(invoice_number:str=Query(...)) -> None",62-70,true,9,1,Validate invoice number against Polish standards.
+      convert_currency_to_pln,function,"(amount:Decimal=Query(...), currency:str=Query(...), expense_date:date=Query(...)) -> None",74-90,true,17,2,Convert foreign currency to PLN using NBP exchange rates.
+      validate_all_expenses,function,"(project_id:str=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",94-149,true,56,13,Validate all expenses for a project.
+  src/api/routers/expenses/revenues.py:
+    functions[5]{name,kind,sig,loc,async,lines,cc,does}:
+      list_revenues,function,"(project_id:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",19-65,true,47,12,List revenues (sales invoices) with optional project filter.
+      create_revenue,function,"(revenue:dict, db:AsyncSession=Depends(get_db)) -> None",69-108,true,40,1,Create a new revenue (sales invoice) from document.
+      classify_revenue,function,"(revenue_id:str, classification:dict, db:AsyncSession=Depends(get_db)) -> None",112-191,true,80,12,Classify a revenue for IP Box purposes.
+      reclassify_invoice,function,"(invoice_id:str, from_type:str=Query(..., description='Current type: expense or revenue'), to_type:str=Query(..., description='Target type: expense or revenue'), reason:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",195-218,true,24,2,Reclassify an invoice from expense to revenue or vice versa.
+      get_invoice_history,function,"(invoice_id:str, db:AsyncSession=Depends(get_db)) -> None",222-233,true,12,1,Get event history for an invoice (expenses or revenues).
+  src/api/routers/expenses/crud.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      _row_to_expense_response,function,(row) -> ExpenseResponse,23-52,false,30,9,Convert database row to ExpenseResponse
+      get_br_categories,function,() -> None,56-58,true,3,1,Get list of B+R expense categories according to art.
+      process_all_expenses,function,"(request:ProcessAllRequest, db:AsyncSession=Depends(get_db)) -> None",62-73,true,12,1,"Process all expenses for a project (validation, categorization, etc.)"
+      create_expense,function,"(expense:ExpenseCreate, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",77-116,true,40,1,Create a new expense record
+      get_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",120-140,true,21,2,Get expense details
+      list_expenses,function,"(project_id:Optional[str]=Query(default=None), br_qualified:Optional[bool]=Query(default=None), ip_qualified:Optional[bool]=Query(default=None), status:Optional[str]=Query(default=None), year:Optional[int]=Query(default=None), month:Optional[int]=Query(default=None), limit:int=Query(default=50, le=1000), offset:int=Query(default=0)) -> None",144-199,true,56,8,List expenses with filtering
+      update_expense_status,function,"(expense_id:str, status_update:ExpenseStatusUpdate, db:AsyncSession=Depends(get_db)) -> None",203-226,true,24,3,Update expense status
+      delete_expense,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",230-246,true,17,2,Delete an expense
+      update_expense_vendor,function,"(expense_id:str, vendor_name:str=Query(...), vendor_nip:Optional[str]=Query(default=None), db:AsyncSession=Depends(get_db)) -> None",250-288,true,39,4,Update vendor information for an expense
+  src/api/routers/expenses/classification.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      classify_expense_manually,function,"(expense_id:str, classification:ExpenseClassifyRequest, db:AsyncSession=Depends(get_db)) -> None",23-90,true,68,11,Manually classify expense for B+R or IP Box
+      trigger_auto_classification,function,"(expense_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",94-108,true,15,2,Trigger automatic LLM classification
+      generate_expense_justification,function,"(expense_id:str, db:AsyncSession=Depends(get_db)) -> None",112-179,true,68,7,Generate individualized B+R justification for an expense using LLM.
+      classify_expense_with_llm,function,"(expense_id:str) -> None",182-261,true,80,4,Background task to classify expense using LLM
+      _get_br_classifier_system_prompt,function,() -> str,264-294,false,31,1,System prompt for B+R expense classifier
+      _build_classification_prompt,function,(expense_row) -> str,297-316,false,20,8,Build prompt for expense classification
+      _parse_llm_classification,function,"(response:str) -> dict",319-334,false,16,4,Parse LLM response to classification dict
+  src/api/routers/documents/notes.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      ensure_document_notes_table,function,"(db:AsyncSession) -> None",18-29,true,12,1,Ensure document_notes table exists
+      list_document_notes,function,"(project_id:Optional[str]=Query(default=None), limit:int=Query(default=200, le=500), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",33-84,true,52,12,List all documents with their annotations
+      upsert_document_notes,function,"(document_id:str, payload:DocumentNoteUpsert, db:AsyncSession=Depends(get_db)) -> None",88-115,true,28,2,Create or update document notes
+  src/api/routers/documents/extraction.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      llm_extract_fields,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",22-101,true,80,9,Use LLM to extract structured fields from OCR text
+      re_extract_document_data,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",105-124,true,20,4,Re-extract data from document and update/create expense
+      sync_expenses_from_documents,function,"(project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001'), db:AsyncSession=Depends(get_db)) -> None",128-159,true,32,5,Sync expenses from all processed documents that don't have expenses yet
+      check_document_duplicates,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",163-208,true,46,13,Check for potential duplicate documents
+  src/api/routers/documents/upload.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      upload_document,function,"(background_tasks:BackgroundTasks, file:UploadFile=File(...), project_id:Optional[str]=Query(default='00000000-0000-0000-0000-000000000001'), document_type:str=Query(default='invoice'), db:AsyncSession=Depends(get_db)) -> None",29-69,true,41,2,Upload a document for OCR processing.
+      detect_invoice_type,function,"(extracted_data:dict, our_nip:str='5881918662') -> str",72-94,false,23,15,Detect if invoice is a cost (expense) or revenue invoice.
+      create_expense_from_document,function,"(doc_id:str, extracted_data:dict, doc_type:str) -> None",97-209,true,113,27,Create expense or revenue record from OCR-extracted document data
+      process_document_ocr,function,"(doc_id:str, file_path:str, document_type:str) -> None",212-261,true,50,4,Background task to process document with OCR service
+  src/api/routers/documents/crud.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      get_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",22-41,true,20,2,Get document details
+      list_documents,function,"(project_id:Optional[str]=Query(default=None), status:Optional[str]=Query(default=None), limit:int=Query(default=50, le=100), offset:int=Query(default=0), db:AsyncSession=Depends(get_db)) -> None",45-82,true,38,4,List documents with optional filtering
+      download_document_file,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",86-105,true,20,9,Download document file
+      reprocess_document,function,"(document_id:str, background_tasks:BackgroundTasks, db:AsyncSession=Depends(get_db)) -> None",109-131,true,23,2,Reprocess document with OCR
+      delete_document,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",135-156,true,22,4,Delete document and associated file
+      update_document,function,"(document_id:str, updates:dict, db:AsyncSession=Depends(get_db)) -> None",160-189,true,30,4,Update document extracted data
+      get_document_detail,function,"(document_id:str, db:AsyncSession=Depends(get_db)) -> None",193-220,true,28,5,Get detailed document info including OCR text
+  src/api/services/doc_generator/llm.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      generate_with_llm,function,"(prompt:str, llm_service_url:str) -> str",14-34,true,21,2,Generate documentation using LLM service.
+      refine_with_llm,function,"(content:str, validation_issues:List[Dict[str,Any]], max_iterations:int=3) -> Dict[str, Any]",37-141,true,105,10,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
+  src/api/services/doc_generator/generator.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      get_doc_generator,function,() -> ExpenseDocumentGenerator,202-207,false,6,2,Get singleton instance of document generator.
+      ExpenseDocumentGenerator.__init__,method,"(llm_service_url:Optional[str]=None) -> None",27-31,false,5,2,creates
+      ExpenseDocumentGenerator.generate_expense_documentation,method,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]=None) -> Dict[str, Any]",33-71,true,39,2,Generate B+R documentation for a single expense.
+      ExpenseDocumentGenerator._save_documentation,method,"(expense:Dict[str,Any], project:Dict[str,Any], content:str) -> Path",73-102,false,30,2,Save documentation to file with version control.
+      ExpenseDocumentGenerator.get_document_history,method,"(project_id:str, filename:str) -> List[Dict[str, Any]]",104-107,false,4,1,Get version history for a document.
+      ExpenseDocumentGenerator.get_document_at_version,method,"(project_id:str, filename:str, commit:str) -> Optional[str]",109-112,false,4,1,Get document content at specific version.
+      ExpenseDocumentGenerator.refine_documentation,method,"(content:str, validation_issues:List[Dict[str,Any]], max_iterations:int=3) -> Dict[str, Any]",114-123,true,10,1,"Stage 6: Iterative Refinement - Use LLM to fix validation issues."
+      ExpenseDocumentGenerator.generate_project_summary,method,"(project:Dict[str,Any], expenses:List[Dict[str,Any]], timesheet_data:Optional[Dict[str,Any]]=None, contractors:Optional[List[Dict[str,Any]]]=None, revenues:Optional[List[Dict[str,Any]]]=None) -> Dict[str, Any]",125-195,true,71,8,Generate summary documentation for entire project.
+  src/api/services/doc_generator/templates.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      build_expense_prompt,function,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]) -> str",10-56,false,47,5,Build prompt for expense documentation generation.
+      generate_expense_template,function,"(expense:Dict[str,Any], project:Dict[str,Any], document:Optional[Dict[str,Any]]) -> str",59-184,false,126,9,Generate documentation from template (fallback).
+      generate_summary_template,function,"(project:Dict[str,Any], expenses:list, by_category:Dict, total_gross:float, total_br:float, total_deduction:float, timesheet_data:Optional[Dict[str,Any]]=None, contractors:Optional[List[Dict[str,Any]]]=None) -> str",187-336,false,150,6,Generate comprehensive B+R project summary template.
+      build_expense_details,function,"(expenses:list, company_nip:str='5881918662') -> str",339-404,false,66,9,Build detailed expense descriptions with justifications.
+      build_timesheet_section,function,"(timesheet_data:Optional[Dict[str,Any]]) -> str",407-457,false,51,13,Build timesheet section with monthly breakdown.
+      build_contractors_section,function,"(contractors:Optional[List[Dict[str,Any]]]) -> str",460-474,false,15,4,Build contractors section.
+      build_revenues_section,function,"(revenues:Optional[List[Dict[str,Any]]], total_gross:float) -> tuple",477-509,false,33,9,Build revenues section (monetization).
+      format_doc_link,function,"(expense:Dict[str,Any]) -> str",512-518,false,7,4,Format document link for expense.
+  src/api/services/doc_generator/version_control.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      DocumentVersionControl.__init__,method,"(repo_path:Path) -> None",16-19,false,4,1,creates
+      DocumentVersionControl.commit_file,method,"(file_path:Path, message:str) -> Optional[str]",21-52,false,32,2,Save a version of the file and return version hash.
+      DocumentVersionControl.get_file_history,method,"(file_path:Path, limit:int=20) -> List[Dict[str, Any]]",54-80,false,27,5,Get version history for a file.
+      DocumentVersionControl.get_file_at_commit,method,"(file_path:Path, commit:str) -> Optional[str]",82-94,false,13,3,Get file content at specific version.
+  src/api/services/doc_generator/footnotes.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      add_footnotes_to_document,function,"(content:str, variables:Dict[str,Dict[str,Any]], project_id:str, base_url:str='http://localhost:81') -> str",189-236,false,48,5,Add footnotes to an existing document for all recognized variables.
+      generate_document_with_tracking,function,"(template:str, context:Dict[str,Any], project_id:str, base_url:str='http://localhost:81', tracked_variables:Optional[List[str]]=None) -> tuple[str, FootnoteTracker]",239-286,false,48,7,Generate a document from template while tracking specified variables.
+      VariableFootnote.source_url,method,() -> str,24-34,false,11,6,Generate the verification URL for this variable
+      VariableFootnote.to_footnote_ref,method,"(index:int) -> str",36-38,false,3,1,"Generate markdown footnote reference [^n]"
+      VariableFootnote.to_footnote_def,method,"(index:int) -> str",40-42,false,3,1,Generate markdown footnote definition
+      FootnoteTracker.__init__,method,"(project_id:Optional[str]=None, base_url:str='http://localhost:81') -> None",62-70,false,9,1,creates
+      FootnoteTracker.track,method,"(name:str, value:Any, source_name:str, path:str='', invoice_id:Optional[str]=None) -> str",72-106,false,35,1,Track a variable and return its footnote reference.
+      FootnoteTracker.track_nexus,method,"(component:str, value:float) -> str",108-115,false,8,1,Track a Nexus calculation component
+      FootnoteTracker.track_expense,method,"(field:str, value:Any, invoice_id:str) -> str",117-125,false,9,1,Track an expense/invoice field
+      FootnoteTracker.get_footnotes_section,method,() -> str,127-150,false,24,3,Generate the footnotes section for the document.
+      FootnoteTracker.get_verification_table,method,() -> str,152-176,false,25,4,Generate a verification table with all tracked variables.
+      FootnoteTracker.clear,method,() -> None,178-181,false,4,1,Clear all tracked footnotes
+      FootnoteTracker.count,method,() -> int,184-186,false,3,1,Number of tracked variables
   src/integrations/accounting/fakturownia.py:
     functions[13]{name,kind,sig,loc,async,lines,cc,does}:
       FakturowniaClient.provider_name,method,() -> str,29-30,false,2,1,provider name
@@ -1069,6 +1442,31 @@ function_details:
       NextcloudClient.create_folder,method,"(folder_path:str) -> bool",226-242,true,17,2,Create folder in Nextcloud
       NextcloudClient.get_file_info,method,"(remote_path:str) -> Optional[CloudFile]",244-278,true,35,4,Get file metadata
       NextcloudClient._parse_propfind_response,method,"(xml_text:str, base_path:str) -> List[CloudFile]",280-349,false,70,14,Parse WebDAV PROPFIND response
+  src/doc_generator/templates/base.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      DocumentTemplate.get_required_params,method,"() -> List[str]",51-56,false,6,2,Get all required parameters across data sources
+      DocumentTemplate.to_dict,method,"() -> Dict[str, Any]",58-68,false,11,1,converts dict
+  src/doc_generator/templates/project.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      get_project_templates,function,"() -> List[DocumentTemplate]",8-45,false,38,1,Return all project-related templates
+  src/doc_generator/templates/registry.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      get_template_registry,function,() -> TemplateRegistry,65-70,false,6,2,Get or create template registry singleton
+      TemplateRegistry.__new__,method,() -> None,20-25,false,6,2,creates
+      TemplateRegistry._initialize_templates,method,() -> None,27-43,false,17,5,Initialize all B+R and IP Box document templates
+      TemplateRegistry.register,method,"(template:DocumentTemplate) -> None",45-47,false,3,1,Register a template
+      TemplateRegistry.get,method,"(template_id:str) -> Optional[DocumentTemplate]",49-51,false,3,1,Get template by ID
+      TemplateRegistry.list_templates,method,"() -> List[Dict[str, Any]]",53-55,false,3,2,List all available templates
+      TemplateRegistry.get_by_category,method,"(category:str) -> List[DocumentTemplate]",57-59,false,3,3,Get templates by category
+  src/doc_generator/templates/financial.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      get_financial_templates,function,"() -> List[DocumentTemplate]",8-58,false,51,1,Return all financial templates
+  src/doc_generator/templates/legal.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      get_legal_templates,function,"() -> List[DocumentTemplate]",8-24,false,17,1,Return all legal templates
+  src/doc_generator/templates/tax.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      get_tax_templates,function,"() -> List[DocumentTemplate]",8-66,false,59,1,Return all tax-related templates
   web/static/js/app.js:
     functions[176]{name,kind,sig,loc,async,lines,cc,does}:
       getPageFromUrl,function,() -> None,11-14,false,4,1,retrieves page from url
@@ -1247,6 +1645,106 @@ function_details:
       loadDocAnnotations,function,() -> None,3972-4026,true,55,1,retrieves doc annotations
       getDocTypeIcon,function,(type) -> None,4028-4034,false,7,1,retrieves doc type icon
       saveDocAnnotation,function,(docId) -> None,4036-4055,true,20,1,caches doc annotation
+  web/static/js/modules/reports.js:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      loadReports,function,() -> None,7-58,true,52,1,retrieves reports
+      showReportDetails,function,"(year, month) -> None",60-67,true,8,1,show report details
+      regenerateReport,function,"(year, month) -> None",69-87,true,19,1,regenerate report
+      regenerateAllMonthlyReports,function,() -> None,89-113,true,25,1,regenerate all monthly reports
+      generateMonthlyReport,function,() -> None,115-132,true,18,1,creates monthly report
+      exportReport,function,"(year, month) -> None",134-151,true,18,1,export report
+      exportAllExpenses,function,() -> None,153-171,true,19,1,export all expenses
+      processAllExpensesForYear,function,() -> None,173-194,true,22,1,processes all expenses for year
+  web/static/js/modules/dashboard.js:
+    functions[19]{name,kind,sig,loc,async,lines,cc,does}:
+      getDashboardLayout,function,() -> None,10-13,false,4,1,retrieves dashboard layout
+      saveDashboardLayout,function,(layout) -> None,15-17,false,3,1,caches dashboard layout
+      toggleDashboardConfig,function,() -> None,19-23,false,5,1,toggle dashboard config
+      updateModuleSelect,function,() -> None,25-34,false,10,1,updates module select
+      getModuleName,function,(id) -> None,36-48,false,13,1,retrieves module name
+      addDashboardModule,function,(moduleId) -> None,50-58,false,9,1,creates dashboard module
+      removeDashboardModule,function,(moduleId) -> None,60-64,false,5,1,deletes dashboard module
+      resetDashboardConfig,function,() -> None,66-70,false,5,1,reset dashboard config
+      renderDashboard,function,() -> None,72-89,false,18,1,formats dashboard
+      loadDashboard,function,() -> None,91-93,true,3,1,retrieves dashboard
+      loadDashboardModules,function,() -> None,95-135,true,41,1,retrieves dashboard modules
+      loadSummaryModule,function,"(container, summary) -> None",137-158,false,22,1,retrieves summary module
+      loadRecentDocsModule,function,(container) -> None,160-176,true,17,1,retrieves recent docs module
+      loadCategoryModule,function,"(container, summary) -> None",178-190,false,13,1,retrieves category module
+      loadTopVendorsModule,function,(container) -> None,192-208,true,17,1,retrieves top vendors module
+      loadTimesheetModule,function,(container) -> None,210-222,true,13,1,retrieves timesheet module
+      loadGitActivityModule,function,(container) -> None,224-236,true,13,1,retrieves git activity module
+      loadMonthlyTrendModule,function,(container) -> None,238-255,true,18,1,retrieves monthly trend module
+      loadClarificationsModule,function,(container) -> None,257-270,true,14,1,retrieves clarifications module
+  web/static/js/modules/core.js:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      getPageFromUrl,function,() -> None,10-13,false,4,1,retrieves page from url
+      getUrlParam,function,(key) -> None,15-18,false,4,1,retrieves url param
+      setUrlParam,function,"(key, value) -> None",20-33,false,14,1,updates url param
+      setPageInUrl,function,(page) -> None,35-37,false,3,1,updates page in url
+      closeConfirmModal,function,() -> None,42-45,false,4,1,stops confirm modal
+      confirmModalCancel,function,() -> None,47-56,false,10,1,validates modal cancel
+      openConfirmModal,function,() -> None,58-90,false,33,1,starts confirm modal
+      navigateTo,function,(page) -> None,93-122,false,30,1,navigate to
+      apiCall,function,(endpoint) -> None,125-167,true,43,1,api call
+      showToast,function,(message) -> None,170-177,false,8,1,show toast
+      createToastContainer,function,() -> None,179-185,false,7,1,creates toast container
+      formatCurrency,function,(amount) -> None,188-191,false,4,1,formats currency
+      formatDate,function,(dateStr) -> None,193-196,false,4,1,formats date
+  web/static/js/modules/doc-generator.js:
+    functions[12]{name,kind,sig,loc,async,lines,cc,does}:
+      loadDocTemplates,function,() -> None,9-30,true,22,1,retrieves doc templates
+      renderDocCategories,function,() -> None,32-45,false,14,1,formats doc categories
+      getCategoryName,function,(category) -> None,47-55,false,9,1,retrieves category name
+      filterDocCategory,function,(category) -> None,57-61,false,5,1,filters doc category
+      renderDocTemplates,function,() -> None,63-86,false,24,1,formats doc templates
+      getTimeScopeName,function,(scope) -> None,88-95,false,8,1,retrieves time scope name
+      showDocTemplateDetail,function,(templateId) -> None,97-128,true,32,1,show doc template detail
+      closeDocDetailModal,function,() -> None,130-132,false,3,1,stops doc detail modal
+      generateDocument,function,"(templateId, projectId, year, month) -> None",134-169,true,36,1,creates document
+      previewDocumentData,function,"(templateId, projectId, year, month) -> None",171-189,true,19,1,preview document data
+      copyDocContent,function,() -> None,191-198,false,8,1,copy doc content
+      downloadDocContent,function,(filename) -> None,200-209,false,10,1,download doc content
+  web/static/js/modules/config.js:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      loadAIConfig,function,() -> None,5-20,true,16,1,retrieves ai config
+      saveAIConfig,function,() -> None,22-43,true,22,1,caches ai config
+      testLLMConnection,function,() -> None,45-58,true,14,1,checks llm connection
+      testOCRConnection,function,() -> None,60-73,true,14,1,checks ocr connection
+  web/static/js/modules/upload.js:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      setupUploadListeners,function,() -> None,5-26,false,22,1,initializes upload listeners
+      handleFiles,function,(files) -> None,28-30,false,3,1,handles files
+      uploadFile,function,(file) -> None,32-74,true,43,1,upload file
+      pollDocumentStatus,function,"(docId, itemId) -> None",76-113,true,38,1,poll document status
+      loadRecentDocuments,function,() -> None,115-155,true,41,1,retrieves recent documents
+      deleteDocument,function,(docId) -> None,157-172,true,16,1,deletes document
+      retryOcr,function,(docId) -> None,174-182,true,9,1,retry ocr
+      getDocTypeName,function,(type) -> None,184-192,false,9,1,retrieves doc type name
+  web/static/js/modules/logs.js:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      initLogging,function,() -> None,8-27,false,20,1,creates logging
+      captureLog,function,"(level, args) -> None",29-43,false,15,1,capture log
+      updateLogOverlay,function,(entry) -> None,45-59,false,15,1,updates log overlay
+      escapeHtml,function,(text) -> None,61-65,false,5,1,escape html
+      toggleGlobalLogs,function,() -> None,67-76,false,10,1,toggle global logs
+      closeGlobalLogs,function,() -> None,78-81,false,4,1,stops global logs
+      clearGlobalLogs,function,() -> None,83-87,false,5,1,deletes global logs
+      copyGlobalLogs,function,() -> None,89-96,false,8,1,copy global logs
+      downloadGlobalLogs,function,() -> None,98-108,false,11,1,download global logs
+      filterGlobalLogs,function,(level) -> None,110-117,false,8,1,filters global logs
+  web/static/js/modules/projects.js:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      loadProjects,function,() -> None,7-50,true,44,1,retrieves projects
+      showCreateProjectModal,function,() -> None,52-58,false,7,1,show create project modal
+      createProject,function,"(name, description, fiscalYear) -> None",60-69,true,10,1,creates project
+      editProject,function,(id) -> None,71-87,true,17,1,updates project
+      deleteProject,function,(id) -> None,89-98,true,10,1,deletes project
+      viewProjectExpenses,function,(projectId) -> None,100-106,false,7,1,view project expenses
+      loadProjectsForFilter,function,() -> None,108-124,true,17,1,retrieves projects for filter
+      getProjectName,function,(projectId) -> None,126-129,false,4,1,retrieves project name
+      viewProjectDocs,function,(projectId) -> None,131-137,true,7,1,view project docs
+      generateProjectSummary,function,(projectId) -> None,139-154,true,16,1,creates project summary
   brgenerator/tests/conftest.py:
     functions[4]{name,kind,sig,loc,async,lines,cc,does}:
       env_setup,function,(monkeypatch) -> None,10-15,false,6,1,Set up test environment variables.
