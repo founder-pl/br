@@ -117,38 +117,47 @@ class TemplateRegistry:
 
 | Pole | Wartość |
 |------|---------|
-| **Nazwa projektu** | {{project.name}} |
-| **Kod/Symbol projektu** | {{project.code}} |
-| **Data rozpoczęcia** | {{project.start_date}} |
-| **Przewidywana data zakończenia** | {{project.end_date}} |
-| **Status** | {{project.status}} |
+| **Nazwa projektu** | {{project.name or 'Brak nazwy'}} |
+| **Kod/Symbol projektu** | BR-{{year}}-{{(project.id|string)[:8] if project.id else '00000000'}} |
+| **Rok fiskalny** | {{project.fiscal_year or year}} |
+| **Data rozpoczęcia** | {{project.start_date|format_date if project.start_date else 'Do ustalenia'}} |
+| **Przewidywana data zakończenia** | {{project.end_date|format_date if project.end_date else 'Do ustalenia'}} |
+| **Status** | {{project.status or 'active'}} |
 
 ## 2. OPIS DZIAŁALNOŚCI B+R
 
 ### Cel badań / zakres prac:
-{{project.description}}
+{{project.description or 'Projekt obejmuje prace badawczo-rozwojowe w zakresie innowacyjnych rozwiązań technologicznych.'}}
 
 ### Problem techniczny:
-{{project.technical_problem}}
+{{project.technical_problem or 'Określenie problemu technicznego wymaga dalszej analizy i dokumentacji.'}}
 
 ### Hipoteza badawcza:
-{{project.hypothesis}}
+{{project.hypothesis or 'Hipoteza badawcza zostanie sformułowana na podstawie wstępnych analiz.'}}
 
 ## 3. ZESPÓŁ BADAWCZY
 
 | Imię i nazwisko | Rola | Stawka | Godziny B+R |
 |-----------------|------|--------|-------------|
 {% for worker in workers %}
-| {{worker.name}} | {{worker.role}} | {{worker.hourly_rate}} zł/h | {{worker.total_hours}} h |
+| {{worker.name}} | {{worker.role or 'Specjalista B+R'}} | {{worker.hourly_rate or 0}} zł/h | {{worker.total_hours or 0}} h |
 {% endfor %}
+{% if not workers %}
+| *(Brak przypisanych pracowników)* | - | - | - |
+{% endif %}
 
 ## 4. KOSZTY PROJEKTOWE
 
 | Kategoria | Liczba pozycji | Kwota brutto (PLN) | Kwalifikowane B+R |
 |-----------|----------------|-------------------|-------------------|
 {% for cat in expenses_by_category %}
+{% if cat.category %}
 | {{cat.category}} | {{cat.count}} | {{cat.total_gross|format_currency}} | {{cat.qualified_amount|format_currency}} |
+{% endif %}
 {% endfor %}
+{% if not expenses_by_category %}
+| *(Brak wydatków)* | 0 | 0,00 zł | 0,00 zł |
+{% endif %}
 | **RAZEM** | | **{{total_gross|format_currency}}** | **{{total_qualified|format_currency}}** |
 
 ## 5. ZATWIERDZENIE
@@ -228,25 +237,30 @@ Użyj formalnego języka urzędowego. Wszystkie kwoty formatuj z separatorem tys
             ],
             template_content="""# REJESTR CZASU PRACY - PROJEKT B+R
 
-**Projekt:** {{project.name}} ({{project.code}})
+**Projekt:** {{project.name}} ({{project.code or 'BR-' + year|string}})
 
 **Okres:** {{month_name}} {{year}}
 
 ## Zestawienie godzin pracy
 
-| Pracownik | Godziny B+R | Zadania |
-|-----------|-------------|---------|
+| Pracownik | Godziny B+R | Dni roboczych |
+|-----------|-------------|---------------|
 {% for entry in timesheet %}
-| {{entry.worker_name}} | {{entry.total_hours}} h | {{entry.tasks}} |
+| {{entry.worker_name}} | {{entry.total_hours}} h | {{entry.days_worked or '-'}} |
 {% endfor %}
+{% if not timesheet %}
+| *(Brak wpisów)* | 0 h | - |
+{% endif %}
 
 ---
 
 **PODSUMOWANIE:**
 
-- Łączna liczba godzin B+R: **{{total_hours}} h**
-- Liczba pracowników: **{{worker_count}}**
-- Średnia godzin/pracownika: **{{avg_hours}} h**
+| Metryka | Wartość |
+|---------|---------|
+| Łączna liczba godzin B+R | **{{total_hours}} h** |
+| Liczba pracowników | **{{worker_count}}** |
+| Średnia godzin/pracownika | **{{avg_hours}} h** |
 
 ---
 
@@ -280,17 +294,22 @@ Oblicz statystyki zbiorcze."""
             ],
             template_content="""# EWIDENCJA WYDATKÓW B+R
 
-**Projekt:** {{project.name}} ({{project.code}})
+**Projekt:** {{project.name}} ({{project.code or 'BR-' + year|string}})
 
 **Okres:** {% if month %}{{month_name}} {% endif %}{{year}}
 
 ## Lista wydatków
 
-| Nr | Data | Opis | Dostawca | NIP | Nr faktury | Kwota brutto | Kwalif. B+R | Dokument |
-|----|------|------|----------|-----|------------|--------------|-------------|----------|
+| Nr | Data | Dostawca | Nr faktury | Kwota brutto | Kwalif. B+R | Dokument |
+|----|------|----------|------------|--------------|-------------|----------|
 {% for exp in expenses %}
-| {{loop.index}} | {{exp.invoice_date}} | {{exp.description}} | {{exp.vendor_name}} | {{exp.vendor_nip}} | {{exp.invoice_number}} | {{exp.gross_amount|format_currency}} | {% if exp.br_qualified %}✓{% else %}✗{% endif %} | [{{exp.document_filename}}](/api/documents/{{exp.document_id}}/file) |
+{% if exp.invoice_date %}
+| {{loop.index}} | {{exp.invoice_date|format_date}} | {{exp.vendor_name or 'N/A'}} | {{exp.invoice_number or 'N/A'}} | {{exp.gross_amount|format_currency}} | {% if exp.br_qualified %}✓{% else %}✗{% endif %} | {% if exp.document_id %}[{{exp.document_filename or 'Dokument'}}](/api/documents/{{exp.document_id}}/file){% else %}Brak{% endif %} |
+{% endif %}
 {% endfor %}
+{% if not expenses %}
+| - | - | - | - | - | - | - |
+{% endif %}
 
 ---
 
@@ -341,7 +360,7 @@ Podsumuj według kategorii i oblicz procent kwalifikowanych."""
             ],
             template_content="""# OBLICZENIE WSKAŹNIKA NEXUS - IP BOX
 
-**Projekt:** {{project.name}} ({{project.code}})
+**Projekt:** {{project.name}}{% if project.code %} ({{project.code}}){% endif %}
 
 **Rok podatkowy:** {{year}}
 
@@ -429,7 +448,7 @@ Oblicz dochód kwalifikowany i należny podatek."""
 | Pole | Wartość |
 |------|---------|
 | **Projekt** | {{project.name}} |
-| **Kod** | {{project.code}} |
+| **Kod** | BR-{{year}}-{{(project.id|string)[:8] if project.id else '00000000'}} |
 | **Rok podatkowy** | {{year}} |
 | **Data sporządzenia** | {{generated_date}} |
 
@@ -441,10 +460,11 @@ Oblicz dochód kwalifikowany i należny podatek."""
 
 | Kategoria | Liczba | Kwota brutto | Kwalifikowane |
 |-----------|--------|--------------|---------------|
-{% for cat in expenses_by_category %}
+{% for cat in expenses_by_category %}{% if cat.category %}
 | {{cat.category}} | {{cat.count}} | {{cat.total_gross|format_currency}} | {{cat.qualified_amount|format_currency}} |
-{% endfor %}
-| **RAZEM** | | **{{total_expenses|format_currency}}** | **{{total_qualified|format_currency}}** |
+{% endif %}{% endfor %}
+{% if not expenses_by_category %}| *(Brak wydatków)* | 0 | 0,00 zł | 0,00 zł |
+{% endif %}| **RAZEM** | | **{{total_expenses|format_currency}}** | **{{total_qualified|format_currency}}** |
 
 ### 1.2 Ulga B+R (100% kosztów kwalifikowanych)
 
@@ -454,14 +474,17 @@ Oblicz dochód kwalifikowany i należny podatek."""
 
 ## 2. Ewidencja czasu pracy
 
-### 2.1 Zestawienie miesięczne
+### 2.1 Zestawienie
 
-| Miesiąc | {% for worker in workers %}{{worker}} | {% endfor %}**Razem** |
-|---------|{% for worker in workers %}--------|{% endfor %}---------|
-{% for month in months %}
-| {{month.name}} | {% for h in month.hours %}{{h}} h | {% endfor %}**{{month.total}} h** |
+| Pracownik | Łączne godziny B+R |
+|-----------|-------------------|
+{% for entry in timesheet %}
+| {{entry.worker_name}} | {{entry.total_hours}} h |
 {% endfor %}
-| **RAZEM** | {% for t in worker_totals %}**{{t}} h** | {% endfor %}**{{grand_total_hours}} h** |
+{% if not timesheet %}
+| *(Brak danych)* | 0 h |
+{% endif %}
+| **RAZEM** | **{{total_hours}} h** |
 
 ---
 
@@ -469,10 +492,11 @@ Oblicz dochód kwalifikowany i należny podatek."""
 
 | Data | Opis | Kwota | Kwalif. IP Box |
 |------|------|-------|----------------|
-{% for rev in revenues %}
-| {{rev.revenue_date}} | {{rev.description}} | {{rev.amount|format_currency}} | {% if rev.ip_box_qualified %}✓{% else %}✗{% endif %} |
-{% endfor %}
-| **RAZEM** | | **{{total_revenue|format_currency}}** | |
+{% for rev in revenues %}{% if rev.invoice_date and rev.gross_amount %}
+| {{rev.invoice_date|format_date}} | {{rev.description or rev.invoice_number or 'N/A'}} | {{rev.gross_amount|format_currency}} | {% if rev.ip_qualified %}✓{% else %}✗{% endif %} |
+{% endif %}{% endfor %}
+{% if not revenues or total_revenue == 0 %}| - | Brak przychodów w tym okresie | 0,00 zł | - |
+{% endif %}| **RAZEM** | | **{{total_revenue|format_currency}}** | |
 
 ---
 

@@ -11,6 +11,7 @@ from pathlib import Path
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 import structlog
+from jinja2 import Environment, BaseLoader, select_autoescape
 
 from .data_sources import DataSourceRegistry, get_data_registry, DataSourceResult
 from .templates import TemplateRegistry, get_template_registry, DocumentTemplate, TimeScope
@@ -47,25 +48,25 @@ def format_date(value: Optional[Union[str, datetime, date]]) -> str:
 
 
 class TemplateRenderer:
-    """Simple template renderer with Jinja2-like syntax"""
+    """Template renderer using Jinja2"""
     
     def __init__(self):
-        self.filters = {
-            "format_currency": format_currency,
-            "format_date": format_date,
-            "round": lambda x, n=2: round(float(x), n) if x else 0,
-            "length": len,
-        }
+        self.env = Environment(
+            loader=BaseLoader(),
+            autoescape=False
+        )
+        self.env.filters["format_currency"] = format_currency
+        self.env.filters["format_date"] = format_date
+        self.env.filters["round"] = lambda x, n=2: round(float(x), n) if x else 0
     
     def render(self, template: str, context: Dict[str, Any]) -> str:
-        """Render a template with the given context"""
-        result = template
-        
-        result = self._render_for_loops(result, context)
-        result = self._render_if_blocks(result, context)
-        result = self._render_variables(result, context)
-        
-        return result
+        """Render a template with the given context using Jinja2"""
+        try:
+            jinja_template = self.env.from_string(template)
+            return jinja_template.render(**context)
+        except Exception as e:
+            logger.error("template_render_error", error=str(e))
+            return f"Error rendering template: {e}"
     
     def _render_for_loops(self, template: str, context: Dict[str, Any]) -> str:
         """Render {% for item in items %} ... {% endfor %} blocks"""
@@ -343,6 +344,16 @@ class DocumentEngine:
         context = {
             "generated_date": datetime.now().strftime("%Y-%m-%d"),
             "generated_datetime": datetime.now().isoformat(),
+            "total_gross": 0,
+            "total_net": 0,
+            "total_qualified": 0,
+            "total_hours": 0,
+            "worker_count": 0,
+            "avg_hours": 0,
+            "expenses": [],
+            "expenses_by_category": [],
+            "timesheet": [],
+            "workers": [],
             **params
         }
         
@@ -352,6 +363,14 @@ class DocumentEngine:
         project_data = data.get("project_info", [])
         if project_data and len(project_data) > 0:
             context["project"] = project_data[0]
+        else:
+            # Fallback project data
+            context["project"] = {
+                "name": "Projekt B+R",
+                "id": params.get("project_id", ""),
+                "fiscal_year": params.get("year", datetime.now().year),
+                "status": "active"
+            }
         
         if "expenses_summary" in data:
             expenses = data["expenses_summary"]
@@ -383,6 +402,19 @@ class DocumentEngine:
             workers = sorted(set(t.get("worker_name", "") for t in breakdown))
             context["workers"] = workers
             
+            # Also populate timesheet context for templates that use it
+            if not context.get("timesheet"):
+                # Aggregate by worker for simpler display
+                worker_hours = {}
+                for entry in breakdown:
+                    worker = entry.get("worker_name", "")
+                    hours = float(entry.get("hours", 0) or 0)
+                    worker_hours[worker] = worker_hours.get(worker, 0) + hours
+                context["timesheet"] = [
+                    {"worker_name": w, "total_hours": h} for w, h in worker_hours.items()
+                ]
+                context["total_hours"] = sum(worker_hours.values())
+            
             months_data = {}
             for entry in breakdown:
                 month_key = (entry.get("year"), entry.get("month"))
@@ -409,7 +441,7 @@ class DocumentEngine:
         if "revenues" in data:
             revs = data["revenues"]
             context["revenues"] = revs
-            context["total_revenue"] = sum(r.get("amount", 0) or 0 for r in revs)
+            context["total_revenue"] = sum(r.get("gross_amount", 0) or r.get("amount", 0) or 0 for r in revs)
         
         if "contractors" in data:
             context["contractors"] = data["contractors"]
@@ -418,19 +450,24 @@ class DocumentEngine:
             nexus_data = data["nexus_calculation"]
             if nexus_data and len(nexus_data) > 0:
                 context["nexus"] = nexus_data[0]
-                nexus_val = nexus_data[0].get("nexus", 1)
-                if context.get("total_revenue") and context.get("total_qualified"):
-                    ip_income = context["total_revenue"] - context["total_qualified"]
-                    context["ip_income"] = ip_income
-                    context["qualified_income"] = ip_income * min(1, nexus_val)
-                    context["ip_tax"] = context["qualified_income"] * 0.05
-                    standard_tax = ip_income * 0.19
-                    context["ip_box_savings"] = standard_tax - context["ip_tax"]
-                else:
-                    context["ip_income"] = 0
-                    context["qualified_income"] = 0
-                    context["ip_tax"] = 0
-                    context["ip_box_savings"] = 0
+                nexus_val = float(nexus_data[0].get("nexus", 1) or 1)
+                total_rev = float(context.get("total_revenue", 0) or 0)
+                total_qual = float(context.get("total_qualified", 0) or 0)
+                total_costs = total_qual
+                context["total_costs"] = total_costs
+                ip_income = max(0, total_rev - total_costs)
+                context["ip_income"] = ip_income
+                context["qualified_income"] = ip_income * min(1, nexus_val)
+                context["ip_tax"] = context["qualified_income"] * 0.05
+                standard_tax = ip_income * 0.19
+                context["ip_box_savings"] = standard_tax - context["ip_tax"]
+            else:
+                context["nexus"] = {"a_direct": 0, "b_unrelated": 0, "c_related": 0, "d_ip": 0, "nexus": 1}
+                context["total_costs"] = 0
+                context["ip_income"] = 0
+                context["qualified_income"] = 0
+                context["ip_tax"] = 0
+                context["ip_box_savings"] = 0
         
         if "documents_list" in data:
             context["documents"] = data["documents_list"]

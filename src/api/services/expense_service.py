@@ -357,7 +357,7 @@ class ExpenseService:
                 SELECT e.id, e.document_id, e.invoice_number, e.invoice_date,
                        e.vendor_name, e.vendor_nip,
                        e.net_amount, e.vat_amount, e.gross_amount, e.currency,
-                       e.description, e.expense_category,
+                       e.expense_category,
                        e.br_category, e.br_qualified, e.br_qualification_reason,
                        e.br_deduction_rate, e.manual_override
                 FROM read_models.expenses e
@@ -396,7 +396,6 @@ class ExpenseService:
                 vat_amount,
                 gross_amount,
                 currency,
-                description,
                 expense_category,
                 br_category,
                 br_qualified,
@@ -404,6 +403,7 @@ class ExpenseService:
                 br_rate,
                 manual_override,
             ) = row
+            description = expense_category  # Use expense_category as description
 
             updates = []
             upd_params: Dict[str, Any] = {"id": str(expense_id)}

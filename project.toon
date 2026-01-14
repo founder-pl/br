@@ -1,16 +1,19 @@
 project: br
 root: /home/tom/github/founder-pl/br
-generated: 2026-01-13T20:59:48.159109
+generated: 2026-01-14T08:29:07.093001
 stats:
-  files: 107
-  lines: 33950
-  languages[2]: python:105,javascript:2
+  files: 114
+  lines: 37259
+  languages[2]: python:112,javascript:2
 
-modules[107]{path,lang,lines,kb}:
+modules[114]{path,lang,lines,kb}:
+  src/__init__.py,python,0,0.0
   tests/conftest.py,python,394,13.5
   tests/__init__.py,python,3,0.0
   tests/test_documentation_validation.py,python,501,22.7
   tests/test_invoice_detection.py,python,104,4.0
+  tests/test_doc_generator.py,python,213,10.1
+  tests/test_doc_generator_e2e.py,python,152,6.8
   cli/validate_documentation.py,python,131,6.2
   cli/generate_sample_invoices.py,python,186,7.8
   cli/br_cli.py,python,210,10.6
@@ -27,7 +30,11 @@ modules[107]{path,lang,lines,kb}:
   tests/integration/test_sql_fixes.py,python,122,5.7
   tests/integration/test_integrations_api.py,python,220,9.9
   tests/integration/test_git_timesheet.py,python,137,6.1
+  src/doc_generator/engine.py,python,476,22.6
+  src/doc_generator/data_sources.py,python,409,17.9
   src/doc_generator/__init__.py,python,9,0.4
+  src/doc_generator/router.py,python,204,7.6
+  src/doc_generator/templates.py,python,681,31.6
   src/ocr/extractors.py,python,223,9.6
   src/ocr/engines.py,python,233,8.3
   src/ocr/__init__.py,python,26,0.9
@@ -44,19 +51,19 @@ modules[107]{path,lang,lines,kb}:
   src/api/ocr_config.py,python,191,8.2
   src/api/document_classifier.py,python,226,8.3
   src/api/database.py,python,58,1.9
-  src/api/main.py,python,144,6.3
+  src/api/main.py,python,147,6.5
   src/api/validators/expense_pipeline.py,python,369,16.3
   src/api/validators/__init__.py,python,25,0.7
   src/api/validators/currency_converter.py,python,102,4.5
   src/api/validators/invoice_validator.py,python,90,3.7
   src/api/services/uncertainty_generator.py,python,168,8.0
-  src/api/services/doc_generator.py,python,695,36.3
+  src/api/services/doc_generator.py,python,731,38.6
   src/api/services/justification_generator.py,python,230,10.6
   src/api/services/excel_exporter.py,python,247,11.8
   src/api/services/__init__.py,python,20,0.6
   src/api/services/expense_categorizer.py,python,246,11.0
   src/api/services/audit_trail.py,python,244,8.7
-  src/api/services/expense_service.py,python,575,26.3
+  src/api/services/expense_service.py,python,576,26.4
   src/api/models/project_extended.py,python,139,6.3
   src/api/models/__init__.py,python,50,1.1
   src/api/models/daily_time_entry.py,python,167,6.8
@@ -70,7 +77,7 @@ modules[107]{path,lang,lines,kb}:
   src/api/routers/logs.py,python,268,11.3
   src/api/routers/git_timesheet.py,python,407,15.9
   src/api/routers/reports.py,python,448,20.3
-  src/api/routers/documents.py,python,870,39.0
+  src/api/routers/documents.py,python,871,39.1
   src/api/routers/expenses.py,python,1376,58.5
   src/api/cqrs/commands.py,python,276,12.2
   src/api/cqrs/events.py,python,220,9.3
@@ -92,7 +99,7 @@ modules[107]{path,lang,lines,kb}:
   src/integrations/cloud/__init__.py,python,19,0.5
   src/integrations/cloud/nextcloud.py,python,280,11.6
   web/static/js/markdown-renderer.js,javascript,136,5.4
-  web/static/js/app.js,javascript,3029,148.0
+  web/static/js/app.js,javascript,3434,167.1
   brgenerator/tests/conftest.py,python,86,2.5
   brgenerator/tests/__init__.py,python,0,0.0
   brgenerator/tests/test_validators.py,python,325,14.7
@@ -116,6 +123,7 @@ modules[107]{path,lang,lines,kb}:
   brgenerator/src/br_doc_generator/generators/pdf.py,python,504,14.1
 
 module_details:
+  src/__init__.py:
   tests/conftest.py:
     imports[20]: os,asyncio,typing.AsyncGenerator,typing.Generator,datetime,datetime.date,decimal.Decimal,uuid,pathlib.Path,pytest,pytest_asyncio,httpx.AsyncClient,httpx.ASGITransport,sqlalchemy.ext.asyncio.AsyncSession,sqlalchemy.ext.asyncio.create_async_engine
     exports[21]: TEST_DATABASE_URL,event_loop,db_session,client,sample_project_data,sample_expense_data,sample_document_data,sample_invoice_text,sample_nip_valid,sample_nip_invalid
@@ -255,6 +263,88 @@ module_details:
           test_cost_invoice_empty_nips,()->None,-,false,8
           test_cost_invoice_none_nips,()->None,-,false,8
           test_revenue_from_ocr_text_hint,()->None,-,false,7
+  tests/test_doc_generator.py:
+    imports[5]: pytest,unittest.mock.AsyncMock,unittest.mock.MagicMock,unittest.mock.patch,datetime
+    exports[7]: TestTemplateRegistry,TestDataSourceRegistry,TestTemplateRenderer,TestDocumentEngine,TestFormatHelpers,TestDocGeneratorAPI,test_client
+    classes[6]{name,bases,decorators,props,methods}:
+      TestTemplateRegistry,-,-,0,4
+      TestDataSourceRegistry,-,-,0,3
+      TestTemplateRenderer,-,-,0,6
+      TestDocumentEngine,-,-,0,4
+      TestFormatHelpers,-,-,0,2
+      TestDocGeneratorAPI,-,pytest.mark.asyncio,0,6
+    class_details:
+      TestTemplateRegistry:
+        doc: Tests for TemplateRegistry
+        methods[4]{name,sig,decorators,async,lines}:
+          test_list_templates,()->None,-,false,10
+          test_get_template_by_id,()->None,-,false,10
+          test_template_categories,()->None,-,false,8
+          test_template_required_params,()->None,-,false,10
+      TestDataSourceRegistry:
+        doc: Tests for DataSourceRegistry
+        methods[3]{name,sig,decorators,async,lines}:
+          test_list_sources,()->None,-,false,9
+          test_get_source_by_name,()->None,-,false,8
+          test_sql_source_schema,()->None,-,false,10
+      TestTemplateRenderer:
+        doc: Tests for TemplateRenderer
+        methods[6]{name,sig,decorators,async,lines}:
+          test_render_variables,()->None,-,false,9
+          test_render_nested_variables,()->None,-,false,9
+          test_render_filter_format_currency,()->None,-,false,9
+          test_render_for_loop,()->None,-,false,9
+          test_render_if_condition,()->None,-,false,11
+          test_render_if_else,()->None,-,false,11
+      TestDocumentEngine:
+        doc: Tests for DocumentEngine
+        methods[4]{name,sig,decorators,async,lines}:
+          test_list_templates,()->None,-,false,9
+          test_get_template,()->None,-,false,13
+          test_get_demo_document,()->None,-,false,12
+          test_build_context,()->None,-,false,21
+      TestFormatHelpers:
+        doc: Tests for format helper functions
+        methods[2]{name,sig,decorators,async,lines}:
+          test_format_currency,()->None,-,false,6
+          test_format_date,()->None,-,false,6
+      TestDocGeneratorAPI:
+        doc: Integration tests for doc-generator API endpoints
+        methods[6]{name,sig,decorators,async,lines}:
+          test_list_templates_endpoint,(test_client)->None,-,true,9
+          test_get_template_detail,(test_client)->None,-,true,8
+          test_get_template_not_found,(test_client)->None,-,true,4
+          test_list_data_sources,(test_client)->None,-,true,8
+          test_get_demo_document,(test_client)->None,-,true,8
+          test_filter_options,(test_client)->None,-,true,9
+    functions[1]{name,sig,decorators,async,category,lines}:
+      test_client,()->None,pytest.fixture,false,-,3
+    function_docs:
+      test_client: checks client
+  tests/test_doc_generator_e2e.py:
+    imports[3]: pytest,httpx,os
+    exports[3]: API_BASE,PROJECT_ID,TestDocGeneratorE2E
+    const[2]{n,t,v,keys}:
+      API_BASE,str,"\"http://localhost:8020\"","-"
+      PROJECT_ID,str,"\"00000000-0000-0000-0000-000000000001\"","-"
+    classes[1]{name,bases,decorators,props,methods}:
+      TestDocGeneratorE2E,-,-,0,12
+    class_details:
+      TestDocGeneratorE2E:
+        doc: End-to-end tests for document generator API
+        methods[12]{name,sig,decorators,async,lines}:
+          client,()->None,pytest.fixture,false,8
+          test_list_templates,(client)->None,-,false,12
+          test_get_filter_options,(client)->None,-,false,10
+          test_get_template_detail,(client)->None,-,false,9
+          test_get_demo_document,(client)->None,-,false,9
+          test_preview_data,(client)->None,-,false,11
+          test_generate_project_card,(client)->None,-,false,14
+          test_generate_expense_registry,(client)->None,-,false,13
+          test_generate_nexus_calculation,(client)->None,-,false,12
+          test_generate_br_annual_summary,(client)->None,-,false,12
+          test_generate_ip_box_procedure,(client)->None,-,false,13
+          test_generate_all_templates,(client)->None,-,false,26
   cli/validate_documentation.py:
     imports[9]: argparse,json,sys,os,datetime,requests,yaml,tests.test_documentation_validation.BRDocumentationValidator,tests.test_documentation_validation.Severity
     exports[5]: API_BASE,fetch_documentation,validate_and_report,print_report,main
@@ -672,8 +762,189 @@ module_details:
         doc: Test path mapping between host and container
         methods[1]{name,sig,decorators,async,lines}:
           test_host_path_mapping,()->None,pytest.mark.asyncio,true,18
+  src/doc_generator/engine.py:
+    imports[20]: re,json,datetime,datetime.date,typing.Any,typing.Dict,typing.List,typing.Optional,typing.Union,pathlib.Path,httpx,sqlalchemy.ext.asyncio.AsyncSession,structlog,jinja2.Environment,jinja2.BaseLoader
+    exports[6]: MONTH_NAMES_PL,format_currency,format_date,TemplateRenderer,DocumentEngine,get_doc_engine
+    const[1]{n,t,v,keys}:
+      MONTH_NAMES_PL,Dict,"{     1: \"Styczeń\", 2: \"Luty\", 3: \"Marzec\", 4: \"Kwiecień\",     5: \"Maj\", 6: \"Czerwiec\", 7: \"Lipiec\", 8: \"Sierpień\",  ...","-"
+    classes[2]{name,bases,decorators,props,methods}:
+      TemplateRenderer,-,-,0,7
+      DocumentEngine,-,-,0,10
+    class_details:
+      TemplateRenderer:
+        doc: Template renderer using Jinja2
+        methods[7]{name,sig,decorators,async,lines}:
+          __init__,()->None,-,false,8
+          render,"(template:str;context:Dict[str;Any])->str",-,false,8
+          _render_for_loops,"(template:str;context:Dict[str;Any])->str",-,false,26
+          _render_if_blocks,"(template:str;context:Dict[str;Any])->str",-,false,13
+          _evaluate_condition,"(condition:str;context:Dict[str;Any])->bool",-,false,32
+          _get_value,"(path:str;context:Dict[str;Any])->Any",-,false,21
+          _render_variables,"(template:str;context:Dict[str;Any])->str",-,false,39
+      DocumentEngine:
+        doc: Main document generation engine
+        methods[10]{name,sig,decorators,async,lines}:
+          __init__,"(llm_base_url:str='http://localhost:11434')->None",-,false,5
+          list_templates,"()->List[Dict[str, Any]]",-,true,3
+          list_data_sources,"()->List[Dict[str, Any]]",-,true,3
+          get_template,"(template_id:str)->Optional[Dict[str, Any]]",-,true,20
+          fetch_template_data,"(template_id:str;params:Dict[str;Any];db:AsyncSession)->Dict[str, Any]",-,true,39
+          generate_document,"(template_id:str;params:Dict[str;Any];db:AsyncSession;use_llm:bool=False;llm_model:str='llama3.2')->Dict[str, Any]",-,true,34
+          get_demo_document,"(template_id:str)->Dict[str, Any]",-,true,15
+          _build_context,"(template:DocumentTemplate;params:Dict[str;Any];data:Dict[str;Any])->Dict[str, Any]",-,false,139
+          _generate_with_llm,"(template:DocumentTemplate;context:Dict[str;Any];model:str)->str",-,true,42
+          _summarize_context,"(context:Dict[str;Any])->str",-,false,49
+    functions[3]{name,sig,decorators,async,category,lines}:
+      format_currency,"(value:Optional[Union[int;float]];currency:str='PLN')->str",-,false,-,9
+      format_date,"(value:Optional[Union[str;datetime;date]])->str",-,false,-,9
+      get_doc_engine,"(llm_url:str='http://localhost:11434')->DocumentEngine",-,false,-,3
+    function_docs:
+      format_currency: formats currency
+      format_date: formats date
+      get_doc_engine: retrieves doc engine
+  src/doc_generator/data_sources.py:
+    imports[18]: json,re,httpx,subprocess,abc.ABC,abc.abstractmethod,typing.Any,typing.Dict,typing.List,typing.Optional,typing.Union,datetime,datetime.date,dataclasses.dataclass,dataclasses.field
+    exports[7]: DataSourceResult,DataSource,SQLDataSource,RESTDataSource,CurlDataSource,DataSourceRegistry,get_data_registry
+    classes[6]{name,bases,decorators,props,methods}:
+      DataSourceResult,-,dataclass,0,0
+      DataSource,ABC,-,0,2
+      SQLDataSource,DataSource,-,0,3
+      RESTDataSource,DataSource,-,0,3
+      CurlDataSource,DataSource,-,0,3
+      DataSourceRegistry,-,-,0,6
+    class_details:
+      DataSourceResult:
+        doc: Result from a data source query
+        fields[5]{n,t,default,factory}:
+          data,Any,"-","-"
+          source_type,str,"-","-"
+          query_info,str,"-","-"
+          fetched_at,datetime,"-",datetime.now
+          error,"Optional[str]",None,"-"
+      DataSource:
+        doc: Abstract base class for data sources
+        methods[2]{name,sig,decorators,async,lines}:
+          fetch,"(params:Dict[str;Any])->DataSourceResult",abstractmethod,true,3
+          get_schema,"()->Dict[str, Any]",abstractmethod,false,3
+      SQLDataSource:
+        doc: SQL-based data source for PostgreSQL queries
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;query_template:str;description:str;params_schema:Dict[str;str])->None",-,false,6
+          fetch,"(params:Dict[str;Any];db:AsyncSession)->DataSourceResult",-,true,26
+          get_schema,"()->Dict[str, Any]",-,false,8
+      RESTDataSource:
+        doc: REST API data source
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;url_template:str;method:str;description:str;headers:Optional[Dict[str;str]]=None)->None",-,false,7
+          fetch,"(params:Dict[str;Any])->DataSourceResult",-,true,35
+          get_schema,"()->Dict[str, Any]",-,false,8
+      CurlDataSource:
+        doc: Execute curl commands for external data fetching
+        methods[3]{name,sig,decorators,async,lines}:
+          __init__,"(name:str;curl_template:str;description:str;parse_json:bool=True)->None",-,false,6
+          fetch,"(params:Dict[str;Any])->DataSourceResult",-,true,32
+          get_schema,"()->Dict[str, Any]",-,false,7
+      DataSourceRegistry:
+        doc: Registry for all available data sources
+        methods[6]{name,sig,decorators,async,lines}:
+          __new__,()->None,-,false,6
+          _initialize_default_sources,()->None,-,false,220
+          register,"(source:DataSource)->None",-,false,4
+          get,"(name:str)->Optional[DataSource]",-,false,3
+          list_sources,"()->List[Dict[str, Any]]",-,false,3
+          fetch_multiple,"(source_configs:List[Dict[str;Any]];db:AsyncSession)->Dict[str, DataSourceResult]",-,true,14
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_data_registry,()->DataSourceRegistry,-,false,-,3
+    function_docs:
+      get_data_registry: retrieves data registry
   src/doc_generator/__init__.py:
     imports[3]: engine.DocumentEngine,data_sources.DataSourceRegistry,templates.TemplateRegistry
+  src/doc_generator/router.py:
+    imports[18]: typing.Optional,typing.List,typing.Dict,typing.Any,datetime,fastapi.APIRouter,fastapi.Depends,fastapi.HTTPException,fastapi.Query,pydantic.BaseModel,pydantic.Field,sqlalchemy.ext.asyncio.AsyncSession,structlog,src.api.database.get_db,engine.get_doc_engine
+    exports[11]: GenerateRequest,DataPreviewRequest,get_engine,list_templates,get_template_detail,list_data_sources,preview_template_data,generate_document,get_demo_document,list_categories
+    classes[2]{name,bases,decorators,props,methods}:
+      GenerateRequest,BaseModel,-,4,0
+      DataPreviewRequest,BaseModel,-,2,0
+    class_details:
+      GenerateRequest:
+        doc: Request to generate a document
+        properties[4]: "template_id: str","params: Dict[str, Any]","use_llm: bool","llm_model: str"
+      DataPreviewRequest:
+        doc: Request to preview data for a template
+        properties[2]: "template_id: str","params: Dict[str, Any]"
+    functions[9]{name,sig,decorators,async,category,lines}:
+      get_engine,()->DocumentEngine,-,false,-,3
+      list_templates,"(category:Optional[str]=Query(default=None; description='Filter by category');time_scope:Optional[str]=Query(default=None; description='Filter by time scope');engine:DocumentEngine=Depends(get_engine))->None",router.get,true,-,28
+      get_template_detail,"(template_id:str;engine:DocumentEngine=Depends(get_engine))->None",router.get,true,-,18
+      list_data_sources,"(engine:DocumentEngine=Depends(get_engine))->None",router.get,true,-,16
+      preview_template_data,"(request:DataPreviewRequest;db:AsyncSession=Depends(get_db);engine:DocumentEngine=Depends(get_engine))->None",router.post,true,-,24
+      generate_document,"(request:GenerateRequest;db:AsyncSession=Depends(get_db);engine:DocumentEngine=Depends(get_engine))->None",router.post,true,-,30
+      get_demo_document,"(template_id:str;engine:DocumentEngine=Depends(get_engine))->None",router.get,true,-,16
+      list_categories,()->None,router.get,true,-,12
+      get_filter_options,"(project_id:Optional[str]=Query(default=None);db:AsyncSession=Depends(get_db))->None",router.get,true,-,45
+    function_docs:
+      get_engine: retrieves engine
+      list_templates: list templates
+      get_template_detail: retrieves template detail
+      list_data_sources: list data sources
+      preview_template_data: preview template data
+      generate_document: creates document
+      get_demo_document: retrieves demo document
+      list_categories: list categories
+      get_filter_options: retrieves filter options
+  src/doc_generator/templates.py:
+    imports[10]: dataclasses.dataclass,dataclasses.field,typing.Any,typing.Dict,typing.List,typing.Optional,typing.Callable,datetime,enum.Enum,json
+    exports[6]: DocumentCategory,TimeScope,TemplateDataRequirement,DocumentTemplate,TemplateRegistry,get_template_registry
+    types[2]{name,kind,values,def}:
+      DocumentCategory,enum,"PROJECT=\"project\"|FINANCIAL=\"financial\"|TIMESHEET=\"timesheet\"|LEGAL=\"legal\"|TAX=\"tax\"|REPORT=\"report\"","-"
+      TimeScope,enum,"NONE=\"none\"|MONTHLY=\"monthly\"|QUARTERLY=\"quarterly\"|YEARLY=\"yearly\"|PROJECT=\"project\"|CUSTOM=\"custom\"","-"
+    classes[5]{name,bases,decorators,props,methods}:
+      DocumentCategory,str|Enum,-,0,0
+      TimeScope,str|Enum,-,0,0
+      TemplateDataRequirement,-,dataclass,0,0
+      DocumentTemplate,-,dataclass,0,2
+      TemplateRegistry,-,-,0,7
+    class_details:
+      DocumentCategory:
+      TimeScope:
+      TemplateDataRequirement:
+        doc: Defines a data source requirement for a template
+        fields[4]{n,t,default,factory}:
+          source_name,str,"-","-"
+          required_params,"List[str]","-","-"
+          optional_params,"List[str]","-",list
+          description,str,"\"\"","-"
+      DocumentTemplate:
+        doc: Document template definition
+        fields[11]{n,t,default,factory}:
+          id,str,"-","-"
+          name,str,"-","-"
+          description,str,"-","-"
+          category,DocumentCategory,"-","-"
+          time_scope,TimeScope,"-","-"
+          data_requirements,"List[TemplateDataRequirement]","-","-"
+          template_content,str,"-","-"
+          demo_content,"Optional[str]",None,"-"
+          llm_prompt,"Optional[str]",None,"-"
+          output_format,str,"\"markdown\"","-"
+          version,str,"\"1.0\"","-"
+        methods[2]{name,sig,decorators,async,lines}:
+          get_required_params,"()->List[str]",-,false,6
+          to_dict,"()->Dict[str, Any]",-,false,11
+      TemplateRegistry:
+        doc: Registry for document templates
+        methods[7]{name,sig,decorators,async,lines}:
+          __new__,()->None,-,false,6
+          _initialize_templates,()->None,-,false,889
+          register,"(template:DocumentTemplate)->None",-,false,3
+          get,"(template_id:str)->Optional[DocumentTemplate]",-,false,3
+          list_templates,"()->List[Dict[str, Any]]",-,false,3
+          get_by_category,"(category:DocumentCategory)->List[DocumentTemplate]",-,false,3
+          get_by_time_scope,"(scope:TimeScope)->List[DocumentTemplate]",-,false,3
+    functions[1]{name,sig,decorators,async,category,lines}:
+      get_template_registry,()->TemplateRegistry,-,false,-,3
+    function_docs:
+      get_template_registry: retrieves template registry
   src/ocr/extractors.py:
     imports[8]: re,typing.Dict,typing.Any,typing.Optional,typing.List,datetime,datetime.date,structlog
     exports[4]: validate_nip,validate_regon,InvoiceExtractor,get_extractor
@@ -1095,7 +1366,7 @@ module_details:
       BR_EXPENSE_DOC_PROMPT,str,"\"\"\"Jesteś ekspertem w przygotowywaniu dokumentacji do polskiej ulgi badawczo-rozwojowej (B+R). Generujesz profesjonal...","-"
     classes[2]{name,bases,decorators,props,methods}:
       DocumentVersionControl,-,-,0,4
-      ExpenseDocumentGenerator,-,-,0,13
+      ExpenseDocumentGenerator,-,-,0,14
     class_details:
       DocumentVersionControl:
         doc: Simple file-based version control for documents.
@@ -1106,7 +1377,7 @@ module_details:
           get_file_at_commit,"(file_path:Path;commit:str)->Optional[str]",-,false,13
       ExpenseDocumentGenerator:
         doc: Generator dokumentacji B+R dla wydatków.
-        methods[13]{name,sig,decorators,async,lines}:
+        methods[14]{name,sig,decorators,async,lines}:
           __init__,"(llm_service_url:Optional[str]=None)->None",-,false,5
           generate_expense_documentation,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]]=None)->Dict[str, Any]",-,true,39
           _build_expense_prompt,"(expense:Dict[str;Any];project:Dict[str;Any];document:Optional[Dict[str;Any]])->str",-,false,60
@@ -1117,8 +1388,9 @@ module_details:
           get_document_at_version,"(project_id:str;filename:str;commit:str)->Optional[str]",-,false,4
           refine_with_llm,"(content:str;validation_issues:List[Dict[str;Any]];max_iterations:int=3)->Dict[str, Any]",-,true,106
           generate_project_summary,"(project:Dict[str;Any];expenses:list[Dict[str;Any]];timesheet_data:Optional[Dict[str;Any]]=None;contractors:Optional[list[Dict[str;Any]]]=None;revenues:Optional[list[Dict[str;Any]]]=None)->Dict[str, Any]",-,true,65
-          _generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float)->str",-,false,212
-          _build_expense_details,"(expenses:list;company_nip:str='5881918662')->str",-,false,79
+          _generate_summary_template,"(project:Dict[str;Any];expenses:list;by_category:Dict;total_gross:float;total_br:float;total_deduction:float)->str",-,false,248
+          _build_expense_details,"(expenses:list;company_nip:str='5881918662')->str",-,false,80
+          _format_doc_link,"(expense:Dict[str;Any])->str",-,false,7
           _build_expense_list,"(expenses:list)->str",-,false,11
     functions[1]{name,sig,decorators,async,category,lines}:
       get_doc_generator,()->ExpenseDocumentGenerator,-,false,-,6
@@ -1270,7 +1542,7 @@ module_details:
           delete_expense,"(expense_id:str)->bool",-,true,24
           validate_expense,"(expense_id:str)->Dict[str, Any]",-,true,18
           categorize_expense,"(expense_id:str;apply:bool=False)->Dict[str, Any]",-,true,44
-          process_all,"(project_id:str;year:Optional[int]=None;month:Optional[int]=None)->Dict[str, Any]",-,true,264
+          process_all,"(project_id:str;year:Optional[int]=None;month:Optional[int]=None)->Dict[str, Any]",-,true,265
           get_summary,"(project_id:Optional[str]=None;year:Optional[int]=None)->Dict[str, Any]",-,true,50
           _row_to_dict,"(row)->Dict[str, Any]",-,false,30
     functions[1]{name,sig,decorators,async,category,lines}:
@@ -1740,7 +2012,7 @@ module_details:
       export_monthly_report_excel: export monthly report excel
   src/api/routers/documents.py:
     imports[20]: json,uuid,datetime,typing.Optional,typing.List,pathlib.Path,httpx,aiofiles,fastapi.APIRouter,fastapi.UploadFile,fastapi.File,fastapi.HTTPException,fastapi.Depends,fastapi.Query,fastapi.BackgroundTasks
-    exports[23]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,DocumentNoteUpsert,ensure_document_notes_table,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr,get_document
+    exports[23]: UPLOAD_DIR,DocumentResponse,DocumentUploadResponse,DocumentNoteUpsert,ensure_document_notes_table,upload_document,detect_invoice_type,create_expense_from_document,process_document_ocr,list_document_notes
     const[1]{n,t,v,keys}:
       UPLOAD_DIR,"-","Path(\"/app/uploads\")","-"
     classes[4]{name,bases,decorators,props,methods}:
@@ -1766,10 +2038,10 @@ module_details:
       detect_invoice_type,"(extracted_data:dict;our_nip:str='5881918662')->str",-,false,-,48
       create_expense_from_document,"(doc_id:str;extracted_data:dict;doc_type:str)->None",-,true,-,160
       process_document_ocr,"(doc_id:str;file_path:str;document_type:str)->None",-,true,-,101
+      list_document_notes,"(project_id:Optional[str]=Query(default=None);limit:int=Query(default=200; le=500);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,53
       get_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,27
       list_documents,"(project_id:Optional[str]=Query(default=None);status:Optional[str]=Query(default=None);limit:int=Query(default=50; le=100);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,45
       download_document_file,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.get,true,-,27
-      list_document_notes,"(project_id:Optional[str]=Query(default=None);limit:int=Query(default=200; le=500);offset:int=Query(default=0);db:AsyncSession=Depends(get_db))->None",router.get,true,-,52
       upsert_document_notes,"(document_id:str;payload:DocumentNoteUpsert;db:AsyncSession=Depends(get_db))->None",router.put,true,-,27
       reprocess_document,"(document_id:str;background_tasks:BackgroundTasks;db:AsyncSession=Depends(get_db))->None",router.post,true,-,25
       delete_document,"(document_id:str;db:AsyncSession=Depends(get_db))->None",router.delete,true,-,33
@@ -1785,10 +2057,10 @@ module_details:
       detect_invoice_type: detect invoice type
       create_expense_from_document: creates expense from document
       process_document_ocr: processes document ocr
+      list_document_notes: list document notes
       get_document: retrieves document
       list_documents: list documents
       download_document_file: download document file
-      list_document_notes: list document notes
       upsert_document_notes: upsert document notes
       reprocess_document: reprocess document
       delete_document: deletes document
@@ -2630,7 +2902,7 @@ module_details:
           _parse_propfind_response,"(xml_text:str;base_path:str)->List[CloudFile]",-,false,70
   web/static/js/markdown-renderer.js:
   web/static/js/app.js:
-    exports[159]: uploadReport,uploadFile,loadCategoryModule,generateGitTimesheet,saveDashboardLayout,confirmModalCancel,renderDashboard,showCreateProjectModal,handleFiles,viewDocVersion
+    exports[176]: createProject,loadReports,closeConfirmModal,showToast,editProject,pollDocumentStatus,updateGitProjectMapping,apiCall,uploadAllReports,createWorker
     const[7]{n,t,v,keys}:
       API_BASE,"-","-","-"
       PROJECT_ID,"-","-","-"
@@ -2639,7 +2911,7 @@ module_details:
       TIME_SLOTS,"-","-","-"
       PROVIDER_CONFIGS,"-","-","-"
       LOG_SERVICES,"-","-","-"
-    functions[159]{name,sig,decorators,async,category,lines}:
+    functions[176]{name,sig,decorators,async,category,lines}:
       getPageFromUrl,()->None,-,false,-,4
       processAllExpensesForYear,()->None,-,true,-,26
       getUrlParam,(key)->None,-,false,-,4
@@ -2648,7 +2920,7 @@ module_details:
       closeConfirmModal,()->None,-,false,-,4
       confirmModalCancel,()->None,-,false,-,10
       openConfirmModal,()->None,-,false,-,34
-      navigateTo,(page)->None,-,false,-,28
+      navigateTo,(page)->None,-,false,-,29
       apiCall,(endpoint)->None,-,true,-,13
       getDashboardLayout,()->None,-,false,-,4
       saveDashboardLayout,()->None,-,false,-,3
@@ -2799,6 +3071,23 @@ module_details:
       checkGitTimesheetReady,()->None,-,false,-,7
       loadGitCommits,()->None,-,true,-,77
       generateGitTimesheet,()->None,-,true,-,81
+      loadDocTemplates,()->None,-,true,-,34
+      filterDocTemplates,(category)->None,-,false,-,7
+      renderDocTemplates,()->None,-,false,-,49
+      previewDocData,(templateId)->None,-,true,-,51
+      closeDocPreviewModal,()->None,-,false,-,4
+      downloadDemoDoc,(templateId)->None,-,true,-,19
+      openDocGenerateModal,(templateId)->None,-,true,-,89
+      closeDocGenerateModal,()->None,-,false,-,4
+      generateDocument,(event;templateId)->None,-,true,-,43
+      copyDocContent,()->None,-,false,-,7
+      downloadDocContent,()->None,-,false,-,13
+      editDocContent,()->None,-,false,-,12
+      cancelDocEdit,()->None,-,false,-,6
+      saveDocEdit,()->None,-,false,-,8
+      loadDocAnnotations,()->None,-,true,-,55
+      getDocTypeIcon,(type)->None,-,false,-,7
+      saveDocAnnotation,(docId)->None,-,true,-,20
     function_docs:
       getPageFromUrl: retrieves page from url
       processAllExpensesForYear: processes all expenses for year
@@ -2959,6 +3248,23 @@ module_details:
       checkGitTimesheetReady: checks git timesheet ready
       loadGitCommits: retrieves git commits
       generateGitTimesheet: creates git timesheet
+      loadDocTemplates: retrieves doc templates
+      filterDocTemplates: filters doc templates
+      renderDocTemplates: formats doc templates
+      previewDocData: preview doc data
+      closeDocPreviewModal: stops doc preview modal
+      downloadDemoDoc: download demo doc
+      openDocGenerateModal: starts doc generate modal
+      closeDocGenerateModal: stops doc generate modal
+      generateDocument: creates document
+      copyDocContent: copy doc content
+      downloadDocContent: download doc content
+      editDocContent: updates doc content
+      cancelDocEdit: cancel doc edit
+      saveDocEdit: caches doc edit
+      loadDocAnnotations: retrieves doc annotations
+      getDocTypeIcon: retrieves doc type icon
+      saveDocAnnotation: caches doc annotation
   brgenerator/tests/conftest.py:
     imports[4]: pytest,os,unittest.mock.AsyncMock,unittest.mock.MagicMock
     exports[4]: env_setup,mock_llm_client,temp_output_dir,sample_yaml_form

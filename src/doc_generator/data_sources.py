@@ -273,7 +273,7 @@ class DataSourceRegistry:
                     EXTRACT(YEAR FROM t.work_date) as year,
                     EXTRACT(MONTH FROM t.work_date) as month,
                     SUM(t.hours) as total_hours,
-                    STRING_AGG(DISTINCT t.description, '; ') as tasks
+                    COUNT(DISTINCT t.work_date) as days_worked
                 FROM read_models.timesheet_entries t
                 JOIN read_models.workers w ON t.worker_id = w.id
                 WHERE t.project_id = :project_id
@@ -378,8 +378,8 @@ class DataSourceRegistry:
             name="expenses_with_docs",
             query_template="""
                 SELECT 
-                    e.id, e.description, e.gross_amount, e.net_amount, e.currency,
-                    e.category, e.br_qualified, e.vendor_name, e.vendor_nip,
+                    e.id, e.expense_category as description, e.gross_amount, e.net_amount, e.currency,
+                    e.br_category as category, e.br_qualified, e.vendor_name, e.vendor_nip,
                     e.invoice_number, e.invoice_date, e.justification,
                     d.id as document_id, d.filename as document_filename,
                     n.notes as document_annotation
