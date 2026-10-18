@@ -14,6 +14,7 @@ import structlog
 
 from ..database import get_db
 from ..config import settings
+from ..services.br_deduction import vat_payer
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -237,11 +238,11 @@ async def get_project_summary(project_id: str, db: AsyncSession = Depends(get_db
         SELECT 
             COALESCE(SUM(gross_amount), 0) as total,
             COALESCE(SUM(CASE WHEN br_qualified THEN gross_amount ELSE 0 END), 0) as br_total,
-            COALESCE(SUM(CASE WHEN br_qualified THEN gross_amount * br_deduction_rate ELSE 0 END), 0) as br_deduction,
+            COALESCE(SUM(CASE WHEN br_qualified THEN (CASE WHEN br_category IN ('personnel_employment', 'personnel_civil') OR NOT :vat_payer OR net_amount IS NULL THEN gross_amount ELSE net_amount END) * GREATEST(COALESCE(br_deduction_rate, 0), CASE WHEN br_category IN ('personnel_employment', 'personnel_civil') THEN 2.0 ELSE 1.0 END) ELSE 0 END), 0) as br_deduction,
             COALESCE(SUM(CASE WHEN ip_qualified THEN gross_amount ELSE 0 END), 0) as ip_total
         FROM read_models.expenses WHERE project_id = :project_id
         """),
-        {"project_id": project_id}
+        {"project_id": project_id, "vat_payer": vat_payer()}
     )
     expense_row = expense_result.fetchone()
     
