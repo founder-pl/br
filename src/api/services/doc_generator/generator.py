@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any, List
 import structlog
 
 from .version_control import DocumentVersionControl
+from ..br_deduction import deduction_amount
 from .llm import generate_with_llm, refine_with_llm
 from .templates import (
     build_expense_prompt,
@@ -150,7 +151,7 @@ class ExpenseDocumentGenerator:
         br_qualified = [e for e in expenses if e.get('br_qualified')]
         total_br = sum(float(e.get('gross_amount', 0)) for e in br_qualified)
         total_deduction = sum(
-            float(e.get('gross_amount', 0)) * float(e.get('br_deduction_rate', 1.0))
+            deduction_amount(e)
             for e in br_qualified
         )
         
@@ -162,7 +163,7 @@ class ExpenseDocumentGenerator:
                 by_category[cat] = {'count': 0, 'amount': 0, 'deduction': 0}
             by_category[cat]['count'] += 1
             by_category[cat]['amount'] += float(e.get('gross_amount', 0))
-            by_category[cat]['deduction'] += float(e.get('gross_amount', 0)) * float(e.get('br_deduction_rate', 1.0))
+            by_category[cat]['deduction'] += deduction_amount(e)
         
         content = generate_summary_template(
             project, expenses, by_category, total_gross, total_br, total_deduction,

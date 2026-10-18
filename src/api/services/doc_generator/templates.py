@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any, List
 
 from .prompts import CATEGORY_NAMES, CATEGORY_NAMES_WITH_RATES, MONTH_NAMES_PL
+from ..br_deduction import deduction_amount as br_deduction_amount, deduction_base as br_deduction_base, deduction_rate as br_deduction_rate
 
 
 def build_expense_prompt(
@@ -15,8 +16,8 @@ def build_expense_prompt(
     """Build prompt for expense documentation generation."""
     
     br_category = expense.get('br_category') or 'other'
-    deduction_rate = expense.get('br_deduction_rate', 1.0)
-    deduction_amount = float(expense.get('gross_amount', 0)) * deduction_rate
+    deduction_rate = br_deduction_rate(expense)
+    deduction_amount = br_deduction_amount(expense)
     
     prompt = f"""Wygeneruj dokumentację B+R dla poniższego wydatku:
 
@@ -64,11 +65,11 @@ def generate_expense_template(
     """Generate documentation from template (fallback)."""
     
     br_category = expense.get('br_category') or 'other'
-    deduction_rate = expense.get('br_deduction_rate', 1.0)
+    deduction_rate = br_deduction_rate(expense)
     gross = float(expense.get('gross_amount', 0))
     net = float(expense.get('net_amount', 0))
     vat = float(expense.get('vat_amount', 0))
-    deduction_amount = gross * deduction_rate
+    deduction_amount = br_deduction_amount(expense)
     
     doc_date = datetime.now().strftime('%Y-%m-%d')
     invoice_date = expense.get('invoice_date') or 'N/A'
@@ -167,7 +168,7 @@ Iteracja #{iteration_num} przyniosła następujące rezultaty:
 | VAT ({((vat/net)*100) if net > 0 else 23:.0f}%) | {vat:.2f} PLN | {net:.2f} × {((vat/net)*100) if net > 0 else 23:.0f}% |
 | Kwota kwalifikowana | {gross:.2f} PLN | kwota brutto |
 | Stawka odliczenia | {int(deduction_rate * 100)}% | art. 18d CIT |
-| **Odliczenie B+R** | **{deduction_amount:.2f} PLN** | {gross:.2f} × {int(deduction_rate * 100)}% |
+| **Odliczenie B+R** | **{deduction_amount:.2f} PLN** | {br_deduction_base(expense):.2f} × {int(deduction_rate * 100)}% |
 {ocr_section}
 ## 7. Podsumowanie
 
